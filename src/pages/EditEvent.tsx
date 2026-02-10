@@ -117,12 +117,34 @@ export default function EditEvent() {
         }
     }
 
-    if (!event) {
+    if (event === undefined) {
         return (
             <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
                 <div className="bg-white rounded-2xl shadow-lg p-12">
                     <div className="animate-spin w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
                     <p className="text-xl font-semibold text-gray-700">Loading event...</p>
+                </div>
+            </div>
+        )
+    }
+
+    if (event === null) {
+        return (
+            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+                <div className="bg-white rounded-2xl shadow-lg p-12 text-center max-w-md w-full">
+                    <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                        <AlertCircle className="w-8 h-8 text-red-500" />
+                    </div>
+                    <h2 className="text-2xl font-bold text-gray-900 mb-2">Event Not Found</h2>
+                    <p className="text-gray-500 mb-6">
+                        The event you're looking for doesn't exist or has been deleted.
+                    </p>
+                    <button
+                        onClick={() => navigate('/dashboard')}
+                        className="w-full bg-gray-900 text-white py-3 rounded-xl font-bold hover:bg-gray-800 transition-colors"
+                    >
+                        Return to Dashboard
+                    </button>
                 </div>
             </div>
         )
