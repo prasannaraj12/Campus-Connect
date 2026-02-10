@@ -209,7 +209,7 @@ export default function EventDetail() {
                 <motion.button
                   whileHover={{ scale: 1.02 }}
                   whileTap={{ scale: 0.98 }}
-                  onClick={() => navigate(`/event/${event._id}/edit`)}
+                  onClick={() => navigate(`/edit-event/${event._id}`)}
                   className="bg-gray-100 text-gray-700 px-4 py-2 rounded-xl font-semibold inline-flex items-center gap-2 hover:bg-gray-200 transition-all"
                 >
                   Edit Event

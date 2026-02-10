@@ -46,7 +46,7 @@ function App() {
               <Route path="/ticket/:registrationId" element={<Ticket />} />
               <Route path="/my-history" element={<MyHistory />} />
               <Route path="/analytics" element={<Analytics />} />
-              <Route path="/event/:eventId/edit" element={<EditEvent />} />
+              <Route path="/edit-event/:eventId" element={<EditEvent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
