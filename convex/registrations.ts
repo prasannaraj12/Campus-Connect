@@ -21,7 +21,7 @@ export const register = mutation({
     // Check if already registered
     const existing = await ctx.db
       .query("registrations")
-      .withIndex("by_event_and_user", (q) => 
+      .withIndex("by_event_and_user", (q) =>
         q.eq("eventId", args.eventId).eq("userId", args.userId)
       )
       .first();
@@ -49,7 +49,7 @@ export const register = mutation({
       }
 
       const totalParticipants = 1 + (args.teamMembers?.length ?? 0);
-      
+
       if (totalParticipants !== event.teamSize) {
         throw new Error(
           `This event requires teams of exactly ${event.teamSize} participants`
@@ -74,32 +74,32 @@ export const register = mutation({
     // 🎯 INDIVIDUAL QR STRATEGY: Create separate registration for each participant
     const registrationIds: string[] = [];
     const registrationCodes: string[] = [];
-    
+
     if (event.isTeamEvent && args.teamMembers) {
       // Generate unique team ID
       const teamId = `team_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-      
+
       // Helper function to generate unique code
       const generateUniqueCode = async () => {
         let code = generateRegistrationCode();
         let attempts = 0;
-        
+
         // Ensure code is unique
         while (attempts < 10) {
           const existing = await ctx.db
             .query("registrations")
             .withIndex("by_code", (q) => q.eq("registrationCode", code))
             .first();
-          
+
           if (!existing) return code;
-          
+
           code = generateRegistrationCode();
           attempts++;
         }
-        
+
         return code;
       };
-      
+
       // 1. Register team leader (the user)
       const leaderCode = await generateUniqueCode();
       const leaderRegId = await ctx.db.insert("registrations", {
@@ -140,8 +140,8 @@ export const register = mutation({
         registrationCodes.push(memberCode);
       }
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         leaderRegistrationId: leaderRegId,
         leaderRegistrationCode: leaderCode,
         allRegistrationIds: registrationIds,
@@ -154,22 +154,22 @@ export const register = mutation({
       const code = await (async () => {
         let code = generateRegistrationCode();
         let attempts = 0;
-        
+
         while (attempts < 10) {
           const existing = await ctx.db
             .query("registrations")
             .withIndex("by_code", (q) => q.eq("registrationCode", code))
             .first();
-          
+
           if (!existing) return code;
-          
+
           code = generateRegistrationCode();
           attempts++;
         }
-        
+
         return code;
       })();
-      
+
       const registrationId = await ctx.db.insert("registrations", {
         eventId: args.eventId,
         userId: args.userId,
@@ -185,8 +185,8 @@ export const register = mutation({
         teamMembers: undefined,
       });
 
-      return { 
-        success: true, 
+      return {
+        success: true,
         leaderRegistrationId: registrationId,
         leaderRegistrationCode: code,
         allRegistrationIds: [registrationId],
@@ -205,7 +205,7 @@ export const cancelRegistration = mutation({
   handler: async (ctx, args) => {
     const registration = await ctx.db
       .query("registrations")
-      .withIndex("by_event_and_user", (q) => 
+      .withIndex("by_event_and_user", (q) =>
         q.eq("eventId", args.eventId).eq("userId", args.userId)
       )
       .first();
@@ -227,7 +227,7 @@ export const isRegistered = query({
   handler: async (ctx, args) => {
     const registration = await ctx.db
       .query("registrations")
-      .withIndex("by_event_and_user", (q) => 
+      .withIndex("by_event_and_user", (q) =>
         q.eq("eventId", args.eventId).eq("userId", args.userId)
       )
       .first();
@@ -281,8 +281,8 @@ export const markAttendance = mutation({
       .first();
 
     if (existing) {
-      return { 
-        success: false, 
+      return {
+        success: false,
         alreadyMarked: true,
         attendance: existing,
         message: "Attendance already marked"
@@ -300,8 +300,8 @@ export const markAttendance = mutation({
       status: "Present",
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       alreadyMarked: false,
       attendanceId,
       registration,
@@ -352,7 +352,7 @@ export const getMyAttendanceCount = query({
           .query("attendance")
           .withIndex("by_registration", (q) => q.eq("registrationId", reg._id))
           .first();
-        
+
         if (attendance) {
           attendedCount++;
         }
@@ -370,7 +370,17 @@ export const getMyAttendanceCount = query({
 export const getRegistrationById = query({
   args: { registrationId: v.id("registrations") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.registrationId);
+    const registration = await ctx.db.get(args.registrationId);
+    if (!registration) return null;
+
+    const event = await ctx.db.get(registration.eventId);
+    return {
+      ...registration,
+      event: event ? {
+        title: event.title,
+        date: event.date,
+      } : undefined
+    };
   },
 });
 
@@ -378,9 +388,20 @@ export const getRegistrationById = query({
 export const getRegistrationByCode = query({
   args: { code: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const registration = await ctx.db
       .query("registrations")
       .withIndex("by_code", (q) => q.eq("registrationCode", args.code))
       .first();
+
+    if (!registration) return null;
+
+    const event = await ctx.db.get(registration.eventId);
+    return {
+      ...registration,
+      event: event ? {
+        title: event.title,
+        date: event.date,
+      } : undefined
+    };
   },
 });

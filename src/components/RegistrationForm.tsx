@@ -61,7 +61,7 @@ export default function RegistrationForm({ event, userId, onSuccess, onCancel, o
   })
 
   // Check if form is dirty (has any data)
-  const isDirty = useMemo(() => {
+  /* const isDirty = useMemo(() => {
     return (
       formData.participantName.trim() !== '' ||
       formData.participantEmail.trim() !== '' ||
@@ -71,7 +71,7 @@ export default function RegistrationForm({ event, userId, onSuccess, onCancel, o
       formData.teamName.trim() !== '' ||
       formData.teamMembers.some(m => m.name.trim() !== '' || m.email.trim() !== '')
     )
-  }, [formData])
+  }, [formData]) */
 
   // Notify parent of dirty state changes
   const updateDirtyState = useCallback((newFormData: typeof formData) => {
@@ -249,9 +249,8 @@ export default function RegistrationForm({ event, userId, onSuccess, onCancel, o
   if (showTeamTickets && registrationResult) {
     return (
       <TeamTicketsDialog
-        registrationIds={registrationResult.allRegistrationIds}
-        registrationCodes={registrationResult.allRegistrationCodes}
-        eventTitle={event.title}
+        isOpen={showTeamTickets}
+        registration={registrationResult}
         onClose={() => {
           setShowTeamTickets(false)
           onSuccess()
@@ -450,8 +449,8 @@ export default function RegistrationForm({ event, userId, onSuccess, onCancel, o
           type="submit"
           disabled={loading || !isFormValid}
           className={`neo-brutal ${onCancel ? 'flex-1' : 'w-full'} py-4 font-black text-xl transition-all ${isFormValid && !loading
-              ? 'bg-green-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none'
-              : 'bg-gray-300 cursor-not-allowed opacity-60'
+            ? 'bg-green-400 hover:translate-x-1 hover:translate-y-1 hover:shadow-none'
+            : 'bg-gray-300 cursor-not-allowed opacity-60'
             }`}
         >
           {loading ? 'Registering...' : 'Register'}

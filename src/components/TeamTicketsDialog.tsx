@@ -3,17 +3,19 @@ import { X, Download, Users } from 'lucide-react'
 import QRCode from 'react-qr-code'
 
 interface Props {
-  registrationIds: string[]
-  registrationCodes: string[]
-  eventTitle: string
-  onClose: () => void
+  isOpen: boolean;
+  onClose: () => void;
+  registration: any;
 }
 
-export default function TeamTicketsDialog({ registrationIds, registrationCodes, eventTitle, onClose }: Props) {
-  const downloadAllQR = () => {
-    // Download logic for all QR codes
-    alert('Download all QR codes feature - to be implemented')
-  }
+export default function TeamTicketsDialog({ isOpen, onClose, registration }: Props) {
+
+
+  // Safely get registration data
+  const registrationCodes = registration?.allRegistrationCodes || [registration?.registrationCode] || [];
+  const registrationIds = registration?.allRegistrationIds || [registration?._id] || [];
+
+  if (!isOpen) return null;
 
   return (
     <AnimatePresence>
@@ -51,7 +53,7 @@ export default function TeamTicketsDialog({ registrationIds, registrationCodes, 
           </div>
 
           <div className="grid md:grid-cols-2 gap-6">
-            {registrationCodes.map((code, index) => (
+            {registrationCodes.map((code: string, index: number) => (
               <motion.div
                 key={code}
                 initial={{ opacity: 0, y: 20 }}

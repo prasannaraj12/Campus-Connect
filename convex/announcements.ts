@@ -46,7 +46,7 @@ export const createAnnouncement = mutation({
 // Get general announcements (for landing page)
 export const getGeneralAnnouncements = query({
   args: {},
-  handler: async (ctx, args) => {
+  handler: async (ctx) => {
     let query = ctx.db.query("announcements");
 
     const allAnnouncements = await query.collect();

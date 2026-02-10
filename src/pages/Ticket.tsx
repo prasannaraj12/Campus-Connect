@@ -5,7 +5,7 @@ import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
 import { Id } from '../../convex/_generated/dataModel'
-import { Check, X, Calendar, MapPin, Users, Clock, Award } from 'lucide-react'
+import { Check, X, Award } from 'lucide-react'
 import Certificate from '../components/Certificate'
 
 export default function Ticket() {
@@ -160,8 +160,8 @@ export default function Ticket() {
                   root.render(
                     <Certificate
                       participantName={registration.participantName}
-                      eventTitle={registration.eventTitle || 'Event'}
-                      eventDate={registration.eventDate || new Date().toISOString()}
+                      eventTitle={(registration as any).event?.title || 'Event'}
+                      eventDate={(registration as any).event?.date || new Date().toISOString()}
                       registrationCode={registration.registrationCode}
                       attendedAt={attendance.markedAt}
                     />

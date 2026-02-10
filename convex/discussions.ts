@@ -32,7 +32,7 @@ export const createDiscussion = mutation({
 
 // Get all discussions for an event
 export const getEventDiscussions = query({
-  args: { 
+  args: {
     eventId: v.id("events"),
     type: v.optional(v.union(v.literal("discussion"), v.literal("question"))),
   },
@@ -44,7 +44,7 @@ export const getEventDiscussions = query({
     const discussions = await discussionsQuery.collect();
 
     // Filter by type if specified
-    const filtered = args.type 
+    const filtered = args.type
       ? discussions.filter(d => d.type === args.type)
       : discussions;
 
@@ -56,13 +56,13 @@ export const getEventDiscussions = query({
       // Pinned always first
       if (a.isPinned && !b.isPinned) return -1;
       if (!a.isPinned && b.isPinned) return 1;
-      
+
       // For questions, unanswered first
       if (args.type === 'question') {
         if (!a.isAnswered && b.isAnswered) return -1;
         if (a.isAnswered && !b.isAnswered) return 1;
       }
-      
+
       // Then by creation time (newest first)
       return b.createdAt - a.createdAt;
     });
@@ -107,7 +107,7 @@ export const deleteDiscussion = mutation({
     }
 
     const user = await ctx.db.get(args.userId);
-    
+
     // Check if user is author or organizer
     if (discussion.userId !== args.userId && user?.role !== "organizer") {
       throw new Error("You can only delete your own discussions");
@@ -189,7 +189,7 @@ export const deleteComment = mutation({
     }
 
     const user = await ctx.db.get(args.userId);
-    
+
     // Check if user is author or organizer
     if (comment.userId !== args.userId && user?.role !== "organizer") {
       throw new Error("You can only delete your own comments");
@@ -215,7 +215,7 @@ export const reportContent = mutation({
     // Check if already reported by this user
     const existing = await ctx.db
       .query("reports")
-      .withIndex("by_content", (q) => 
+      .withIndex("by_content", (q) =>
         q.eq("contentType", args.contentType).eq("contentId", args.contentId)
       )
       .filter((q) => q.eq(q.field("reportedByUserId"), args.userId))
@@ -241,7 +241,7 @@ export const reportContent = mutation({
 
 // Get reports (organizers only)
 export const getReports = query({
-  args: { 
+  args: {
     userId: v.id("users"),
     status: v.optional(v.union(v.literal("pending"), v.literal("reviewed"), v.literal("resolved"))),
   },
@@ -251,13 +251,17 @@ export const getReports = query({
       throw new Error("Only organizers can view reports");
     }
 
-    let query = ctx.db.query("reports");
-    
+    let reports;
+
     if (args.status) {
-      query = query.withIndex("by_status", (q) => q.eq("status", args.status));
+      reports = await ctx.db
+        .query("reports")
+        .withIndex("by_status", (q) => q.eq("status", args.status as "pending" | "reviewed" | "resolved"))
+        .collect();
+    } else {
+      reports = await ctx.db.query("reports").collect();
     }
 
-    const reports = await query.collect();
     return reports.sort((a, b) => b.createdAt - a.createdAt);
   },
 });

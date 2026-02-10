@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { Id } from '../../convex/_generated/dataModel'
-import { Upload, Heart, Trash2, X, Image as ImageIcon } from 'lucide-react'
+import { Camera, Heart, Trash2, X } from 'lucide-react'
 import { useAuth } from '../hooks/use-auth'
 
 interface Props {
@@ -103,7 +103,7 @@ export default function PhotoGallery({ eventId }: Props) {
       {user && (
         <div className="neo-brutal bg-white p-4">
           <h3 className="font-black text-lg mb-3 flex items-center gap-2">
-            <Upload className="w-5 h-5" />
+            <Camera className="w-5 h-5" />
             Upload Photo
           </h3>
           <div className="space-y-3">
@@ -161,7 +161,8 @@ export default function PhotoGallery({ eventId }: Props) {
             Photos can be uploaded by organizers and participants after the event.
           </p>
           {user && (
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-gray-500 flex flex-col items-center">
+              <Camera className="w-12 h-12 text-gray-400 mb-2" />
               Upload photos to share memories and highlights from this event.
             </p>
           )}

@@ -4,9 +4,9 @@ import { mutation } from "./_generated/server";
 export const migrateRegistrations = mutation({
   handler: async (ctx) => {
     const registrations = await ctx.db.query("registrations").collect();
-    
+
     let migratedCount = 0;
-    
+
     for (const reg of registrations) {
       // @ts-ignore - accessing old field
       if (reg.attended !== undefined || reg.attendedAt !== undefined) {
@@ -23,15 +23,16 @@ export const migrateRegistrations = mutation({
           teamId: reg.teamId,
           isTeamLeader: reg.isTeamLeader,
           teamMembers: reg.teamMembers,
+          registrationCode: (reg as any).registrationCode || "LEGACY-" + Math.random().toString(36).substr(2, 6).toUpperCase(),
         });
         migratedCount++;
       }
     }
-    
-    return { 
-      success: true, 
+
+    return {
+      success: true,
       migratedCount,
-      message: `Migrated ${migratedCount} registrations` 
+      message: `Migrated ${migratedCount} registrations`
     };
   },
 });
