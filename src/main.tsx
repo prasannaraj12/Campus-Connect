@@ -17,7 +17,16 @@ import Analytics from './pages/Analytics'
 import EditEvent from './pages/EditEvent'
 import NotFound from './pages/NotFound'
 
-const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string)
+const convexUrl = import.meta.env.VITE_CONVEX_URL as string;
+
+if (!convexUrl) {
+  console.error("CRITICAL: VITE_CONVEX_URL is not defined. Please set this environment variable in your project settings (Vercel/Netlify) or .env file.");
+  // Provide a fallback for build time, but runtime will fail if not set
+}
+
+const convex = new ConvexReactClient(convexUrl || "http://localhost:3000"); // Temporarily fallback to localhost to prevent crash, but this will fail to connect if wrong.
+// Better: just let it fail but log first.
+
 
 function App() {
   const theme = useThemeProvider()
@@ -37,7 +46,7 @@ function App() {
               <Route path="/ticket/:registrationId" element={<Ticket />} />
               <Route path="/my-history" element={<MyHistory />} />
               <Route path="/analytics" element={<Analytics />} />
-              <Route path="/edit-event/:eventId" element={<EditEvent />} />
+              <Route path="/event/:eventId/edit" element={<EditEvent />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
