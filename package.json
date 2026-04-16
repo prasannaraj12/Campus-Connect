@@ -10,6 +10,8 @@
     "convex:dev": "convex dev"
   },
   "dependencies": {
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@google/generative-ai": "^0.24.1",
     "@hookform/resolvers": "^3.3.4",
     "@types/node": "^20.11.0",
@@ -34,6 +36,8 @@
     "postcss": "^8.4.35",
     "tailwindcss": "^3.4.1",
     "typescript": "^5.2.2",
-    "vite": "^5.1.4"
+    "vite": "^5.1.4",
+    "vite-plugin-pwa": "^1.2.0",
+    "workbox-window": "^7.4.0"
   }
 }

@@ -65,16 +65,9 @@ export default function EditEvent() {
         }
     }, [event])
 
-    // Redirect if not organizer
-    useEffect(() => {
-        if (user && user.role !== 'organizer') {
-            navigate('/dashboard')
-        }
-    }, [user, navigate])
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!eventId) return
+        if (!eventId || !user?.userId) return
 
         setLoading(true)
         setError('')
@@ -82,6 +75,7 @@ export default function EditEvent() {
         try {
             await updateEvent({
                 eventId: eventId as Id<"events">,
+                userId: user.userId, // 🔒 SECURITY: Pass userId for ownership verification
                 ...formData,
                 teamSize: formData.isTeamEvent ? formData.teamSize : undefined,
                 requirements: formData.requirements || undefined,

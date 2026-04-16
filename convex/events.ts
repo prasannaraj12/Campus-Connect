@@ -98,15 +98,26 @@ export const getEventsByOrganizer = query({
 // Delete event functionality removed as per requirements
 
 // Temporary mutation to fix event ownership mismatch
+// 🔒 SECURITY: This should be removed or heavily restricted in production
 export const reassignOrganizer = mutation({
   args: {
     eventId: v.id("events"),
     newOrganizerId: v.id("users"),
+    adminUserId: v.id("users"), // 🔒 SECURITY: Added to verify admin access
   },
   handler: async (ctx, args) => {
+    // 🔒 SECURITY: Only allow organizers to reassign (or add admin role check)
+    const { requireOrganizer } = await import("./utils");
+    await requireOrganizer(ctx, args.adminUserId);
+    
     const event = await ctx.db.get(args.eventId);
     if (!event) {
       throw new Error("Event not found");
+    }
+
+    // 🔒 SECURITY: Verify the admin owns the event or is a super admin
+    if (event.organizerId !== args.adminUserId) {
+      throw new Error("Unauthorized: You can only reassign your own events");
     }
 
     await ctx.db.patch(args.eventId, {
@@ -122,6 +133,7 @@ export const reassignOrganizer = mutation({
 export const updateEvent = mutation({
   args: {
     eventId: v.id("events"),
+    userId: v.id("users"), // 🔒 SECURITY: Added to verify ownership
     title: v.string(),
     description: v.string(),
     date: v.string(),
@@ -146,10 +158,11 @@ export const updateEvent = mutation({
     showContactInfo: v.optional(v.boolean()),
   },
   handler: async (ctx, args) => {
-    const event = await ctx.db.get(args.eventId);
-    if (!event) {
-      throw new Error("Event not found");
-    }
+    // 🔒 SECURITY: Import helper at top of file
+    const { requireEventOwnership } = await import("./utils");
+    
+    // 🔒 SECURITY: Verify user is organizer and owns this event
+    await requireEventOwnership(ctx, args.eventId, args.userId);
 
     await ctx.db.patch(args.eventId, {
       title: args.title,
@@ -181,16 +194,9 @@ export const deleteEvent = mutation({
     userId: v.id("users"),
   },
   handler: async (ctx, args) => {
-    const event = await ctx.db.get(args.eventId);
-    if (!event) {
-      throw new Error("Event not found");
-    }
-
-    // Verify the user is an organizer
-    const user = await ctx.db.get(args.userId);
-    if (!user || user.role !== "organizer") {
-      throw new Error("Only organizers can delete events");
-    }
+    // 🔒 SECURITY: Verify user is organizer and owns this event
+    const { requireEventOwnership } = await import("./utils");
+    await requireEventOwnership(ctx, args.eventId, args.userId);
 
     // Delete all registrations for this event
     const registrations = await ctx.db

@@ -21,13 +21,6 @@ export default function MyHistory() {
     const navigate = useNavigate()
     const { user } = useAuth()
 
-    // Redirect if not participant
-    useEffect(() => {
-        if (!user) {
-            navigate('/role-selection')
-        }
-    }, [user, navigate])
-
     const history = useQuery(
         api.history.getMyAttendanceHistory,
         user?.userId ? { userId: user.userId } : 'skip'

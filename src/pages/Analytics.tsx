@@ -16,16 +16,6 @@ export default function Analytics() {
     const navigate = useNavigate()
     const { user } = useAuth()
 
-    // Redirect non-organizers
-    useEffect(() => {
-        if (user && user.role !== 'organizer') {
-            navigate('/dashboard')
-        }
-        if (!user) {
-            navigate('/role-selection')
-        }
-    }, [user, navigate])
-
     // Fetch analytics data
     const overviewStats = useQuery(
         api.analytics.getOrganizerAnalytics,

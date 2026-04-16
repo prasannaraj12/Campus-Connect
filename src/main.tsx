@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import { ConvexProvider, ConvexReactClient } from 'convex/react'
 import { ThemeContext, useThemeProvider } from './hooks/use-theme'
 import { LanguageContext, useLanguageProvider } from './hooks/use-language'
+import { OrganizerRoute, ParticipantRoute, AuthenticatedRoute } from './components/ProtectedRoute'
+import InstallPWA from './components/InstallPWA'
 import './index.css'
 
 import Landing from './pages/Landing'
@@ -41,15 +43,44 @@ function App() {
               <Route path="/" element={<Landing />} />
               <Route path="/role-selection" element={<RoleSelection />} />
               <Route path="/auth" element={<Auth />} />
-              <Route path="/dashboard" element={<Dashboard />} />
-              <Route path="/event/:eventId" element={<EventDetail />} />
-              <Route path="/ticket/:registrationId" element={<Ticket />} />
-              <Route path="/my-history" element={<MyHistory />} />
-              <Route path="/analytics" element={<Analytics />} />
-              <Route path="/edit-event/:eventId" element={<EditEvent />} />
-              <Route path="/event/:eventId/edit" element={<EditEvent />} />
+              <Route path="/dashboard" element={
+                <AuthenticatedRoute>
+                  <Dashboard />
+                </AuthenticatedRoute>
+              } />
+              <Route path="/event/:eventId" element={
+                <AuthenticatedRoute>
+                  <EventDetail />
+                </AuthenticatedRoute>
+              } />
+              <Route path="/ticket/:registrationId" element={
+                <AuthenticatedRoute>
+                  <Ticket />
+                </AuthenticatedRoute>
+              } />
+              <Route path="/my-history" element={
+                <ParticipantRoute>
+                  <MyHistory />
+                </ParticipantRoute>
+              } />
+              <Route path="/analytics" element={
+                <OrganizerRoute>
+                  <Analytics />
+                </OrganizerRoute>
+              } />
+              <Route path="/edit-event/:eventId" element={
+                <OrganizerRoute>
+                  <EditEvent />
+                </OrganizerRoute>
+              } />
+              <Route path="/event/:eventId/edit" element={
+                <OrganizerRoute>
+                  <EditEvent />
+                </OrganizerRoute>
+              } />
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <InstallPWA />
           </BrowserRouter>
         </ConvexProvider>
       </LanguageContext.Provider>
