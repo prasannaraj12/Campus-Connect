@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create PWA Icons - CampusConnect</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            text-align: center;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        canvas {
+            border: 2px solid #ddd;
+            margin: 20px;
+            border-radius: 10px;
+        }
+        button {
+            background: #4F46E5;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 10px;
+        }
+        button:hover {
+            background: #4338CA;
+        }
+        .preview {
+            display: inline-block;
+            margin: 20px;
+        }
+        h1 { color: #4F46E5; }
+        .success {
+            background: #10B981;
+            color: white;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 CampusConnect PWA Icons</h1>
+        <p>Click the button below to generate and download PWA icons</p>
+        
+        <div class="preview">
+            <p><strong>192x192</strong></p>
+            <canvas id="canvas192" width="192" height="192"></canvas>
+        </div>
+        
+        <div class="preview">
+            <p><strong>512x512</strong></p>
+            <canvas id="canvas512" width="512" height="512"></canvas>
+        </div>
+        
+        <div>
+            <button onclick="generateAndDownload()">📥 Generate & Download Icons</button>
+        </div>
+        
+        <div id="success" class="success">
+            ✅ Icons downloaded! Move them to the <strong>public/</strong> folder.
+        </div>
+        
+        <div style="margin-top: 30px; padding: 20px; background: #FEF3C7; border-radius: 8px; text-align: left;">
+            <h3>📋 Next Steps:</h3>
+            <ol style="text-align: left;">
+                <li>Two files will download: <code>pwa-192x192.png</code> and <code>pwa-512x512.png</code></li>
+                <li>Move them to your <code>public/</code> folder</li>
+                <li>Run: <code>git add public/ && git commit -m "Add PWA icons" && git push</code></li>
+                <li>Vercel will auto-deploy (2-3 minutes)</li>
+                <li>Refresh your app - install prompt will appear!</li>
+            </ol>
+        </div>
+    </div>
+
+    <script>
+        function drawIcon(canvas, size) {
+            const ctx = canvas.getContext('2d');
+            
+            // Background gradient (CampusConnect colors)
+            const gradient = ctx.createLinearGradient(0, 0, size, size);
+            gradient.addColorStop(0, '#667eea');
+            gradient.addColorStop(0.5, '#764ba2');
+            gradient.addColorStop(1, '#f093fb');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, size, size);
+            
+            // Draw "CC" text
+            ctx.fillStyle = 'white';
+            ctx.font = `bold ${size * 0.4}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.3)';
+            ctx.shadowBlur = size * 0.02;
+            ctx.shadowOffsetX = size * 0.01;
+            ctx.shadowOffsetY = size * 0.01;
+            ctx.fillText('CC', size / 2, size / 2);
+        }
+
+        function downloadCanvas(canvas, filename) {
+            return new Promise((resolve) => {
+                canvas.toBlob(blob => {
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = filename;
+                    a.click();
+                    URL.revokeObjectURL(url);
+                    setTimeout(resolve, 500);
+                });
+            });
+        }
+
+        async function generateAndDownload() {
+            // Draw icons
+            drawIcon(document.getElementById('canvas192'), 192);
+            drawIcon(document.getElementById('canvas512'), 512);
+            
+            // Download
+            await downloadCanvas(document.getElementById('canvas192'), 'pwa-192x192.png');
+            await downloadCanvas(document.getElementById('canvas512'), 'pwa-512x512.png');
+            
+            // Show success message
+            document.getElementById('success').style.display = 'block';
+        }
+
+        // Draw on load
+        window.onload = () => {
+            drawIcon(document.getElementById('canvas192'), 192);
+            drawIcon(document.getElementById('canvas512'), 512);
+        };
+    </script>
+</body>
+</html>
