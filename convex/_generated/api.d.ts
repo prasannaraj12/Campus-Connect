@@ -12,6 +12,7 @@ import type * as ai from "../ai.js";
 import type * as analytics from "../analytics.js";
 import type * as announcements from "../announcements.js";
 import type * as auth from "../auth.js";
+import type * as crons from "../crons.js";
 import type * as discussions from "../discussions.js";
 import type * as events from "../events.js";
 import type * as history from "../history.js";
@@ -33,6 +34,7 @@ declare const fullApi: ApiFromModules<{
   analytics: typeof analytics;
   announcements: typeof announcements;
   auth: typeof auth;
+  crons: typeof crons;
   discussions: typeof discussions;
   events: typeof events;
   history: typeof history;

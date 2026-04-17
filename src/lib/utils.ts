@@ -40,7 +40,7 @@ export function getCategoryColor(category: string): string {
 
 export function exportToCSV(data: any[], filename: string) {
   if (!data || data.length === 0) {
-    alert('No data to export')
+    console.warn('exportToCSV: no data to export')
     return
   }
 

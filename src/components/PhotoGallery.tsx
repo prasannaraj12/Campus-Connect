@@ -3,8 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { Id } from '../../convex/_generated/dataModel'
-import { Camera, Heart, Trash2, X } from 'lucide-react'
+import { Camera, Heart, Trash2, X, Upload } from 'lucide-react'
 import { useAuth } from '../hooks/use-auth'
+import ConfirmDialog from './ConfirmDialog'
+import { useToast } from './Toast'
 
 interface Props {
   eventId: Id<"events">
@@ -13,9 +15,12 @@ interface Props {
 export default function PhotoGallery({ eventId }: Props) {
   const { user } = useAuth()
   const [uploading, setUploading] = useState(false)
+  const [uploadProgress, setUploadProgress] = useState(0)
   const [caption, setCaption] = useState('')
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null)
+  const [confirmDeleteId, setConfirmDeleteId] = useState<Id<"photos"> | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const toast = useToast()
 
   const photos = useQuery(api.photos.getEventPhotos, { eventId })
   const generateUploadUrl = useMutation(api.photos.generateUploadUrl)
@@ -29,33 +34,30 @@ export default function PhotoGallery({ eventId }: Props) {
     const file = e.target.files?.[0]
     if (!file || !user) return
 
-    // Validate file type
     if (!file.type.startsWith('image/')) {
-      alert('Please select an image file')
+      toast.error('Please select an image file')
       return
     }
-
-    // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
-      alert('Image size must be less than 5MB')
+      toast.error('Image size must be less than 5MB')
       return
     }
 
     setUploading(true)
+    setUploadProgress(10)
     try {
-      // Get upload URL
       const uploadUrl = await generateUploadUrl()
+      setUploadProgress(30)
 
-      // Upload file
       const result = await fetch(uploadUrl, {
         method: 'POST',
         headers: { 'Content-Type': file.type },
         body: file,
       })
+      setUploadProgress(70)
 
       const { storageId } = await result.json()
 
-      // Save photo metadata
       await uploadPhoto({
         eventId,
         userId: user.userId,
@@ -63,16 +65,15 @@ export default function PhotoGallery({ eventId }: Props) {
         storageId,
         caption: caption.trim() || undefined,
       })
-
+      setUploadProgress(100)
       setCaption('')
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ''
-      }
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      toast.success('Photo uploaded successfully')
     } catch (err) {
-      console.error('Failed to upload photo:', err)
-      alert('Failed to upload photo')
+      toast.error('Failed to upload photo')
     } finally {
       setUploading(false)
+      setUploadProgress(0)
     }
   }
 
@@ -81,19 +82,18 @@ export default function PhotoGallery({ eventId }: Props) {
     try {
       await toggleLike({ photoId, userId: user.userId })
     } catch (err) {
-      console.error('Failed to like photo:', err)
+      toast.error('Failed to update like')
     }
   }
 
   const handleDelete = async (photoId: Id<"photos">) => {
-    if (!user || !confirm('Delete this photo?')) return
+    if (!user) return
     try {
       await deletePhoto({ photoId, userId: user.userId })
-      if (selectedPhoto?._id === photoId) {
-        setSelectedPhoto(null)
-      }
+      if (selectedPhoto?._id === photoId) setSelectedPhoto(null)
+      toast.success('Photo deleted')
     } catch (err) {
-      console.error('Failed to delete photo:', err)
+      toast.error('Failed to delete photo')
     }
   }
 
@@ -127,11 +127,23 @@ export default function PhotoGallery({ eventId }: Props) {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="neo-brutal bg-blue-400 px-4 py-2 font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                className="neo-brutal bg-blue-400 px-4 py-2 font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all inline-flex items-center justify-center gap-2"
               >
+                <Upload className="w-4 h-4" />
                 {uploading ? 'Uploading...' : 'Choose Image'}
               </button>
             </div>
+            {/* Upload Progress Bar */}
+            {uploading && (
+              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <motion.div
+                  initial={{ width: 0 }}
+                  animate={{ width: `${uploadProgress}%` }}
+                  transition={{ duration: 0.3 }}
+                  className="h-full bg-blue-500 rounded-full"
+                />
+              </div>
+            )}
             <p className="text-xs text-gray-500 font-semibold">
               Max size: 5MB • Formats: JPG, PNG, GIF, WebP
             </p>
@@ -176,12 +188,24 @@ export default function PhotoGallery({ eventId }: Props) {
             photo={selectedPhoto}
             onClose={() => setSelectedPhoto(null)}
             onLike={handleLike}
-            onDelete={handleDelete}
+            onDelete={(id: Id<"photos">) => setConfirmDeleteId(id)}
             isOrganizer={isOrganizer}
             currentUserId={user?.userId}
           />
         )}
       </AnimatePresence>
+
+      {/* Confirm Delete */}
+      {confirmDeleteId && (
+        <ConfirmDialog
+          title="Delete photo?"
+          message="This photo will be permanently removed."
+          confirmLabel="Delete"
+          danger
+          onConfirm={() => { handleDelete(confirmDeleteId); setConfirmDeleteId(null) }}
+          onCancel={() => setConfirmDeleteId(null)}
+        />
+      )}
     </div>
   )
 }
@@ -241,8 +265,7 @@ function PhotoCard({ photo, onLike, onDelete, onClick, isOrganizer, currentUserI
               >
                 <Trash2 className="w-4 h-4" />
               </button>
-            )}
-          </div>
+            )}          </div>
         </div>
       </div>
 

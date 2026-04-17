@@ -1,360 +1,172 @@
+/* ── Google Fonts ─────────────────────────────────────────────── */
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Smooth scroll globally */
-html {
-  scroll-behavior: smooth;
-}
+html { scroll-behavior: smooth; }
 
+/* ── Base ─────────────────────────────────────────────────────── */
 @layer base {
-  * {
-    @apply border-border;
-  }
-
   body {
-    @apply bg-background text-foreground;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-      'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-      sans-serif;
+    background-color: #FAFAF5;
+    color: #0A0A0A;
+    font-family: 'Inter', system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  h1, h2, h3, h4, h5, h6 {
+    font-family: 'Space Grotesk', 'Plus Jakarta Sans', system-ui, sans-serif;
+    font-weight: 700;
+    color: #0A0A0A;
+  }
 }
 
+/* ── Neo-Brutal Utility Classes ───────────────────────────────── */
 @layer utilities {
-  .neo-brutal {
-    @apply border-4 border-black shadow-brutal;
+  /* Core neo-brutal: black border + hard offset shadow */
+  .nb {
+    border: 3px solid #0A0A0A;
+    box-shadow: 4px 4px 0px 0px #0A0A0A;
+  }
+  .nb-lg {
+    border: 4px solid #0A0A0A;
+    box-shadow: 6px 6px 0px 0px #0A0A0A;
+  }
+  .nb-sm {
+    border: 2px solid #0A0A0A;
+    box-shadow: 2px 2px 0px 0px #0A0A0A;
+  }
+  .nb-xl {
+    border: 4px solid #0A0A0A;
+    box-shadow: 8px 8px 0px 0px #0A0A0A;
   }
 
-  .neo-brutal-lg {
-    @apply border-[6px] border-black shadow-brutal-lg;
+  /* Hover: shift into shadow */
+  .nb-hover {
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .nb-hover:hover {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0px 0px #0A0A0A;
+  }
+  .nb-hover:active {
+    transform: translate(4px, 4px);
+    box-shadow: 0px 0px 0px 0px #0A0A0A;
   }
 
-  .neo-brutal-sm {
-    @apply border-2 border-black shadow-brutal-sm;
+  /* Glass surface — used on navbar & modals */
+  .glass {
+    background: rgba(255, 255, 255, 0.75);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-bottom: 2px solid rgba(0,0,0,0.08);
+  }
+
+  .glass-dark {
+    background: rgba(10, 10, 10, 0.7);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.1);
+  }
+
+  /* Flat color blocks */
+  .block-yellow  { background: #FACC15; }
+  .block-orange  { background: #F97316; }
+  .block-black   { background: #0A0A0A; color: #FAFAF5; }
+  .block-cream   { background: #FAFAF5; }
+  .block-paper   { background: #F5F0E8; }
+
+  /* Neo-brutal input */
+  .nb-input {
+    border: 2px solid #0A0A0A;
+    background: #FAFAF5;
+    font-weight: 500;
+    outline: none;
+    transition: box-shadow 0.12s ease;
+  }
+  .nb-input:focus {
+    box-shadow: 3px 3px 0px 0px #0A0A0A;
+  }
+
+  /* Neo-brutal button base */
+  .nb-btn {
+    border: 2px solid #0A0A0A;
+    box-shadow: 3px 3px 0px 0px #0A0A0A;
+    font-weight: 700;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+    cursor: pointer;
+  }
+  .nb-btn:hover {
+    transform: translate(1px, 1px);
+    box-shadow: 2px 2px 0px 0px #0A0A0A;
+  }
+  .nb-btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 0px 0px 0px 0px #0A0A0A;
+  }
+
+  /* Tag / badge */
+  .nb-tag {
+    border: 1.5px solid #0A0A0A;
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    padding: 2px 8px;
   }
 }
 
-/* ===== PREMIUM ANIMATIONS ===== */
+/* ── Validation ───────────────────────────────────────────────── */
+.input-valid   { border-color: #22c55e !important; box-shadow: 2px 2px 0 0 #22c55e !important; }
+.input-invalid { border-color: #ef4444 !important; box-shadow: 2px 2px 0 0 #ef4444 !important; }
+.validation-message       { font-size: 0.8rem; margin-top: 0.25rem; font-weight: 600; }
+.validation-message.error { color: #ef4444; }
+.validation-message.success { color: #22c55e; }
 
-/* Fade Up Animation */
-@keyframes fadeUp {
-  from {
-    opacity: 0;
-    transform: translateY(16px);
-  }
+/* ── Form helpers ─────────────────────────────────────────────── */
+.section-divider  { border-top: 2px solid #0A0A0A; margin: 1.5rem 0; }
+.section-heading  { font-size: 0.75rem; font-weight: 700; color: #6b7280; text-transform: uppercase; letter-spacing: 0.08em; margin-bottom: 0.75rem; }
+.helper-text      { font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem; }
+.privacy-notice   { font-size: 0.75rem; color: #6b7280; text-align: center; padding: 1rem 0; border-top: 2px solid #0A0A0A; margin-top: 1.5rem; }
 
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.animate-fade-up {
-  animation: fadeUp 0.6s ease-out forwards;
-}
-
-/* Card Entrance Animation */
-@keyframes cardIn {
-  from {
-    opacity: 0;
-    transform: translateY(20px) scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(0) scale(1);
-  }
-}
-
-.animate-card-in {
-  animation: cardIn 0.5s ease forwards;
-}
-
-/* Badge Pulse Animation */
-@keyframes pulse-subtle {
-
-  0%,
-  100% {
-    transform: scale(1);
-  }
-
-  50% {
-    transform: scale(1.08);
-  }
-}
-
-.animate-pulse-subtle {
-  animation: pulse-subtle 1.6s ease-in-out infinite;
-}
-
-/* Progress Bar Animation */
-@keyframes progressGrow {
-  from {
-    width: 0;
-  }
-}
-
-.animate-progress {
-  animation: progressGrow 0.8s ease-out forwards;
-}
-
-/* Stagger Delays */
-.delay-1 {
-  animation-delay: 0.1s;
-  opacity: 0;
-}
-
-.delay-2 {
-  animation-delay: 0.2s;
-  opacity: 0;
-}
-
-.delay-3 {
-  animation-delay: 0.3s;
-  opacity: 0;
-}
-
-.delay-4 {
-  animation-delay: 0.4s;
-  opacity: 0;
-}
-
-.delay-5 {
-  animation-delay: 0.5s;
-  opacity: 0;
-}
-
-/* Premium Button Hover */
-.btn-premium {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
-}
-
-.btn-premium:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
-}
-
-.btn-premium:active {
-  transform: scale(0.97);
-}
-
-/* Premium Card Hover */
-.card-premium {
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
-}
-
-.card-premium:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.15);
-}
-
-/* Input Focus Effect */
-.input-premium {
-  transition: box-shadow 0.25s ease, transform 0.25s ease;
-}
-
-.input-premium:focus {
-  box-shadow: 0 0 0 3px rgba(255, 200, 0, 0.4);
-  transform: scale(1.01);
-}
-
-/* Validation State Styles */
-.input-valid {
-  border-color: #22c55e !important;
-  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.2);
-}
-
-.input-invalid {
-  border-color: #ef4444 !important;
-  box-shadow: 0 0 0 2px rgba(239, 68, 68, 0.2);
-}
-
-.validation-message {
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-}
-
-.validation-message.error {
-  color: #ef4444;
-}
-
-.validation-message.success {
-  color: #22c55e;
-}
-
-/* Section Divider */
-.section-divider {
-  border-top: 1px solid #e5e7eb;
-  margin: 1.5rem 0;
-}
-
-/* Form Section Heading */
-.section-heading {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 1rem;
-}
-
-/* Phone Input Container */
-.phone-input-container {
-  display: flex;
-  gap: 0;
-}
-
+/* Phone input */
+.phone-input-container { display: flex; }
 .phone-prefix {
-  display: flex;
-  align-items: center;
-  padding: 0 1rem;
-  background-color: #f3f4f6;
-  border: 4px solid black;
+  display: flex; align-items: center;
+  padding: 0 0.875rem;
+  background: #FACC15;
+  border: 2px solid #0A0A0A;
   border-right: none;
-  font-weight: 600;
+  font-weight: 700;
   white-space: nowrap;
-}
-
-/* Helper Text */
-.helper-text {
-  font-size: 0.75rem;
-  color: #6b7280;
-  margin-top: 0.25rem;
-}
-
-/* Privacy Notice */
-.privacy-notice {
-  font-size: 0.75rem;
-  color: #6b7280;
-  text-align: center;
-  padding: 1rem 0;
-  border-top: 1px solid #e5e7eb;
-  margin-top: 1.5rem;
-}
-
-/* Team Member Counter */
-.member-counter {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.25rem 0.75rem;
-  background-color: #dbeafe;
-  border-radius: 9999px;
   font-size: 0.875rem;
-  font-weight: 600;
-  color: #1d4ed8;
 }
 
-
-/* Dark Mode Styles */
-.dark {
-  color-scheme: dark;
+/* Team member counter */
+.member-counter {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.2rem 0.75rem;
+  background: #FACC15;
+  border: 2px solid #0A0A0A;
+  font-size: 0.8rem; font-weight: 700;
 }
 
-.dark body {
-  @apply bg-gray-900 text-white;
+/* ── Animations ───────────────────────────────────────────────── */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
+.animate-fade-up { animation: fadeUp 0.4s ease-out forwards; }
 
-.dark .neo-brutal,
-.dark .neo-brutal-sm,
-.dark .neo-brutal-lg {
-  @apply border-white;
-  box-shadow: 4px 4px 0px 0px rgba(255,255,255,1);
-}
-
-.dark .neo-brutal-sm {
-  box-shadow: 2px 2px 0px 0px rgba(255,255,255,1);
-}
-
-.dark .neo-brutal-lg {
-  box-shadow: 6px 6px 0px 0px rgba(255,255,255,1);
-}
-
-/* Dark mode background gradients */
-.dark .bg-gradient-to-br {
-  @apply from-gray-800 via-gray-900 to-black;
-}
-
-/* Dark mode for specific backgrounds */
-.dark .bg-white {
-  @apply bg-gray-800 text-white;
-}
-
-.dark .bg-gray-50 {
-  @apply bg-gray-700;
-}
-
-.dark .bg-gray-100 {
-  @apply bg-gray-700;
-}
-
-.dark .bg-gray-200 {
-  @apply bg-gray-600;
-}
-
-/* Keep vibrant colors in dark mode */
-.dark .bg-yellow-400,
-.dark .bg-blue-400,
-.dark .bg-green-400,
-.dark .bg-red-400,
-.dark .bg-purple-400,
-.dark .bg-pink-400,
-.dark .bg-orange-400 {
-  @apply text-black;
-}
-
-/* Dark mode text colors */
-.dark .text-gray-600 {
-  @apply text-gray-300;
-}
-
-.dark .text-gray-700 {
-  @apply text-gray-200;
-}
-
-.dark .text-gray-800 {
-  @apply text-gray-100;
-}
-
-
-/* Gradient Animation for CampusConnect Title */
 @keyframes gradient-shift {
-  0% {
-    background-position: 0% 50%;
-  }
-  50% {
-    background-position: 100% 50%;
-  }
-  100% {
-    background-position: 0% 50%;
-  }
+  0%, 100% { background-position: 0% 50%; }
+  50%       { background-position: 100% 50%; }
 }
 
-/* Alternative gradient animations */
-@keyframes gradient-rainbow {
-  0% {
-    background-position: 0% 50%;
-    filter: hue-rotate(0deg);
-  }
-  50% {
-    background-position: 100% 50%;
-    filter: hue-rotate(180deg);
-  }
-  100% {
-    background-position: 0% 50%;
-    filter: hue-rotate(360deg);
-  }
-}
-
-@keyframes gradient-pulse {
-  0%, 100% {
-    background-position: 0% 50%;
-    opacity: 1;
-  }
-  50% {
-    background-position: 100% 50%;
-    opacity: 0.8;
-  }
-}
+/* ── Scrollbar ────────────────────────────────────────────────── */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: #F5F0E8; }
+::-webkit-scrollbar-thumb { background: #0A0A0A; border-radius: 0; }

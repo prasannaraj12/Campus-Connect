@@ -4,8 +4,9 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
+import AppShell from '../components/AppShell'
+import { PageLoader } from '../components/Skeleton'
 import {
-    ArrowLeft,
     Calendar,
     MapPin,
     Clock,
@@ -36,33 +37,20 @@ export default function MyHistory() {
     const isLoading = history === undefined || stats === undefined
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-            {/* Header */}
-            <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-                <div className="container mx-auto px-4 py-3 flex items-center gap-4">
-                    <button
-                        onClick={() => navigate('/dashboard')}
-                        className="p-2 hover:bg-gray-100 rounded-xl transition-colors"
-                    >
-                        <ArrowLeft className="w-5 h-5 text-gray-600" />
-                    </button>
-                    <div className="flex items-center gap-2">
-                        <div className="w-10 h-10 bg-gradient-to-br from-emerald-500 to-teal-600 rounded-xl flex items-center justify-center">
-                            <Trophy className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                            <h1 className="text-xl font-black text-gray-900">My History</h1>
-                            <p className="text-xs text-gray-500">Your event participation journey</p>
-                        </div>
+        <AppShell>
+            <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
+                {/* Page title */}
+                <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
+                        <Trophy className="w-5 h-5 text-emerald-600" />
+                    </div>
+                    <div>
+                        <h1 className="font-display text-2xl font-extrabold text-slate-900">My History</h1>
+                        <p className="text-sm text-slate-500">Your event participation journey</p>
                     </div>
                 </div>
-            </header>
-
-            <div className="container mx-auto px-4 py-6 space-y-6">
                 {isLoading ? (
-                    <div className="flex items-center justify-center py-20">
-                        <div className="animate-spin w-8 h-8 border-4 border-emerald-500 border-t-transparent rounded-full" />
-                    </div>
+                    <PageLoader message="Loading your history..." />
                 ) : (
                     <>
                         {/* Stats Cards */}
@@ -241,6 +229,6 @@ export default function MyHistory() {
                     </>
                 )}
             </div>
-        </div>
+        </AppShell>
     )
 }

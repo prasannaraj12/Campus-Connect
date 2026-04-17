@@ -5,6 +5,8 @@ import { api } from '../../convex/_generated/api'
 import { Id } from '../../convex/_generated/dataModel'
 import { MessageCircle, Pin, Trash2, CheckCircle, Send, Flag, ChevronDown, ChevronUp } from 'lucide-react'
 import { useAuth } from '../hooks/use-auth'
+import ConfirmDialog from './ConfirmDialog'
+import { useToast } from './Toast'
 
 interface Props {
   discussion: any
@@ -16,6 +18,8 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
   const [showComments, setShowComments] = useState(false)
   const [commentText, setCommentText] = useState('')
   const [loading, setLoading] = useState(false)
+  const [confirmDelete, setConfirmDelete] = useState<null | 'discussion' | Id<"comments">>(null)
+  const toast = useToast()
 
   const comments = useQuery(
     api.discussions.getDiscussionComments,
@@ -68,47 +72,40 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
   }
 
   const handleDelete = async () => {
-    if (!user || !confirm('Delete this discussion?')) return
+    if (!user) return
     try {
-      await deleteDiscussion({
-        discussionId: discussion._id,
-        userId: user.userId,
-      })
+      await deleteDiscussion({ discussionId: discussion._id, userId: user.userId })
+      toast.success('Discussion deleted')
       onDeleted?.()
     } catch (err) {
-      console.error('Failed to delete:', err)
+      toast.error('Failed to delete discussion')
     }
   }
 
   const handleTogglePin = async () => {
     if (!user) return
     try {
-      await togglePin({
-        discussionId: discussion._id,
-        userId: user.userId,
-      })
+      const result = await togglePin({ discussionId: discussion._id, userId: user.userId })
+      toast.success(result.isPinned ? 'Discussion pinned' : 'Discussion unpinned')
     } catch (err) {
-      console.error('Failed to toggle pin:', err)
+      toast.error('Failed to update pin')
     }
   }
 
   const handleDeleteComment = async (commentId: Id<"comments">) => {
-    if (!user || !confirm('Delete this comment?')) return
+    if (!user) return
     try {
-      await deleteComment({
-        commentId,
-        userId: user.userId,
-      })
+      await deleteComment({ commentId, userId: user.userId })
+      toast.success('Comment deleted')
     } catch (err) {
-      console.error('Failed to delete comment:', err)
+      toast.error('Failed to delete comment')
     }
   }
 
   const handleReport = async () => {
     if (!user) return
-    const reason = prompt('Please describe why you are reporting this content:')
-    if (!reason || !reason.trim()) return
-
+    const reason = window.prompt('Describe why you are reporting this content:')
+    if (!reason?.trim()) return
     try {
       await reportContent({
         userId: user.userId,
@@ -117,9 +114,9 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
         contentId: discussion._id,
         reason: reason.trim(),
       })
-      alert('Report submitted. Organizers will review it.')
+      toast.success('Report submitted. Organizers will review it.')
     } catch (err: any) {
-      alert(err.message || 'Failed to submit report')
+      toast.error(err.message || 'Failed to submit report')
     }
   }
 
@@ -204,7 +201,7 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
           )}
           {(isAuthor || isOrganizer) && (
             <button
-              onClick={handleDelete}
+              onClick={() => setConfirmDelete('discussion')}
               className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
               title="Delete"
             >
@@ -277,7 +274,7 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
                       </div>
                       {(user?.userId === comment.userId || isOrganizer) && (
                         <button
-                          onClick={() => handleDeleteComment(comment._id)}
+                          onClick={() => setConfirmDelete(comment._id)}
                           className="text-red-400 hover:text-red-600 transition-colors"
                         >
                           <Trash2 className="w-3.5 h-3.5" />
@@ -312,6 +309,21 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
           </motion.div>
         )}
       </AnimatePresence>
+      {/* Confirm Delete Dialog */}
+      {confirmDelete && (
+        <ConfirmDialog
+          title={confirmDelete === 'discussion' ? 'Delete discussion?' : 'Delete comment?'}
+          message="This cannot be undone."
+          confirmLabel="Delete"
+          danger
+          onConfirm={() => {
+            if (confirmDelete === 'discussion') handleDelete()
+            else handleDeleteComment(confirmDelete as Id<"comments">)
+            setConfirmDelete(null)
+          }}
+          onCancel={() => setConfirmDelete(null)}
+        />
+      )}
     </motion.div>
   )
 }

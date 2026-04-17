@@ -2,12 +2,12 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation, useAction } from 'convex/react'
 import { api } from '../../convex/_generated/api'
-import { X, Sparkles } from 'lucide-react'
+import { X, Sparkles, AlertCircle } from 'lucide-react'
 import { Id } from '../../convex/_generated/dataModel'
 import { useNavigate } from 'react-router-dom'
 
 interface Props {
-  organizerId: Id<"users">
+  organizerId: Id<'users'>
   onClose: () => void
 }
 
@@ -35,26 +35,19 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
     requirements: '',
   })
 
-  // Validate dates
   const today = new Date().toISOString().split('T')[0]
 
   const handleGenerateDescription = async () => {
     if (!formData.title) {
-      setError('Please enter a title first to generate a description.')
+      setError('Enter a title first to generate a description.')
       return
     }
-
     setGenerating(true)
     setError('')
     try {
-      const description = await generateDescription({
-        title: formData.title,
-        category: formData.category
-      })
-
+      const description = await generateDescription({ title: formData.title, category: formData.category })
       setFormData(prev => ({ ...prev, description }))
-    } catch (err: any) {
-      console.error(err)
+    } catch {
       setError('Failed to generate description. Please try again.')
     } finally {
       setGenerating(false)
@@ -66,18 +59,14 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
     setLoading(true)
     setError('')
 
-    // Validate date is not in the past
     const eventDate = new Date(formData.date)
     const todayDate = new Date()
     todayDate.setHours(0, 0, 0, 0)
-
     if (eventDate < todayDate) {
       setError('Event date cannot be in the past')
       setLoading(false)
       return
     }
-
-    // Validate team event requirements
     if (formData.isTeamEvent && (!formData.teamSize || formData.teamSize < 2)) {
       setError('Team events must have a team size of at least 2')
       setLoading(false)
@@ -92,7 +81,6 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
         teamSize: formData.isTeamEvent ? formData.teamSize : undefined,
         requirements: formData.requirements || undefined,
       })
-
       onClose()
       navigate(`/event/${eventId}`)
     } catch (err: any) {
@@ -102,197 +90,210 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
     }
   }
 
+  const inputClass = 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none font-medium transition-colors bg-white text-slate-900 placeholder-slate-400'
+  const labelClass = 'block text-sm font-semibold text-slate-700 mb-1.5'
+
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="neo-brutal-lg bg-white p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
         >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-black">Create New Event</h2>
+          {/* Header */}
+          <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
+            <h2 className="font-display text-xl font-extrabold text-slate-900">Create New Event</h2>
             <button
               onClick={onClose}
-              className="neo-brutal-sm bg-red-400 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+              className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 text-slate-600" />
             </button>
           </div>
 
-          {error && (
-            <div className="neo-brutal bg-red-100 p-4 mb-6">
-              <p className="font-bold text-red-800">{error}</p>
-            </div>
-          )}
-
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block font-bold mb-2">Event Title *</label>
-              <input
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="Amazing Workshop"
-              />
-            </div>
-
-            <div>
-              <div className="flex justify-between items-center mb-2">
-                <label className="block font-bold">Description *</label>
-                <button
-                  type="button"
-                  onClick={handleGenerateDescription}
-                  disabled={generating || !formData.title}
-                  className="text-xs font-bold text-purple-600 flex items-center gap-1 hover:text-purple-800 disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <Sparkles className="w-4 h-4" />
-                  {generating ? 'Generating...' : 'Auto-Generate with AI'}
-                </button>
-              </div>
-              <textarea
-                required
-                value={formData.description}
-                onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                rows={4}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black resize-none"
-                placeholder="Describe your event..."
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block font-bold mb-2">Date *</label>
-                <input
-                  type="date"
-                  required
-                  min={today}
-                  value={formData.date}
-                  onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                  className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold mb-2">Time *</label>
-                <input
-                  type="time"
-                  required
-                  value={formData.time}
-                  onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                  className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block font-bold mb-2">Location *</label>
-              <input
-                type="text"
-                required
-                value={formData.location}
-                onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="Main Auditorium"
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              <div>
-                <label className="block font-bold mb-2">Category *</label>
-                <select
-                  required
-                  value={formData.category}
-                  onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                  className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                >
-                  {categories.map((cat) => (
-                    <option key={cat} value={cat}>{cat}</option>
-                  ))}
-                </select>
-              </div>
-
-              <div>
-                <label className="block font-bold mb-2">Max Participants *</label>
-                <input
-                  type="number"
-                  required
-                  min="1"
-                  value={formData.maxParticipants}
-                  onChange={(e) => setFormData({ ...formData, maxParticipants: parseInt(e.target.value) })}
-                  className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                />
-              </div>
-            </div>
-
-            {/* Team Event Toggle */}
-            <div className="neo-brutal bg-blue-100 p-4">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={formData.isTeamEvent}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    isTeamEvent: e.target.checked,
-                    teamSize: e.target.checked ? formData.teamSize : undefined
-                  })}
-                  className="mt-1 w-5 h-5 accent-black"
-                />
-                <div>
-                  <span className="font-black">This is a Team Event</span>
-                  <p className="text-sm font-semibold mt-1">
-                    Enable this if participants must register as teams. Leave unchecked for individual registration (workshops, seminars, etc.)
-                  </p>
-                </div>
-              </label>
-            </div>
-
-            {/* Team Size (only if team event) */}
-            {formData.isTeamEvent && (
-              <div>
-                <label className="block font-bold mb-2">Team Size *</label>
-                <input
-                  type="number"
-                  required={formData.isTeamEvent}
-                  min="2"
-                  value={formData.teamSize || ''}
-                  onChange={(e) => setFormData({
-                    ...formData,
-                    teamSize: e.target.value ? parseInt(e.target.value) : undefined
-                  })}
-                  className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                  placeholder="e.g., 4 for a team of 4"
-                />
-                <p className="text-sm font-semibold mt-2 text-gray-600">
-                  Number of participants per team (including the team leader)
-                </p>
-              </div>
+          <div className="p-6 space-y-5">
+            {/* Error */}
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-sm text-red-700">{error}</p>
+              </motion.div>
             )}
 
-            <div>
-              <label className="block font-bold mb-2">Requirements (Optional)</label>
-              <textarea
-                value={formData.requirements}
-                onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                rows={3}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black resize-none"
-                placeholder="Any prerequisites or requirements..."
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-5">
+              {/* Title */}
+              <div>
+                <label className={labelClass}>Event Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  className={inputClass}
+                  placeholder="e.g., AI Workshop 2026"
+                  maxLength={60}
+                />
+              </div>
 
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={loading}
-              className="neo-brutal bg-green-400 w-full py-4 font-black text-xl hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50"
-            >
-              {loading ? 'Creating...' : 'Create Event'}
-            </motion.button>
-          </form>
+              {/* Description */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="text-sm font-semibold text-slate-700">Description *</label>
+                  <button
+                    type="button"
+                    onClick={handleGenerateDescription}
+                    disabled={generating || !formData.title}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <Sparkles className="w-3.5 h-3.5" />
+                    {generating ? 'Generating...' : 'AI Generate'}
+                  </button>
+                </div>
+                <textarea
+                  required
+                  value={formData.description}
+                  onChange={e => setFormData({ ...formData, description: e.target.value })}
+                  rows={4}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Describe your event..."
+                />
+              </div>
+
+              {/* Date & Time */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Date *</label>
+                  <input
+                    type="date"
+                    required
+                    min={today}
+                    value={formData.date}
+                    onChange={e => setFormData({ ...formData, date: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+                <div>
+                  <label className={labelClass}>Time *</label>
+                  <input
+                    type="time"
+                    required
+                    value={formData.time}
+                    onChange={e => setFormData({ ...formData, time: e.target.value })}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              {/* Location */}
+              <div>
+                <label className={labelClass}>Location *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.location}
+                  onChange={e => setFormData({ ...formData, location: e.target.value })}
+                  className={inputClass}
+                  placeholder="e.g., Main Auditorium"
+                />
+              </div>
+
+              {/* Category & Capacity */}
+              <div className="grid sm:grid-cols-2 gap-4">
+                <div>
+                  <label className={labelClass}>Category *</label>
+                  <select
+                    required
+                    value={formData.category}
+                    onChange={e => setFormData({ ...formData, category: e.target.value as any })}
+                    className={inputClass}
+                  >
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className={labelClass}>Max Participants *</label>
+                  <input
+                    type="number"
+                    required
+                    min="1"
+                    value={formData.maxParticipants}
+                    onChange={e => setFormData({ ...formData, maxParticipants: parseInt(e.target.value) || 50 })}
+                    className={inputClass}
+                  />
+                </div>
+              </div>
+
+              {/* Team Event Toggle */}
+              <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={formData.isTeamEvent}
+                    onChange={e => setFormData({
+                      ...formData,
+                      isTeamEvent: e.target.checked,
+                      teamSize: e.target.checked ? formData.teamSize : undefined,
+                    })}
+                    className="mt-0.5 w-5 h-5 accent-brand-500 rounded"
+                  />
+                  <div>
+                    <span className="font-bold text-slate-900">Team Event</span>
+                    <p className="text-sm text-slate-500 mt-0.5">
+                      Enable if participants must register as teams
+                    </p>
+                  </div>
+                </label>
+              </div>
+
+              {/* Team Size */}
+              {formData.isTeamEvent && (
+                <div>
+                  <label className={labelClass}>Team Size *</label>
+                  <input
+                    type="number"
+                    required
+                    min="2"
+                    value={formData.teamSize || ''}
+                    onChange={e => setFormData({ ...formData, teamSize: e.target.value ? parseInt(e.target.value) : undefined })}
+                    className={inputClass}
+                    placeholder="e.g., 4"
+                  />
+                  <p className="text-xs text-slate-400 mt-1">Members per team including the leader</p>
+                </div>
+              )}
+
+              {/* Requirements */}
+              <div>
+                <label className={labelClass}>Requirements (Optional)</label>
+                <textarea
+                  value={formData.requirements}
+                  onChange={e => setFormData({ ...formData, requirements: e.target.value })}
+                  rows={3}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Any prerequisites or requirements..."
+                />
+              </div>
+
+              {/* Submit */}
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={loading}
+                className="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {loading ? 'Creating...' : 'Create Event'}
+              </motion.button>
+            </form>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

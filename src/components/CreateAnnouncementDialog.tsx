@@ -2,15 +2,13 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
-import { X, Megaphone } from 'lucide-react'
+import { X, Megaphone, AlertCircle } from 'lucide-react'
 import { Id } from '../../convex/_generated/dataModel'
 
 interface Props {
-  organizerId: Id<"users">
+  organizerId: Id<'users'>
   onClose: () => void
 }
-
-/* const departments = ['CSE', 'ECE', 'MECH', 'CIVIL', 'EEE', 'IT', 'All'] */
 
 export default function CreateAnnouncementDialog({ organizerId, onClose }: Props) {
   const createAnnouncement = useMutation(api.announcements.createAnnouncement)
@@ -22,7 +20,6 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
   const [formData, setFormData] = useState({
     title: '',
     message: '',
-    // department: 'All', 
     eventId: '' as string,
     priority: 'normal' as 'normal' | 'important',
   })
@@ -31,17 +28,14 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
     e.preventDefault()
     setLoading(true)
     setError('')
-
     try {
       await createAnnouncement({
         title: formData.title,
         message: formData.message,
-        // department: formData.department,
-        eventId: formData.eventId ? (formData.eventId as Id<"events">) : undefined,
+        eventId: formData.eventId ? (formData.eventId as Id<'events'>) : undefined,
         priority: formData.priority,
         organizerId,
       })
-
       onClose()
     } catch (err: any) {
       setError(err.message || 'Failed to create announcement')
@@ -50,109 +44,114 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
     }
   }
 
+  const inputClass = 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none font-medium transition-colors bg-white text-slate-900 placeholder-slate-400'
+  const labelClass = 'block text-sm font-semibold text-slate-700 mb-1.5'
+
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
+          initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="neo-brutal-lg bg-white p-8 max-w-2xl w-full max-h-[90vh] overflow-y-auto"
+          exit={{ opacity: 0, scale: 0.95 }}
+          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
         >
-          <div className="flex justify-between items-center mb-6">
+          {/* Header */}
+          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
             <div className="flex items-center gap-3">
-              <div className="neo-brutal bg-yellow-400 p-3">
-                <Megaphone className="w-6 h-6" />
+              <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
+                <Megaphone className="w-5 h-5 text-amber-600" />
               </div>
-              <h2 className="text-3xl font-black">Create Announcement</h2>
+              <h2 className="font-display text-lg font-extrabold text-slate-900">Create Announcement</h2>
             </div>
             <button
               onClick={onClose}
-              className="neo-brutal-sm bg-red-400 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+              className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-5 h-5 text-slate-600" />
             </button>
           </div>
 
-          {error && (
-            <div className="neo-brutal bg-red-100 p-4 mb-6">
-              <p className="font-bold text-red-800">{error}</p>
-            </div>
-          )}
+          <div className="p-6 space-y-5">
+            {error && (
+              <motion.div
+                initial={{ opacity: 0, y: -8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="bg-red-50 border border-red-200 rounded-xl p-3 flex items-center gap-2"
+              >
+                <AlertCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
+                <p className="text-sm text-red-700">{error}</p>
+              </motion.div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-6">
-            <div>
-              <label className="block font-bold mb-2">Title *</label>
-              <input
-                type="text"
-                required
-                value={formData.title}
-                onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
-                placeholder="Important Update"
-              />
-            </div>
-
-            <div>
-              <label className="block font-bold mb-2">Message *</label>
-              <textarea
-                required
-                value={formData.message}
-                onChange={(e) => setFormData({ ...formData, message: e.target.value })}
-                rows={4}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black resize-none"
-                placeholder="Enter your announcement message..."
-              />
-            </div>
-
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Department Removed */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className={labelClass}>Title *</label>
+                <input
+                  type="text"
+                  required
+                  value={formData.title}
+                  onChange={e => setFormData({ ...formData, title: e.target.value })}
+                  className={inputClass}
+                  placeholder="Important Update"
+                />
+              </div>
 
               <div>
-                <label className="block font-bold mb-2">Priority *</label>
+                <label className={labelClass}>Message *</label>
+                <textarea
+                  required
+                  value={formData.message}
+                  onChange={e => setFormData({ ...formData, message: e.target.value })}
+                  rows={4}
+                  className={`${inputClass} resize-none`}
+                  placeholder="Enter your announcement message..."
+                />
+              </div>
+
+              <div>
+                <label className={labelClass}>Priority *</label>
                 <select
                   required
                   value={formData.priority}
-                  onChange={(e) => setFormData({ ...formData, priority: e.target.value as any })}
-                  className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+                  onChange={e => setFormData({ ...formData, priority: e.target.value as any })}
+                  className={inputClass}
                 >
                   <option value="normal">Normal</option>
                   <option value="important">Important</option>
                 </select>
               </div>
-            </div>
 
-            <div>
-              <label className="block font-bold mb-2">Link to Event (Optional)</label>
-              <select
-                value={formData.eventId}
-                onChange={(e) => setFormData({ ...formData, eventId: e.target.value })}
-                className="neo-brutal w-full px-4 py-3 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+              <div>
+                <label className={labelClass}>Link to Event (Optional)</label>
+                <select
+                  value={formData.eventId}
+                  onChange={e => setFormData({ ...formData, eventId: e.target.value })}
+                  className={inputClass}
+                >
+                  <option value="">General Announcement</option>
+                  {myEvents?.map(event => (
+                    <option key={event._id} value={event._id}>{event.title}</option>
+                  ))}
+                </select>
+                <p className="text-xs text-slate-400 mt-1">
+                  {formData.eventId
+                    ? 'Will appear on the event detail page'
+                    : 'Will appear on the landing page for all visitors'}
+                </p>
+              </div>
+
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={loading}
+                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <option value="">General Announcement (No Event)</option>
-                {myEvents?.map((event) => (
-                  <option key={event._id} value={event._id}>
-                    {event.title}
-                  </option>
-                ))}
-              </select>
-              <p className="text-sm font-semibold mt-2 text-gray-600">
-                {formData.eventId
-                  ? 'Event-specific: Will show on event detail page'
-                  : 'General: Will show on landing page'}
-              </p>
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={loading}
-              className="neo-brutal bg-green-400 w-full py-4 font-black text-xl hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50"
-            >
-              {loading ? 'Creating...' : 'Create Announcement'}
-            </motion.button>
-          </form>
+                {loading ? 'Creating...' : 'Create Announcement'}
+              </motion.button>
+            </form>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

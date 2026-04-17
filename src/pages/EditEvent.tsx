@@ -6,6 +6,7 @@ import { api } from '../../convex/_generated/api'
 import { ArrowLeft, Save, Trash2, AlertCircle, User, Mail, Phone, Building } from 'lucide-react'
 import { useAuth } from '../hooks/use-auth'
 import { Id } from '../../convex/_generated/dataModel'
+import { PageLoader } from '../components/Skeleton'
 
 const categories = ['Workshop', 'Seminar', 'Sports', 'Cultural', 'Technical', 'Social', 'Hackathon']
 
@@ -113,18 +114,15 @@ export default function EditEvent() {
 
     if (event === undefined) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-                <div className="bg-white rounded-2xl shadow-lg p-12">
-                    <div className="animate-spin w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-                    <p className="text-xl font-semibold text-gray-700">Loading event...</p>
-                </div>
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+                <PageLoader message="Loading event..." />
             </div>
         )
     }
 
     if (event === null) {
         return (
-            <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center p-4">
+            <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
                 <div className="bg-white rounded-2xl shadow-lg p-12 text-center max-w-md w-full">
                     <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
                         <AlertCircle className="w-8 h-8 text-red-500" />
@@ -147,7 +145,7 @@ export default function EditEvent() {
     const lastUpdated = event._creationTime ? new Date(event._creationTime).toLocaleString() : null
 
     return (
-        <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 pb-8">
+        <div className="min-h-screen bg-slate-50 pb-8">
             {/* Sticky Header */}
             <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-10">
                 <div className="container mx-auto px-4 py-3 max-w-3xl flex items-center justify-between">

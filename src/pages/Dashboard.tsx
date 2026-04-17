@@ -10,7 +10,11 @@ import CreateAnnouncementDialog from '../components/CreateAnnouncementDialog'
 import AnnouncementCard from '../components/AnnouncementCard'
 import QRScanner from '../components/QRScanner'
 import RecommendedEvents from '../components/RecommendedEvents'
-import { LogOut, Plus, Calendar, Users, TrendingUp, QrCode, Megaphone, ChevronDown, User, Settings, BarChart3, History } from 'lucide-react'
+import { SkeletonDashboard } from '../components/Skeleton'
+import {
+  Plus, Calendar, Users, TrendingUp, QrCode,
+  Megaphone, BarChart3, History, Search, ChevronDown, LogOut
+} from 'lucide-react'
 
 const categories = ['All', 'Workshop', 'Seminar', 'Sports', 'Cultural', 'Technical', 'Social', 'Hackathon']
 
@@ -21,9 +25,10 @@ export default function Dashboard() {
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showAnnouncementDialog, setShowAnnouncementDialog] = useState(false)
   const [showQRScanner, setShowQRScanner] = useState(false)
-  const [showProfileMenu, setShowProfileMenu] = useState(false)
+  const [searchQuery, setSearchQuery] = useState('')
   const eventsRef = useRef<HTMLDivElement>(null)
   const profileMenuRef = useRef<HTMLDivElement>(null)
+  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   const events = useQuery(api.events.getAllEvents)
   const myEvents = useQuery(
@@ -48,123 +53,118 @@ export default function Dashboard() {
   )
 
   useEffect(() => {
-    if (!user) {
-      navigate('/role-selection')
-    }
-  }, [user, navigate])
-
-  // Close profile menu when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+    const handler = (e: MouseEvent) => {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node))
         setShowProfileMenu(false)
-      }
     }
-    document.addEventListener('mousedown', handleClickOutside)
-    return () => document.removeEventListener('mousedown', handleClickOutside)
+    document.addEventListener('mousedown', handler)
+    return () => document.removeEventListener('mousedown', handler)
   }, [])
 
-  if (!user) return null
+  if (!user) { navigate('/role-selection'); return null }
 
-  // Loading state
   if (events === undefined) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-          <div className="animate-spin w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-xl font-semibold text-gray-700">Loading...</p>
-        </div>
+      <div className="min-h-screen bg-nb-cream">
+        <div className="h-14 glass border-b-2 border-black mb-6" />
+        <div className="max-w-6xl mx-auto px-4"><SkeletonDashboard /></div>
       </div>
     )
   }
 
-  // Category filter logic (multi-select)
   const toggleCategory = (category: string) => {
-    if (category === 'All') {
-      setSelectedCategories(['All'])
-    } else {
-      let newCategories = selectedCategories.filter(c => c !== 'All')
-      if (newCategories.includes(category)) {
-        newCategories = newCategories.filter(c => c !== category)
-        if (newCategories.length === 0) newCategories = ['All']
-      } else {
-        newCategories.push(category)
-      }
-      setSelectedCategories(newCategories)
-    }
+    if (category === 'All') { setSelectedCategories(['All']); return }
+    let next = selectedCategories.filter(c => c !== 'All')
+    if (next.includes(category)) {
+      next = next.filter(c => c !== category)
+      if (next.length === 0) next = ['All']
+    } else { next.push(category) }
+    setSelectedCategories(next)
   }
 
-  const filteredEvents = events?.filter((event: any) =>
-    selectedCategories.includes('All') || selectedCategories.includes(event.category)
-  ) || []
+  const filteredEvents = events?.filter((event: any) => {
+    const matchCat = selectedCategories.includes('All') || selectedCategories.includes(event.category)
+    const matchSearch = !searchQuery.trim() ||
+      event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      event.location.toLowerCase().includes(searchQuery.toLowerCase())
+    return matchCat && matchSearch
+  }) || []
 
-  const handleLogout = () => {
-    logout()
-    navigate('/')
-  }
+  const handleLogout = () => { logout(); navigate('/') }
+  const scrollToEvents = () => eventsRef.current?.scrollIntoView({ behavior: 'smooth' })
 
-  const scrollToEvents = () => {
-    eventsRef.current?.scrollIntoView({ behavior: 'smooth' })
-  }
-
-  // Get user's first name for personalization
   const userName = user.name?.split(' ')[0] || (user.role === 'organizer' ? 'Organizer' : 'Participant')
-
-  // Get today's date for greeting context
   const hour = new Date().getHours()
   const greeting = hour < 12 ? 'Good morning' : hour < 17 ? 'Good afternoon' : 'Good evening'
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
-      {/* Clean Header */}
-      <header className="bg-white/80 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <h1
-            className="text-2xl font-black text-gray-900 cursor-pointer hover:text-indigo-600 transition-colors"
-            onClick={() => navigate('/')}
-          >
-            CampusConnect
-          </h1>
+  // Stats config
+  const organizerStats = [
+    { label: 'Events Created', value: myEvents?.length || 0, sub: `${myEvents?.filter((e: any) => new Date(e.date) >= new Date()).length || 0} upcoming`, icon: Calendar, bg: 'bg-nb-yellow' },
+    { label: 'Total Events', value: events?.length || 0, sub: 'Click to browse', icon: Users, bg: 'bg-white', onClick: scrollToEvents },
+    { label: 'Upcoming', value: myEvents?.filter((e: any) => new Date(e.date) >= new Date()).length || 0, sub: "You're organizing", icon: TrendingUp, bg: 'bg-nb-orange text-white' },
+  ]
+  const participantStats = [
+    { label: 'Registered', value: myRegistrations?.length || 0, sub: 'Events signed up', icon: Calendar, bg: 'bg-nb-yellow' },
+    { label: 'Available', value: events?.length || 0, sub: 'Open now', icon: Users, bg: 'bg-white', onClick: scrollToEvents },
+    { label: 'Attended', value: myAttendanceCount || 0, sub: myAttendanceCount === 0 ? 'Attend your first!' : 'Great work!', icon: TrendingUp, bg: 'bg-nb-black text-white' },
+  ]
+  const stats = user.role === 'organizer' ? organizerStats : participantStats
 
-          {/* Profile Dropdown */}
+  return (
+    <div className="min-h-screen bg-nb-cream">
+
+      {/* ── Glassmorphism Navbar ─────────────────────────────────── */}
+      <header className="glass sticky top-0 z-50">
+        <div className="max-w-6xl mx-auto px-4 h-14 flex justify-between items-center">
+          <button
+            onClick={() => navigate('/')}
+            className="font-display font-bold text-xl text-nb-black tracking-tight"
+          >
+            Campus<span className="text-nb-orange">Connect</span>
+          </button>
+
           <div className="relative" ref={profileMenuRef}>
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl hover:bg-gray-100 transition-colors"
+              className="flex items-center gap-2 px-3 py-1.5 nb-sm bg-white nb-hover"
             >
-              <div className="w-9 h-9 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-7 h-7 bg-nb-yellow border-2 border-black flex items-center justify-center font-bold text-xs text-black">
                 {userName.charAt(0).toUpperCase()}
               </div>
-              <span className="font-semibold text-gray-700 hidden sm:block">{userName}</span>
-              <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
+              <span className="font-bold text-sm hidden sm:block">{userName}</span>
+              <ChevronDown className={`w-3.5 h-3.5 transition-transform ${showProfileMenu ? 'rotate-180' : ''}`} />
             </button>
 
-            {/* Dropdown Menu */}
             <AnimatePresence>
               {showProfileMenu && (
                 <motion.div
-                  initial={{ opacity: 0, y: -10 }}
+                  initial={{ opacity: 0, y: -6 }}
                   animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden"
+                  exit={{ opacity: 0, y: -6 }}
+                  className="absolute right-0 mt-2 w-52 bg-white nb border-black overflow-hidden z-50"
                 >
-                  <div className="p-3 border-b border-gray-100">
-                    <p className="font-semibold text-gray-900">{user.name || userName}</p>
-                    <p className="text-xs text-gray-500 capitalize">{user.role}</p>
+                  <div className="px-4 py-3 bg-nb-yellow border-b-2 border-black">
+                    <p className="font-bold text-sm text-black">{user.name || userName}</p>
+                    <p className="text-xs text-black/60 capitalize font-medium">{user.role}</p>
                   </div>
                   <div className="py-1">
-                    <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                      <User className="w-4 h-4" /> Profile
-                    </button>
-                    <button className="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-2">
-                      <Settings className="w-4 h-4" /> Settings
-                    </button>
+                    {user.role === 'organizer' && (
+                      <button onClick={() => { navigate('/analytics'); setShowProfileMenu(false) }}
+                        className="w-full px-4 py-2.5 text-left text-sm font-semibold hover:bg-nb-yellow/30 flex items-center gap-2 transition-colors">
+                        <BarChart3 className="w-4 h-4" /> Analytics
+                      </button>
+                    )}
+                    {user.role === 'participant' && (
+                      <button onClick={() => { navigate('/my-history'); setShowProfileMenu(false) }}
+                        className="w-full px-4 py-2.5 text-left text-sm font-semibold hover:bg-nb-yellow/30 flex items-center gap-2 transition-colors">
+                        <History className="w-4 h-4" /> My History
+                      </button>
+                    )}
                   </div>
-                  <div className="border-t border-gray-100">
-                    <button
-                      onClick={handleLogout}
-                      className="w-full px-4 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                    >
+                  <div className="border-t-2 border-black">
+                    <button onClick={handleLogout}
+                      className="w-full px-4 py-2.5 text-left text-sm font-bold text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors">
                       <LogOut className="w-4 h-4" /> Logout
                     </button>
                   </div>
@@ -175,259 +175,143 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-6">
-        {/* Welcome & Stats Section */}
+      <div className="max-w-6xl mx-auto px-4 py-6 space-y-5">
+
+        {/* ── Welcome Banner ───────────────────────────────────────── */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white rounded-2xl shadow-md p-6 mb-6"
+          className="nb-lg bg-nb-black text-white p-6 flex items-center justify-between"
         >
-          {/* Personalized Welcome */}
-          <div className="mb-6">
-            <h2 className="text-2xl font-black text-gray-900">
-              {greeting}, {userName}! 👋
-            </h2>
-            <p className="text-gray-500 mt-1">
-              {user.role === 'organizer'
-                ? "Manage your events and track registrations"
-                : "Here's what's happening on campus today"}
+          <div>
+            <p className="text-nb-yellow font-bold text-xs uppercase tracking-widest mb-1">{greeting}</p>
+            <h2 className="font-display text-2xl font-bold text-white">{userName} 👋</h2>
+            <p className="text-white/50 text-sm mt-1">
+              {user.role === 'organizer' ? 'Manage your events and track registrations' : "Here's what's happening on campus"}
             </p>
           </div>
-
-          {/* Stats Cards - Clickable with shadows */}
-          <div className="grid md:grid-cols-3 gap-4">
-            {user.role === 'organizer' ? (
-              <>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  className="bg-gradient-to-br from-yellow-50 to-yellow-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer border border-yellow-200"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-yellow-400 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-black text-gray-900">{myEvents?.length || 0}</p>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-700">Events Created</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {myEvents?.length === 0 ? "Create your first event" : `${myEvents?.filter((e: any) => new Date(e.date) >= new Date()).length || 0} upcoming`}
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  onClick={scrollToEvents}
-                  className="bg-gradient-to-br from-green-50 to-green-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer border border-green-200"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-green-400 rounded-lg flex items-center justify-center">
-                      <Users className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-black text-gray-900">{events?.length || 0}</p>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-700">Total Events</p>
-                  <p className="text-xs text-gray-500 mt-1">Click to browse all</p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  className="bg-gradient-to-br from-blue-50 to-blue-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer border border-blue-200"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-blue-400 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-black text-gray-900">
-                        {myEvents?.filter((e: any) => new Date(e.date) >= new Date()).length || 0}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-700">Upcoming Events</p>
-                  <p className="text-xs text-gray-500 mt-1">Events you're organizing</p>
-                </motion.div>
-              </>
-            ) : (
-              <>
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  className="bg-gradient-to-br from-pink-50 to-pink-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer border border-pink-200"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-pink-400 rounded-lg flex items-center justify-center">
-                      <Calendar className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-black text-gray-900">{myRegistrations?.length || 0}</p>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-700">Registered Events</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {myRegistrations?.length === 0 ? "You haven't registered yet" : "View your registrations"}
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  onClick={scrollToEvents}
-                  className="bg-gradient-to-br from-purple-50 to-purple-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer border border-purple-200"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-purple-400 rounded-lg flex items-center justify-center">
-                      <Users className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-black text-gray-900">{events?.length || 0}</p>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-700">Available Events</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {events?.length || 0} events open for registration
-                  </p>
-                </motion.div>
-
-                <motion.div
-                  whileHover={{ y: -2 }}
-                  className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-xl p-5 shadow-sm hover:shadow-md transition-all cursor-pointer border border-orange-200"
-                >
-                  <div className="flex items-center gap-3 mb-2">
-                    <div className="w-10 h-10 bg-orange-400 rounded-lg flex items-center justify-center">
-                      <TrendingUp className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <p className="text-3xl font-black text-gray-900">{myAttendanceCount || 0}</p>
-                    </div>
-                  </div>
-                  <p className="font-semibold text-gray-700">Events Attended</p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    {myAttendanceCount === 0 ? "Attend your first event!" : "Great participation!"}
-                  </p>
-                </motion.div>
-              </>
-            )}
-          </div>
+          {user.role === 'participant' && (
+            <button
+              onClick={() => navigate('/my-history')}
+              className="hidden sm:flex items-center gap-2 nb-btn bg-nb-yellow text-black px-4 py-2 text-sm"
+            >
+              <History className="w-4 h-4" /> My History
+            </button>
+          )}
         </motion.div>
 
-        {/* Participant Actions */}
-        {user.role === 'participant' && (
-          <div className="flex flex-wrap gap-3 mb-6">
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/my-history')}
-              className="bg-emerald-500 text-white px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
+        {/* ── Stats Row ────────────────────────────────────────────── */}
+        <div className="grid grid-cols-3 gap-3">
+          {stats.map((s, i) => (
+            <motion.div
+              key={s.label}
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: i * 0.06 }}
+              onClick={s.onClick}
+              className={`nb ${s.bg} p-4 ${s.onClick ? 'cursor-pointer nb-hover' : ''}`}
             >
-              <History className="w-5 h-5" />
-              My History
-            </motion.button>
+              <s.icon className="w-5 h-5 mb-3 opacity-70" />
+              <p className="text-3xl font-bold font-display">{s.value}</p>
+              <p className="text-xs font-bold uppercase tracking-wide mt-1 opacity-80">{s.label}</p>
+              <p className="text-xs opacity-50 mt-0.5">{s.sub}</p>
+            </motion.div>
+          ))}
+        </div>
+
+        {/* Mobile history button */}
+        {user.role === 'participant' && (
+          <div className="flex sm:hidden">
+            <button onClick={() => navigate('/my-history')}
+              className="nb-btn bg-nb-yellow text-black px-5 py-2.5 text-sm inline-flex items-center gap-2">
+              <History className="w-4 h-4" /> My History
+            </button>
           </div>
         )}
 
-        {/* AI-Powered Recommendations (Participants Only) */}
+        {/* ── AI Recommendations ───────────────────────────────────── */}
         {user.role === 'participant' && user.userId && (
           <RecommendedEvents userId={user.userId} />
         )}
 
-        {/* Category Filter - Toggle Pills */}
-        <div className="flex flex-wrap gap-2 mb-6">
-          {categories.map((category) => {
-            const isActive = selectedCategories.includes(category) || (category === 'All' && selectedCategories.includes('All'))
-            return (
-              <motion.button
-                key={category}
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={() => toggleCategory(category)}
-                className={`px-5 py-2 rounded-full font-semibold text-sm transition-all ${isActive
-                  ? 'bg-gray-900 text-white shadow-md'
-                  : 'bg-white text-gray-700 border border-gray-300 hover:border-gray-400'
-                  }`}
-              >
-                {isActive && category !== 'All' && <span className="mr-1 font-bold">•</span>}
-                {category}
-              </motion.button>
-            )
-          })}
-        </div>
-
-        {/* Create Event Button (Organizers Only) */}
+        {/* ── Organizer Actions ────────────────────────────────────── */}
         {user.role === 'organizer' && (
-          <div className="flex flex-wrap gap-3 mb-6">
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowCreateDialog(true)}
-              className="bg-green-500 text-white px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-            >
-              <Plus className="w-5 h-5" />
-              Create Event
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowAnnouncementDialog(true)}
-              className="bg-yellow-500 text-white px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-            >
-              <Megaphone className="w-5 h-5" />
-              Announcement
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => setShowQRScanner(true)}
-              className="bg-blue-500 text-white px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-            >
-              <QrCode className="w-5 h-5" />
-              Scan QR
-            </motion.button>
-
-            <motion.button
-              whileHover={{ scale: 1.02, y: -1 }}
-              whileTap={{ scale: 0.98 }}
-              onClick={() => navigate('/analytics')}
-              className="bg-indigo-500 text-white px-6 py-3 rounded-xl font-bold inline-flex items-center gap-2 shadow-md hover:shadow-lg transition-all"
-            >
-              <BarChart3 className="w-5 h-5" />
-              Analytics
-            </motion.button>
+          <div className="flex flex-wrap gap-2">
+            {[
+              { label: 'Create Event', icon: Plus, bg: 'bg-nb-yellow', action: () => setShowCreateDialog(true) },
+              { label: 'Announcement', icon: Megaphone, bg: 'bg-nb-orange text-white', action: () => setShowAnnouncementDialog(true) },
+              { label: 'Scan QR', icon: QrCode, bg: 'bg-nb-black text-white', action: () => setShowQRScanner(true) },
+              { label: 'Analytics', icon: BarChart3, bg: 'bg-white', action: () => navigate('/analytics') },
+            ].map((btn) => (
+              <motion.button
+                key={btn.label}
+                whileTap={{ scale: 0.97 }}
+                onClick={btn.action}
+                className={`nb-btn ${btn.bg} px-4 py-2.5 text-sm inline-flex items-center gap-2`}
+              >
+                <btn.icon className="w-4 h-4" />
+                {btn.label}
+              </motion.button>
+            ))}
           </div>
         )}
 
-        {/* Events Grid */}
+        {/* ── Search + Filter ──────────────────────────────────────── */}
+        <div className="space-y-3">
+          <div className="relative">
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
+            <input
+              type="text"
+              placeholder="Search events by name, location..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="nb-input w-full pl-10 pr-4 py-3 text-sm"
+            />
+          </div>
+
+          <div className="flex flex-wrap gap-2">
+            {categories.map((cat) => {
+              const isActive = selectedCategories.includes(cat) || (cat === 'All' && selectedCategories.includes('All'))
+              return (
+                <button
+                  key={cat}
+                  onClick={() => toggleCategory(cat)}
+                  className={`nb-tag transition-all ${isActive
+                    ? 'bg-nb-black text-white'
+                    : 'bg-white text-black hover:bg-nb-yellow'
+                  }`}
+                >
+                  {cat}
+                </button>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* ── Events Grid ──────────────────────────────────────────── */}
         <div ref={eventsRef}>
           {filteredEvents.length === 0 ? (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="bg-white rounded-2xl shadow-md p-12 text-center"
-            >
-              <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-              <h3 className="text-xl font-bold text-gray-700 mb-2">No Events Found</h3>
-              <p className="text-gray-500 mb-6">
-                {selectedCategories.includes('All')
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="nb bg-white p-12 text-center">
+              <div className="w-14 h-14 bg-nb-yellow nb-sm flex items-center justify-center mx-auto mb-4">
+                <Calendar className="w-7 h-7 text-black" />
+              </div>
+              <h3 className="font-display text-lg font-bold mb-2">No Events Found</h3>
+              <p className="text-black/50 text-sm mb-5">
+                {selectedCategories.includes('All') && !searchQuery
                   ? 'No events available yet. Check back soon!'
-                  : `No ${selectedCategories.join(' or ')} events right now. Check back soon!`}
+                  : searchQuery ? `No events match "${searchQuery}".`
+                  : `No ${selectedCategories.join(' or ')} events right now.`}
               </p>
-              {!selectedCategories.includes('All') && (
-                <button
-                  onClick={() => setSelectedCategories(['All'])}
-                  className="px-6 py-2 bg-gray-900 text-white rounded-lg font-semibold hover:bg-gray-800 transition-colors"
-                >
-                  View All Events
+              {(!selectedCategories.includes('All') || searchQuery) && (
+                <button onClick={() => { setSelectedCategories(['All']); setSearchQuery('') }}
+                  className="nb-btn bg-nb-black text-white px-5 py-2 text-sm">
+                  Clear Filters
                 </button>
               )}
             </motion.div>
           ) : (
-            <motion.div
-              layout
-              className="grid md:grid-cols-2 lg:grid-cols-3 gap-5"
-            >
+            <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
               <AnimatePresence>
                 {filteredEvents.map((event: any) => (
                   <EventCard key={event._id} event={event} />
@@ -436,70 +320,54 @@ export default function Dashboard() {
             </motion.div>
           )}
         </div>
-      </div>
 
-      {/* Your Announcements Section (Organizers Only) */}
-      {user.role === 'organizer' && (
-        <div className="container mx-auto px-4 pb-8">
-          <h2 className="text-2xl font-black text-gray-900 mb-4">Your Announcements</h2>
-          {!myAnnouncements ? (
-            <div className="bg-gray-100 rounded-xl h-32 animate-pulse" />
-          ) : myAnnouncements.length === 0 ? (
-            <div className="bg-white rounded-xl shadow-sm p-8 text-center border border-gray-100">
-              <Megaphone className="w-10 h-10 mx-auto mb-3 text-gray-300" />
-              <p className="font-semibold text-gray-500">No announcements created yet.</p>
-            </div>
-          ) : (
-            <div className="grid md:grid-cols-2 gap-4">
-              {myAnnouncements.map((announcement) => (
-                <AnnouncementCard
-                  key={announcement._id}
-                  announcement={announcement}
-                  showDelete={true}
-                  organizerId={user.userId as any}
-                />
+        {/* ── Announcements ────────────────────────────────────────── */}
+        {user.role === 'organizer' && (
+          <div>
+            <h2 className="font-display font-bold text-base uppercase tracking-wide mb-3 flex items-center gap-2">
+              <span className="w-3 h-3 bg-nb-yellow border-2 border-black inline-block" />
+              Your Announcements
+            </h2>
+            {!myAnnouncements ? (
+              <div className="nb bg-nb-paper h-20 animate-pulse" />
+            ) : myAnnouncements.length === 0 ? (
+              <div className="nb bg-white p-6 text-center">
+                <Megaphone className="w-7 h-7 mx-auto mb-2 opacity-30" />
+                <p className="text-sm font-semibold text-black/40">No announcements yet.</p>
+              </div>
+            ) : (
+              <div className="grid md:grid-cols-2 gap-3">
+                {myAnnouncements.map((a) => (
+                  <AnnouncementCard key={a._id} announcement={a} showDelete organizerId={user.userId as any} />
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {user.role === 'participant' && generalAnnouncements && generalAnnouncements.length > 0 && (
+          <div>
+            <h2 className="font-display font-bold text-base uppercase tracking-wide mb-3 flex items-center gap-2">
+              <span className="w-3 h-3 bg-nb-yellow border-2 border-black inline-block" />
+              Announcements
+            </h2>
+            <div className="grid md:grid-cols-2 gap-3">
+              {generalAnnouncements.slice(0, 4).map((a) => (
+                <AnnouncementCard key={a._id} announcement={a} showDelete={false} />
               ))}
             </div>
-          )}
-        </div>
-      )}
-
-      {/* General Announcements Section (Participants) */}
-      {user.role === 'participant' && generalAnnouncements && generalAnnouncements.length > 0 && (
-        <div className="container mx-auto px-4 pb-8">
-          <h2 className="text-2xl font-black text-gray-900 mb-4">Announcements</h2>
-          <div className="grid md:grid-cols-2 gap-4">
-            {generalAnnouncements.slice(0, 4).map((announcement) => (
-              <AnnouncementCard
-                key={announcement._id}
-                announcement={announcement}
-                showDelete={false}
-              />
-            ))}
           </div>
-        </div>
-      )}
+        )}
+      </div>
 
-      {/* Create Event Dialog */}
+      {/* ── Dialogs ──────────────────────────────────────────────── */}
       {showCreateDialog && user.userId && (
-        <CreateEventDialog
-          organizerId={user.userId}
-          onClose={() => setShowCreateDialog(false)}
-        />
+        <CreateEventDialog organizerId={user.userId} onClose={() => setShowCreateDialog(false)} />
       )}
-
-      {/* Create Announcement Dialog */}
       {showAnnouncementDialog && user.userId && (
-        <CreateAnnouncementDialog
-          organizerId={user.userId}
-          onClose={() => setShowAnnouncementDialog(false)}
-        />
+        <CreateAnnouncementDialog organizerId={user.userId} onClose={() => setShowAnnouncementDialog(false)} />
       )}
-
-      {/* QR Scanner Dialog */}
-      {showQRScanner && (
-        <QRScanner onClose={() => setShowQRScanner(false)} />
-      )}
+      {showQRScanner && <QRScanner onClose={() => setShowQRScanner(false)} />}
     </div>
   )
 }

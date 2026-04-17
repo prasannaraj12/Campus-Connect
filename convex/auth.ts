@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { mutation, internalMutation } from "./_generated/server";
+import { internal } from "./_generated/api";
 
 // Generate a 6-digit OTP
 function generateOTP(): string {
@@ -68,3 +69,17 @@ export const verifyOTP = mutation({
     return { success: true };
   },
 });
+
+// Internal mutation to purge expired OTP codes
+export const cleanupExpiredOTPs = internalMutation({
+  handler: async (ctx) => {
+    const now = Date.now()
+    const expired = await ctx.db
+      .query("otpCodes")
+      .filter((q) => q.lt(q.field("expiresAt"), now))
+      .collect()
+
+    await Promise.all(expired.map((otp) => ctx.db.delete(otp._id)))
+    return { deleted: expired.length }
+  },
+})

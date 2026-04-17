@@ -12,6 +12,7 @@ import SimilarEvents from '../components/SimilarEvents'
 import EventCommunity from '../components/EventCommunity'
 import { useState, useEffect } from 'react'
 import QRCode from 'react-qr-code'
+import { PageLoader } from '../components/Skeleton'
 
 export default function EventDetail() {
   const { eventId } = useParams<{ eventId: string }>()
@@ -82,11 +83,8 @@ export default function EventDetail() {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 flex items-center justify-center">
-        <div className="bg-white rounded-2xl shadow-lg p-12">
-          <div className="animate-spin w-12 h-12 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto mb-4"></div>
-          <p className="text-xl font-semibold text-gray-700">Loading event...</p>
-        </div>
+      <div className="min-h-screen bg-slate-50 flex items-center justify-center">
+        <PageLoader message="Loading event..." />
       </div>
     )
   }
@@ -115,7 +113,7 @@ export default function EventDetail() {
   const status = getEventStatus()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100">
+    <div className="min-h-screen bg-slate-50">
       {/* Organizer Banner */}
       {isOrganizer && (
         <div className="bg-gray-900 text-white py-2">

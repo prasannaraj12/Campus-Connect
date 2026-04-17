@@ -8,7 +8,7 @@ import { useState } from 'react'
 interface Props {
   announcement: any
   showDelete?: boolean
-  organizerId?: Id<"users">
+  organizerId?: Id<'users'>
 }
 
 export default function AnnouncementCard({ announcement, showDelete = false, organizerId }: Props) {
@@ -17,15 +17,10 @@ export default function AnnouncementCard({ announcement, showDelete = false, org
 
   const handleDelete = async () => {
     if (!organizerId || !confirm('Delete this announcement?')) return
-
     setDeleting(true)
     try {
-      await deleteAnnouncement({
-        announcementId: announcement._id,
-        organizerId,
-      })
-    } catch (err) {
-      console.error('Failed to delete:', err)
+      await deleteAnnouncement({ announcementId: announcement._id, organizerId })
+    } catch {
       alert('Failed to delete announcement')
     } finally {
       setDeleting(false)
@@ -36,54 +31,59 @@ export default function AnnouncementCard({ announcement, showDelete = false, org
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className={`neo-brutal ${isImportant ? 'bg-red-100 border-red-500' : 'bg-yellow-100'
-        } p-6 relative`}
+      className={`relative rounded-2xl border p-5 ${
+        isImportant
+          ? 'bg-red-50 border-red-200'
+          : 'bg-amber-50 border-amber-200'
+      }`}
     >
       {/* Delete Button */}
       {showDelete && (
-        <motion.button
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
+        <button
           onClick={handleDelete}
           disabled={deleting}
-          className="absolute top-4 right-4 neo-brutal-sm bg-red-400 p-2 hover:translate-x-0.5 hover:translate-y-0.5 hover:shadow-none transition-all disabled:opacity-50"
+          className="absolute top-4 right-4 w-8 h-8 bg-white hover:bg-red-50 border border-slate-200 hover:border-red-200 rounded-lg flex items-center justify-center transition-colors disabled:opacity-50"
+          title="Delete announcement"
         >
-          <Trash2 className="w-4 h-4" />
-        </motion.button>
+          <Trash2 className="w-3.5 h-3.5 text-slate-400 hover:text-red-500" />
+        </button>
       )}
 
-      <div className="flex items-start gap-4">
-        <div className={`neo-brutal ${isImportant ? 'bg-red-400' : 'bg-yellow-400'} p-3 flex-shrink-0`}>
-          {isImportant ? (
-            <AlertCircle className="w-6 h-6" />
-          ) : (
-            <Megaphone className="w-6 h-6" />
-          )}
+      <div className="flex items-start gap-4 pr-8">
+        {/* Icon */}
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 ${
+          isImportant ? 'bg-red-100' : 'bg-amber-100'
+        }`}>
+          {isImportant
+            ? <AlertCircle className="w-5 h-5 text-red-600" />
+            : <Megaphone className="w-5 h-5 text-amber-600" />
+          }
         </div>
 
-        <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <h3 className="text-xl font-black">{announcement.title}</h3>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 flex-wrap mb-1">
+            <h3 className="font-bold text-slate-900">{announcement.title}</h3>
             {isImportant && (
-              <span className="neo-brutal-sm bg-red-400 px-2 py-1 text-xs font-bold">
+              <span className="text-[10px] font-bold bg-red-500 text-white px-2 py-0.5 rounded-full">
                 IMPORTANT
               </span>
             )}
-          </div>
-
-          <p className="font-semibold text-gray-800 mb-3">{announcement.message}</p>
-
-          <div className="flex items-center gap-4 text-sm font-bold text-gray-600">
-            {/* <span>📍 {announcement.department}</span> */}
-            <span>{new Date(announcement.createdAt).toLocaleDateString()}</span>
             {announcement.eventId && (
-              <span className="neo-brutal-sm bg-blue-400 px-2 py-1 text-xs">
+              <span className="text-[10px] font-semibold bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">
                 Event-Specific
               </span>
             )}
           </div>
+
+          <p className="text-sm text-slate-600 leading-relaxed mb-2">{announcement.message}</p>
+
+          <p className="text-xs text-slate-400">
+            {new Date(announcement.createdAt).toLocaleDateString('en-US', {
+              month: 'short', day: 'numeric', year: 'numeric'
+            })}
+          </p>
         </div>
       </div>
     </motion.div>

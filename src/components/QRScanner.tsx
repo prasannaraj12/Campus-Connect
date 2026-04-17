@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { QrCode, X, Camera } from 'lucide-react'
 
 interface Props {
@@ -11,85 +11,82 @@ export default function QRScanner({ onClose }: Props) {
 
   const handleManualSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (manualInput.trim()) {
-      const input = manualInput.trim().toUpperCase();
-
-      // Check if it's a short code (like REG-A1B2C3 or just A1B2C3)
-      if (input.includes('REG-') || input.length <= 10) {
-        // It's a short code - navigate to ticket page (Ticket.tsx handles code detection)
-        window.location.href = `/ticket/${input}`;
-      } else if (input.includes('/ticket/')) {
-        // Extract registration ID from URL
-        const regId = input.split('/ticket/')[1];
-        window.location.href = `/ticket/${regId}`;
-      } else {
-        // Assume it's a registration ID
-        window.location.href = `/ticket/${input}`;
-      }
+    if (!manualInput.trim()) return
+    const input = manualInput.trim().toUpperCase()
+    if (input.includes('REG-') || input.length <= 10) {
+      window.location.href = `/ticket/${input}`
+    } else if (input.includes('/ticket/')) {
+      const regId = input.split('/ticket/')[1]
+      window.location.href = `/ticket/${regId}`
+    } else {
+      window.location.href = `/ticket/${input}`
     }
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
+        initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
-        className="neo-brutal-lg bg-white p-8 max-w-md w-full"
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-md overflow-hidden"
       >
-        <div className="flex justify-between items-center mb-6">
-          <h2 className="text-3xl font-black">Scan QR Code</h2>
+        {/* Header */}
+        <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 bg-brand-100 rounded-xl flex items-center justify-center">
+              <QrCode className="w-5 h-5 text-brand-600" />
+            </div>
+            <h2 className="font-display text-lg font-extrabold text-slate-900">Scan QR Code</h2>
+          </div>
           <button
             onClick={onClose}
-            className="neo-brutal-sm bg-red-400 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+            className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition-colors"
           >
-            <X className="w-6 h-6" />
+            <X className="w-5 h-5 text-slate-600" />
           </button>
         </div>
 
-        <div className="neo-brutal bg-blue-100 p-6 mb-6 text-center">
-          <Camera className="w-16 h-16 mx-auto mb-4 text-blue-600" />
-          <p className="font-bold mb-2">Camera Scanner</p>
-          <p className="text-sm font-semibold text-gray-700">
-            Camera QR scanning will be implemented with a library like react-qr-reader.
-            For now, use manual input below.
-          </p>
-        </div>
+        <div className="p-6 space-y-5">
+          {/* Camera placeholder */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-8 text-center">
+            <div className="w-14 h-14 bg-slate-200 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <Camera className="w-7 h-7 text-slate-400" />
+            </div>
+            <p className="font-semibold text-slate-700 mb-1">Camera Scanner</p>
+            <p className="text-sm text-slate-400">
+              Camera QR scanning coming soon. Use manual entry below.
+            </p>
+          </div>
 
-        <div className="neo-brutal bg-gray-50 p-6">
-          <h3 className="font-black mb-4 flex items-center gap-2">
-            <QrCode className="w-5 h-5" />
-            Manual Entry
-          </h3>
-          <form onSubmit={handleManualSubmit} className="space-y-4">
-            <div>
-              <label className="block font-bold mb-2 text-sm">
-                Paste Registration ID or Ticket URL
-              </label>
+          {/* Manual entry */}
+          <div>
+            <label className="block text-sm font-semibold text-slate-700 mb-2">
+              Manual Entry
+            </label>
+            <form onSubmit={handleManualSubmit} className="space-y-3">
               <input
                 type="text"
                 value={manualInput}
-                onChange={(e) => setManualInput(e.target.value)}
-                placeholder="Registration ID or ticket URL"
-                className="neo-brutal w-full px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-black"
+                onChange={e => setManualInput(e.target.value)}
+                placeholder="Paste registration code or ticket URL"
+                className="w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none font-mono text-sm transition-colors"
               />
-            </div>
-
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-              type="submit"
-              disabled={!manualInput.trim()}
-              className="neo-brutal bg-green-400 w-full py-3 font-bold hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all disabled:opacity-50"
-            >
-              Mark Attendance
-            </motion.button>
-          </form>
-
-          <div className="mt-4 p-3 bg-yellow-100 rounded">
-            <p className="text-xs font-semibold text-gray-700">
-              Tip: Ask participants to open their ticket and copy the URL or registration ID
-            </p>
+              <motion.button
+                whileHover={{ scale: 1.01 }}
+                whileTap={{ scale: 0.99 }}
+                type="submit"
+                disabled={!manualInput.trim()}
+                className="w-full bg-brand-500 hover:bg-brand-600 text-white py-3 rounded-xl font-bold transition-all disabled:opacity-40 disabled:cursor-not-allowed shadow-sm"
+              >
+                Mark Attendance
+              </motion.button>
+            </form>
           </div>
+
+          <p className="text-xs text-slate-400 text-center">
+            Ask participants to share their registration code or ticket URL
+          </p>
         </div>
       </motion.div>
     </div>

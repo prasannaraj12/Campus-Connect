@@ -81,24 +81,16 @@ export const register = mutation({
 
       // Helper function to generate unique code
       const generateUniqueCode = async () => {
-        let code = generateRegistrationCode();
-        let attempts = 0;
-
-        // Ensure code is unique
-        while (attempts < 10) {
+        for (let attempts = 0; attempts < 10; attempts++) {
+          const code = generateRegistrationCode()
           const existing = await ctx.db
             .query("registrations")
             .withIndex("by_code", (q) => q.eq("registrationCode", code))
-            .first();
-
-          if (!existing) return code;
-
-          code = generateRegistrationCode();
-          attempts++;
+            .first()
+          if (!existing) return code
         }
-
-        return code;
-      };
+        throw new Error("Failed to generate unique registration code. Please try again.")
+      }
 
       // 1. Register team leader (the user)
       const leaderCode = await generateUniqueCode();
@@ -152,23 +144,16 @@ export const register = mutation({
     } else {
       // Solo/Workshop event - single registration
       const code = await (async () => {
-        let code = generateRegistrationCode();
-        let attempts = 0;
-
-        while (attempts < 10) {
+        for (let attempts = 0; attempts < 10; attempts++) {
+          const candidate = generateRegistrationCode()
           const existing = await ctx.db
             .query("registrations")
-            .withIndex("by_code", (q) => q.eq("registrationCode", code))
-            .first();
-
-          if (!existing) return code;
-
-          code = generateRegistrationCode();
-          attempts++;
+            .withIndex("by_code", (q) => q.eq("registrationCode", candidate))
+            .first()
+          if (!existing) return candidate
         }
-
-        return code;
-      })();
+        throw new Error("Failed to generate unique registration code. Please try again.")
+      })()
 
       const registrationId = await ctx.db.insert("registrations", {
         eventId: args.eventId,
