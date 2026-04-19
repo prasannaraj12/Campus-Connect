@@ -14,7 +14,8 @@ export const createEvent = mutation({
       v.literal("Sports"),
       v.literal("Cultural"),
       v.literal("Technical"),
-      v.literal("Social")
+      v.literal("Social"),
+      v.literal("Hackathon")
     ),
     maxParticipants: v.number(),
     organizerId: v.id("users"),
@@ -73,9 +74,16 @@ export const createEvent = mutation({
 export const getAllEvents = query({
   handler: async (ctx) => {
     const events = await ctx.db.query("events").collect();
-    
+
+    // Sort by date ascending (soonest first)
+    const sorted = events.sort((a, b) => {
+      const da = new Date(`${a.date}T${a.time || '00:00'}`).getTime()
+      const db = new Date(`${b.date}T${b.time || '00:00'}`).getTime()
+      return da - db
+    })
+
     // 🛡️ SECURITY CHECK: Redact contact info if showContactInfo is false
-    return events.map(event => {
+    return sorted.map(event => {
       if (!event.showContactInfo) {
         return {
           ...event,
@@ -88,6 +96,36 @@ export const getAllEvents = query({
     });
   },
 });
+
+// Returns only upcoming events (date >= today), sorted soonest first
+export const getUpcomingEvents = query({
+  handler: async (ctx) => {
+    const now = new Date()
+    const events = await ctx.db.query("events").collect()
+
+    return events
+      .filter(e => {
+        const eventDate = new Date(`${e.date}T${e.time || '00:00'}`)
+        return eventDate >= now
+      })
+      .sort((a, b) => {
+        const da = new Date(`${a.date}T${a.time || '00:00'}`).getTime()
+        const db = new Date(`${b.date}T${b.time || '00:00'}`).getTime()
+        return da - db
+      })
+      .map(event => {
+        if (!event.showContactInfo) {
+          return {
+            ...event,
+            organizerEmail: undefined,
+            organizerPhone: undefined,
+            organizerName: event.organizerName ? "(Hidden)" : undefined,
+          }
+        }
+        return event
+      })
+  },
+})
 
 export const getEventById = query({
   args: { eventId: v.id("events") },
@@ -116,8 +154,15 @@ export const getEventsByOrganizer = query({
       .withIndex("by_organizer", (q) => q.eq("organizerId", args.organizerId))
       .collect();
 
+    // Sort by date ascending (upcoming first)
+    const sorted = events.sort((a, b) => {
+      const da = new Date(`${a.date}T${a.time || '00:00'}`).getTime()
+      const db = new Date(`${b.date}T${b.time || '00:00'}`).getTime()
+      return da - db
+    })
+
     // 🛡️ SECURITY CHECK: Redact contact info if showContactInfo is false
-    return events.map(event => {
+    return sorted.map(event => {
       if (!event.showContactInfo) {
         return {
           ...event,

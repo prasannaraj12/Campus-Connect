@@ -30,6 +30,7 @@ export default function Dashboard() {
   const eventsRef = useRef<HTMLDivElement>(null)
 
   const events = useQuery(api.events.getAllEvents)
+  const upcomingEvents = useQuery(api.events.getUpcomingEvents)
   const myEvents = useQuery(
     api.events.getEventsByOrganizer,
     user?.role === 'organizer' && user?.userId ? { organizerId: user.userId } : 'skip'
@@ -53,7 +54,7 @@ export default function Dashboard() {
 
   if (!user) { navigate('/role-selection'); return null }
 
-  if (events === undefined) {
+  if (events === undefined || upcomingEvents === undefined) {
     return (
       <div className="min-h-screen bg-nb-cream">
         <div className="h-16 bg-white border-b-4 border-black mb-10" />
@@ -72,7 +73,7 @@ export default function Dashboard() {
     setSelectedCategories(next)
   }
 
-  const filteredEvents = events?.filter((event: any) => {
+  const filteredEvents = (user.role === 'organizer' ? events : upcomingEvents)?.filter((event: any) => {
     const matchCat = selectedCategories.includes('All') || selectedCategories.includes(event.category)
     const matchSearch = !searchQuery.trim() ||
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -89,13 +90,13 @@ export default function Dashboard() {
 
   // Stats config
   const organizerStats = [
-    { label: 'Events Created', value: myEvents?.length || 0, sub: `${myEvents?.filter((e: any) => new Date(e.date) >= new Date()).length || 0} upcoming`, icon: Calendar, bg: 'bg-nb-yellow' },
+    { label: 'Events Created', value: myEvents?.length || 0, sub: `${myEvents?.filter((e: any) => new Date(`${e.date}T${e.time || '00:00'}`) >= new Date()).length || 0} upcoming`, icon: Calendar, bg: 'bg-nb-yellow' },
     { label: 'Total Events', value: events?.length || 0, sub: 'Click to browse', icon: Users, bg: 'bg-white', onClick: scrollToEvents },
-    { label: 'Upcoming', value: myEvents?.filter((e: any) => new Date(e.date) >= new Date()).length || 0, sub: "You're organizing", icon: TrendingUp, bg: 'bg-nb-purple text-white' },
+    { label: 'Upcoming', value: myEvents?.filter((e: any) => new Date(`${e.date}T${e.time || '00:00'}`) >= new Date()).length || 0, sub: "You're organizing", icon: TrendingUp, bg: 'bg-nb-purple text-white' },
   ]
   const participantStats = [
     { label: 'Registered', value: myRegistrations?.length || 0, sub: 'Events signed up', icon: Calendar, bg: 'bg-nb-yellow' },
-    { label: 'Available', value: events?.length || 0, sub: 'Open now', icon: Users, bg: 'bg-nb-green', onClick: scrollToEvents },
+    { label: 'Upcoming', value: upcomingEvents?.length || 0, sub: 'Open now', icon: Users, bg: 'bg-nb-green', onClick: scrollToEvents },
     { label: 'Attended', value: myAttendanceCount || 0, sub: myAttendanceCount === 0 ? 'Attend your first!' : 'Great work!', icon: TrendingUp, bg: 'bg-nb-pink text-white' },
   ]
   const stats = user.role === 'organizer' ? organizerStats : participantStats
@@ -221,7 +222,9 @@ export default function Dashboard() {
         {/* ── Events Grid ──────────────────────────────────────────── */}
         <div ref={eventsRef} className="pt-8">
           <div className="flex items-center gap-6 mb-12">
-            <h2 className="font-display text-5xl font-black text-black italic tracking-tighter uppercase leading-none underline decoration-nb-pink decoration-8 underline-offset-8">EVENT DISCOVERY</h2>
+            <h2 className="font-display text-5xl font-black text-black italic tracking-tighter uppercase leading-none underline decoration-nb-pink decoration-8 underline-offset-8">
+              {user.role === 'participant' ? 'UPCOMING EVENTS' : 'EVENT DISCOVERY'}
+            </h2>
             <div className="h-2 flex-1 bg-black/10" />
           </div>
 
