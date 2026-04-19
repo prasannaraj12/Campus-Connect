@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react'
+import { useState, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
 import { useQuery } from 'convex/react'
@@ -9,28 +9,25 @@ import CreateEventDialog from '../components/CreateEventDialog'
 import CreateAnnouncementDialog from '../components/CreateAnnouncementDialog'
 import AnnouncementCard from '../components/AnnouncementCard'
 import QRScanner from '../components/QRScanner'
-import RecommendedEvents from '../components/RecommendedEvents'
 import { SkeletonDashboard } from '../components/Skeleton'
 import AppShell from '../components/AppShell'
 import {
   Plus, Calendar, Users, TrendingUp, QrCode,
-  Megaphone, BarChart3, History, Search, ChevronDown, LogOut, Zap
+  Megaphone, BarChart3, History, Search, Zap
 } from 'lucide-react'
-import { Brainbox, GhostBlob, HappyDog, NBStar } from '../components/Mascots'
+import { Brainbox, GhostBlob, HappyDog } from '../components/Mascots'
 
 const categories = ['All', 'Workshop', 'Seminar', 'Sports', 'Cultural', 'Technical', 'Social', 'Hackathon']
 
 export default function Dashboard() {
   const navigate = useNavigate()
-  const { user, logout } = useAuth()
+  const { user } = useAuth()
   const [selectedCategories, setSelectedCategories] = useState<string[]>(['All'])
   const [showCreateDialog, setShowCreateDialog] = useState(false)
   const [showAnnouncementDialog, setShowAnnouncementDialog] = useState(false)
   const [showQRScanner, setShowQRScanner] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
   const eventsRef = useRef<HTMLDivElement>(null)
-  const profileMenuRef = useRef<HTMLDivElement>(null)
-  const [showProfileMenu, setShowProfileMenu] = useState(false)
 
   const events = useQuery(api.events.getAllEvents)
   const myEvents = useQuery(
@@ -53,15 +50,6 @@ export default function Dashboard() {
     api.announcements.getGeneralAnnouncements,
     user?.role === 'participant' ? {} : 'skip'
   )
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node))
-        setShowProfileMenu(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
 
   if (!user) { navigate('/role-selection'); return null }
 
@@ -93,7 +81,6 @@ export default function Dashboard() {
     return matchCat && matchSearch
   }) || []
 
-  const handleLogout = () => { logout(); navigate('/') }
   const scrollToEvents = () => eventsRef.current?.scrollIntoView({ behavior: 'smooth' })
 
   const userName = user.name?.split(' ')[0] || (user.role === 'organizer' ? 'Organizer' : 'Participant')
