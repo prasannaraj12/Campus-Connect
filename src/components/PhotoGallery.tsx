@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { Id } from '../../convex/_generated/dataModel'
-import { Camera, Heart, Trash2, X, Upload } from 'lucide-react'
+import { Camera, Heart, Trash2, X, Upload, ImageIcon } from 'lucide-react'
 import { useAuth } from '../hooks/use-auth'
 import ConfirmDialog from './ConfirmDialog'
 import { useToast } from './Toast'
@@ -14,76 +14,48 @@ interface Props {
 
 export default function PhotoGallery({ eventId }: Props) {
   const { user } = useAuth()
-  const [uploading, setUploading] = useState(false)
+  const [uploading, setUploading]         = useState(false)
   const [uploadProgress, setUploadProgress] = useState(0)
-  const [caption, setCaption] = useState('')
+  const [caption, setCaption]             = useState('')
   const [selectedPhoto, setSelectedPhoto] = useState<any>(null)
   const [confirmDeleteId, setConfirmDeleteId] = useState<Id<"photos"> | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const toast = useToast()
 
-  const photos = useQuery(api.photos.getEventPhotos, { eventId })
+  const photos            = useQuery(api.photos.getEventPhotos, { eventId })
   const generateUploadUrl = useMutation(api.photos.generateUploadUrl)
-  const uploadPhoto = useMutation(api.photos.uploadPhoto)
-  const toggleLike = useMutation(api.photos.toggleLike)
-  const deletePhoto = useMutation(api.photos.deletePhoto)
+  const uploadPhoto       = useMutation(api.photos.uploadPhoto)
+  const toggleLike        = useMutation(api.photos.toggleLike)
+  const deletePhoto       = useMutation(api.photos.deletePhoto)
 
   const isOrganizer = user?.role === 'organizer'
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !user) return
+    if (!file.type.startsWith('image/')) { toast.error('Please select an image file'); return }
+    if (file.size > 5 * 1024 * 1024)    { toast.error('Image must be under 5MB'); return }
 
-    if (!file.type.startsWith('image/')) {
-      toast.error('Please select an image file')
-      return
-    }
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error('Image size must be less than 5MB')
-      return
-    }
-
-    setUploading(true)
-    setUploadProgress(10)
+    setUploading(true); setUploadProgress(10)
     try {
       const uploadUrl = await generateUploadUrl()
       setUploadProgress(30)
-
-      const result = await fetch(uploadUrl, {
-        method: 'POST',
-        headers: { 'Content-Type': file.type },
-        body: file,
-      })
+      const result = await fetch(uploadUrl, { method: 'POST', headers: { 'Content-Type': file.type }, body: file })
       setUploadProgress(70)
-
       const { storageId } = await result.json()
-
-      await uploadPhoto({
-        eventId,
-        userId: user.userId,
-        userName: user.name || 'Anonymous',
-        storageId,
-        caption: caption.trim() || undefined,
-      })
+      await uploadPhoto({ eventId, userId: user.userId, userName: user.name || 'Anonymous', storageId, caption: caption.trim() || undefined })
       setUploadProgress(100)
       setCaption('')
       if (fileInputRef.current) fileInputRef.current.value = ''
-      toast.success('Photo uploaded successfully')
-    } catch (err) {
-      toast.error('Failed to upload photo')
-    } finally {
-      setUploading(false)
-      setUploadProgress(0)
-    }
+      toast.success('Photo uploaded')
+    } catch { toast.error('Failed to upload photo') }
+    finally { setUploading(false); setUploadProgress(0) }
   }
 
   const handleLike = async (photoId: Id<"photos">) => {
     if (!user) return
-    try {
-      await toggleLike({ photoId, userId: user.userId })
-    } catch (err) {
-      toast.error('Failed to update like')
-    }
+    try { await toggleLike({ photoId, userId: user.userId }) }
+    catch { toast.error('Failed to update like') }
   }
 
   const handleDelete = async (photoId: Id<"photos">) => {
@@ -92,70 +64,72 @@ export default function PhotoGallery({ eventId }: Props) {
       await deletePhoto({ photoId, userId: user.userId })
       if (selectedPhoto?._id === photoId) setSelectedPhoto(null)
       toast.success('Photo deleted')
-    } catch (err) {
-      toast.error('Failed to delete photo')
-    }
+    } catch { toast.error('Failed to delete photo') }
   }
 
   return (
-    <div className="space-y-8">
-      {/* Upload Section */}
+    <div className="space-y-5">
+
+      {/* ── Upload Section ─────────────────────────────────── */}
       {user && (
-        <div className="bg-nb-cream border-4 border-black p-8 shadow-[10px_10px_0_#000000] rotate-[0.5deg]">
-          <h3 className="font-black text-2xl mb-6 flex items-center gap-4 uppercase italic tracking-tighter">
-            <Camera className="w-8 h-8 text-nb-pink" />
-            UPLOAD_MEMORY
-          </h3>
-          <div className="space-y-6">
-            <input
-              type="text"
-              value={caption}
-              onChange={(e) => setCaption(e.target.value)}
-              placeholder="ADD_CAPTION_LOG..."
-              className="nb-input w-full px-6 py-4 font-black uppercase text-sm"
-              maxLength={200}
-            />
-            <div className="flex flex-col sm:flex-row gap-4">
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/*"
-                onChange={handleFileSelect}
-                disabled={uploading}
-                className="hidden"
-              />
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
-                className="nb bg-nb-blue text-white px-10 py-5 font-black uppercase tracking-[0.4em] border-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all inline-flex items-center justify-center gap-3 italic disabled:opacity-20"
-              >
-                <Upload className="w-6 h-6 stroke-[3px]" />
-                {uploading ? 'UPLOADING...' : 'CHOOSE_FILE'}
-              </button>
-            </div>
-            {/* Upload Progress Bar */}
-            {uploading && (
-              <div className="h-4 bg-black/10 border-2 border-black overflow-hidden relative">
-                <motion.div
-                  initial={{ width: 0 }}
-                  animate={{ width: `${uploadProgress}%` }}
-                  transition={{ duration: 0.3 }}
-                  className="h-full bg-nb-green"
-                />
-                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black uppercase text-black mix-blend-difference">{uploadProgress}%</span>
-              </div>
-            )}
-            <p className="text-[9px] text-black/40 font-black uppercase tracking-[0.4em] italic leading-tight">
-              MAX_SIZE: 5MB • FORMATS: [JPG, PNG, GIF, WEBP]
-            </p>
+        <div className="rounded-xl bg-nb-cream/60 border border-black/15 p-5 space-y-4">
+          <div className="flex items-center gap-2">
+            <Camera className="w-4 h-4 text-nb-pink" />
+            <h3 className="text-sm font-bold text-black">Share a photo</h3>
           </div>
+
+          {/* Caption input */}
+          <input
+            type="text"
+            value={caption}
+            onChange={e => setCaption(e.target.value)}
+            placeholder="Add a caption (optional)…"
+            className="w-full px-3 py-2.5 text-sm font-semibold rounded-lg
+                       bg-white border border-black/20
+                       shadow-[2px_2px_0_rgba(0,0,0,0.15)]
+                       focus:outline-none focus:border-nb-purple
+                       placeholder:text-black/30 transition-all"
+            maxLength={200}
+          />
+
+          {/* Upload button */}
+          <div className="flex items-center gap-3">
+            <input ref={fileInputRef} type="file" accept="image/*" onChange={handleFileSelect} disabled={uploading} className="hidden" />
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-bold
+                         bg-cyan-500 text-white border border-black/20
+                         shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                         hover:shadow-[3px_3px_0_rgba(0,0,0,0.8)] hover:-translate-x-px hover:-translate-y-px
+                         active:shadow-[1px_1px_0_rgba(0,0,0,0.6)] active:translate-x-px active:translate-y-px
+                         disabled:opacity-40 disabled:cursor-not-allowed disabled:transform-none
+                         transition-all"
+            >
+              <Upload className="w-4 h-4" />
+              {uploading ? 'Uploading…' : 'Choose file'}
+            </button>
+            <span className="text-xs text-black/35 font-medium">JPG, PNG, GIF, WEBP · max 5MB</span>
+          </div>
+
+          {/* Progress bar */}
+          {uploading && (
+            <div className="h-2 bg-black/10 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${uploadProgress}%` }}
+                transition={{ duration: 0.3 }}
+                className="h-full bg-nb-green rounded-full"
+              />
+            </div>
+          )}
         </div>
       )}
 
-      {/* Photo Grid */}
+      {/* ── Photo Grid ─────────────────────────────────────── */}
       {photos && photos.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-          {photos.map((photo) => (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+          {photos.map(photo => (
             <PhotoCard
               key={photo._id}
               photo={photo}
@@ -168,18 +142,32 @@ export default function PhotoGallery({ eventId }: Props) {
           ))}
         </div>
       ) : (
-        <div className="bg-nb-cream border-4 border-dashed border-black/20 p-20 text-center rotate-[-1deg]">
-          <div className="w-20 h-20 bg-nb-yellow border-4 border-black flex items-center justify-center mx-auto mb-8 shadow-[8px_8px_0_#000000] rotate-3">
-            <Camera className="w-10 h-10 text-black stroke-[3px]" />
+        /* ── Empty State ─────────────────────────────────── */
+        <div className="flex flex-col items-center text-center py-10 px-6 max-w-sm mx-auto">
+          <div className="w-12 h-12 rounded-xl bg-cyan-100 flex items-center justify-center mb-4">
+            <ImageIcon className="w-6 h-6 text-cyan-600" />
           </div>
-          <h3 className="font-display text-4xl font-black mb-4 uppercase italic tracking-tighter">ZERO_PHOTOS_LOGGED</h3>
-          <p className="text-black/40 text-sm font-black uppercase tracking-[0.3em] mb-12 italic leading-tight max-w-md mx-auto">
-            THE GALLERY IS EMPTY. BE THE FIRST TO CAPTURE THE MOMENT.
+          <h3 className="font-bold text-base text-black mb-1">No photos yet</h3>
+          <p className="text-sm text-black/40 font-medium mb-5">
+            0 photos · Be the first to share a moment
           </p>
+          {user && (
+            <button
+              onClick={() => fileInputRef.current?.click()}
+              className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold
+                         bg-cyan-500 text-white border border-black/20
+                         shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                         hover:shadow-[3px_3px_0_rgba(0,0,0,0.8)] hover:-translate-x-px hover:-translate-y-px
+                         transition-all"
+            >
+              <Upload className="w-4 h-4" />
+              Upload photo
+            </button>
+          )}
         </div>
       )}
 
-      {/* Photo Modal */}
+      {/* ── Photo Modal ────────────────────────────────────── */}
       <AnimatePresence>
         {selectedPhoto && (
           <PhotoModal
@@ -193,7 +181,6 @@ export default function PhotoGallery({ eventId }: Props) {
         )}
       </AnimatePresence>
 
-      {/* Confirm Delete */}
       {confirmDeleteId && (
         <ConfirmDialog
           title="Delete photo?"
@@ -208,150 +195,151 @@ export default function PhotoGallery({ eventId }: Props) {
   )
 }
 
-// Photo Card Component
+// ── Photo Card ──────────────────────────────────────────────────
 function PhotoCard({ photo, onLike, onDelete, onClick, isOrganizer, currentUserId }: any) {
   const photoUrl = useQuery(api.photos.getPhotoUrl, { storageId: photo.storageId })
   const hasLiked = useQuery(
     api.photos.hasLiked,
     currentUserId ? { photoId: photo._id, userId: currentUserId } : 'skip'
   )
-
   const canDelete = isOrganizer || currentUserId === photo.uploadedByUserId
 
   return (
     <motion.div
       layout
-      initial={{ opacity: 0, scale: 0.9 }}
+      initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="bg-white border-4 border-black shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group cursor-pointer relative rotate-[1deg]"
+      exit={{ opacity: 0, scale: 0.95 }}
+      whileHover={{ y: -3 }}
+      className="bg-white rounded-xl border-2 border-black/80
+                 shadow-[3px_3px_0_rgba(0,0,0,0.75)]
+                 hover:shadow-[5px_5px_0_rgba(0,0,0,0.85)]
+                 overflow-hidden cursor-pointer group transition-all"
       onClick={onClick}
     >
       {/* Image */}
-      <div className="aspect-square bg-nb-cream relative overflow-hidden border-b-4 border-black">
+      <div className="aspect-square bg-nb-cream relative overflow-hidden">
         {photoUrl ? (
           <img
             src={photoUrl}
             alt={photo.caption || 'Event photo'}
-            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-300"
+            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="w-10 h-10 border-4 border-black border-t-transparent animate-spin" />
+            <div className="w-6 h-6 border-2 border-black/20 border-t-nb-purple rounded-full animate-spin" />
           </div>
         )}
 
-        {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
-          <div className="flex gap-3">
+        {/* Hover overlay */}
+        <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-all
+                        flex items-center justify-center gap-2">
+          <button
+            onClick={e => { e.stopPropagation(); onLike(photo._id) }}
+            className={`w-9 h-9 rounded-lg flex items-center justify-center border border-white/30
+                        transition-colors ${hasLiked ? 'bg-nb-pink text-white' : 'bg-white/90 text-black'}`}
+          >
+            <Heart className={`w-4 h-4 ${hasLiked ? 'fill-white' : ''}`} />
+          </button>
+          {canDelete && (
             <button
-              onClick={(e) => {
-                e.stopPropagation()
-                onLike(photo._id)
-              }}
-              className={`nb border-4 border-black p-3 shadow-[4px_4px_0_#000000] ${hasLiked ? 'bg-nb-pink text-white' : 'bg-white text-black'}`}
+              onClick={e => { e.stopPropagation(); onDelete(photo._id) }}
+              className="w-9 h-9 rounded-lg bg-white/90 text-red-500 flex items-center justify-center
+                         border border-white/30 hover:bg-red-50 transition-colors"
             >
-              <Heart className={`w-6 h-6 ${hasLiked ? 'fill-white' : ''}`} />
+              <Trash2 className="w-4 h-4" />
             </button>
-            {canDelete && (
-              <button
-                onClick={(e) => {
-                  e.stopPropagation()
-                  onDelete(photo._id)
-                }}
-                className="nb bg-white text-nb-pink border-4 border-black p-3 shadow-[4px_4px_0_#000000]"
-              >
-                <Trash2 className="w-6 h-6" />
-              </button>
-            )}
-          </div>
+          )}
         </div>
       </div>
 
-      {/* Info */}
-      <div className="p-4 bg-white">
-        <div className="flex items-center justify-between">
-          <span className="text-[10px] font-black uppercase italic tracking-widest text-black/50 truncate">
-            {photo.uploadedByName}
-          </span>
-          <span className="text-xs font-black text-nb-pink flex items-center gap-2">
-            <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''} stroke-[3px]`} />
-            {photo.likes || 0}
-          </span>
-        </div>
+      {/* Footer */}
+      <div className="px-3 py-2 flex items-center justify-between">
+        <span className="text-xs font-semibold text-black/50 truncate">{photo.uploadedByName}</span>
+        <span className="flex items-center gap-1 text-xs font-bold text-nb-pink shrink-0">
+          <Heart className={`w-3.5 h-3.5 ${hasLiked ? 'fill-current' : ''}`} />
+          {photo.likes || 0}
+        </span>
       </div>
     </motion.div>
   )
 }
 
-// Photo Modal Component
+// ── Photo Modal ─────────────────────────────────────────────────
 function PhotoModal({ photo, onClose, onLike, onDelete, isOrganizer, currentUserId }: any) {
   const photoUrl = useQuery(api.photos.getPhotoUrl, { storageId: photo.storageId })
   const hasLiked = useQuery(
     api.photos.hasLiked,
     currentUserId ? { photoId: photo._id, userId: currentUserId } : 'skip'
   )
-
   const canDelete = isOrganizer || currentUserId === photo.uploadedByUserId
 
   return (
-    <div className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 z-[100]">
+    <div className="brutal-dialog-backdrop fixed inset-0 flex items-center justify-center p-6 z-[100]">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-        exit={{ opacity: 0, scale: 0.9, rotate: 2 }}
-        className="bg-white border-8 border-black max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[40px_40px_0_#000000]"
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.95 }}
+        className="bg-white rounded-2xl border-2 border-black/80 shadow-[6px_6px_0_rgba(0,0,0,0.85)]
+                   w-full max-w-3xl max-h-[90vh] overflow-hidden flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-8 border-b-8 border-black bg-nb-yellow">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-black/10 bg-nb-yellow/60">
           <div>
-            <p className="font-black text-2xl uppercase italic tracking-tighter">{photo.uploadedByName}</p>
-            <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-1">
-              LOGGED_AT: {new Date(photo.uploadedAt).toLocaleString()}
+            <p className="font-bold text-sm text-black">{photo.uploadedByName}</p>
+            <p className="text-xs text-black/40 font-medium mt-0.5">
+              {new Date(photo.uploadedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="nb bg-nb-pink text-white p-4 border-4 border-black hover:rotate-90 transition-transform shadow-[6px_6px_0_#000000]"
+            className="w-8 h-8 rounded-lg bg-black/8 hover:bg-black/15 flex items-center justify-center transition-colors"
           >
-            <X className="w-8 h-8 stroke-[4px]" />
+            <X className="w-4 h-4" />
           </button>
         </div>
 
         {/* Image */}
-        <div className="flex-1 overflow-auto bg-nb-cream flex items-center justify-center p-8 relative">
+        <div className="flex-1 overflow-auto bg-black/5 flex items-center justify-center p-6">
           {photoUrl && (
             <img
               src={photoUrl}
               alt={photo.caption || 'Event photo'}
-              className="max-w-full max-h-full object-contain border-8 border-black shadow-[20px_20px_0_#000000]"
+              className="max-w-full max-h-full object-contain rounded-lg
+                         border-2 border-black/15 shadow-[3px_3px_0_rgba(0,0,0,0.6)]"
             />
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-8 border-t-8 border-black bg-white">
+        <div className="px-5 py-4 border-t border-black/10 space-y-3">
           {photo.caption && (
-            <p className="font-black text-xl uppercase italic tracking-tight mb-8 border-l-8 border-nb-purple pl-6 py-2 bg-nb-purple/5">{photo.caption}</p>
+            <p className="text-sm font-semibold text-black/70 border-l-2 border-nb-purple pl-3">
+              {photo.caption}
+            </p>
           )}
-          <div className="flex flex-wrap gap-6">
+          <div className="flex gap-3">
             <button
               onClick={() => onLike(photo._id)}
-              className={`nb border-4 border-black px-10 py-5 font-black uppercase tracking-[0.4em] italic shadow-[10px_10px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all flex items-center gap-4 ${hasLiked ? 'bg-nb-pink text-white border-black' : 'bg-nb-cream text-black'}`}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold
+                          border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.6)]
+                          hover:shadow-[3px_3px_0_rgba(0,0,0,0.7)] hover:-translate-x-px hover:-translate-y-px
+                          active:shadow-[1px_1px_0_rgba(0,0,0,0.5)] active:translate-x-px active:translate-y-px
+                          transition-all ${hasLiked ? 'bg-nb-pink text-white' : 'bg-nb-cream text-black'}`}
             >
-              <Heart className={`w-8 h-8 ${hasLiked ? 'fill-white' : ''} stroke-[3px]`} />
-              {photo.likes || 0}_LIKES
+              <Heart className={`w-4 h-4 ${hasLiked ? 'fill-white' : ''}`} />
+              {photo.likes || 0} likes
             </button>
             {canDelete && (
               <button
-                onClick={() => {
-                  onDelete(photo._id)
-                  onClose()
-                }}
-                className="nb bg-white text-nb-pink px-10 py-5 font-black uppercase tracking-[0.4em] italic border-4 border-black shadow-[10px_10px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all flex items-center gap-4"
+                onClick={() => { onDelete(photo._id); onClose() }}
+                className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold
+                           bg-white text-red-500 border border-red-200
+                           shadow-[2px_2px_0_rgba(239,68,68,0.4)]
+                           hover:bg-red-50 transition-colors"
               >
-                <Trash2 className="w-8 h-8 stroke-[3px]" />
-                PURGE_PHOTO
+                <Trash2 className="w-4 h-4" />
+                Delete
               </button>
             )}
           </div>

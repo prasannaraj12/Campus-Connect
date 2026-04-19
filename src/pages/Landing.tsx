@@ -460,35 +460,83 @@ export default function Landing() {
       </main>
 
       {/* ── Footer ────────────────────────────────────────────────── */}
-      <footer className="bg-black text-white py-32 px-6 border-t-[12px] border-nb-green relative overflow-hidden">
-        <div className="max-w-6xl mx-auto relative z-10">
-          <div className="grid md:grid-cols-4 gap-20 mb-32">
-            <div className="md:col-span-2">
-              <p className="font-display font-black text-7xl mb-10 tracking-tighter flex flex-wrap items-center gap-6 leading-none italic uppercase">
-                CAMPUS<span className="bg-nb-yellow text-black px-6 py-2 border-4 border-white -rotate-3 shadow-[8px_8px_0_#7400E8]">CONNECT.</span>
-              </p>
-              <p className="text-white/60 text-2xl font-black leading-tight max-w-lg italic uppercase tracking-tighter underline decoration-white/10 underline-offset-8">
-                THE_SMARTEST_WAY_TO_LEAD. <br/>THE_FASTEST_WAY_TO_CONNECT. <br/>BUILT_FOR_YOU.
+      <footer className="bg-black/95 backdrop-blur-sm text-white border-t-4 border-nb-green">
+        <div className="max-w-6xl mx-auto px-6 py-12">
+
+          {/* Main grid: brand | info | support */}
+          <div className="grid md:grid-cols-[1.8fr_1fr_1fr] gap-10 mb-10">
+
+            {/* Brand */}
+            <div>
+              <div className="flex items-center gap-2 mb-4">
+                <span className="bg-nb-yellow text-black text-sm font-black px-2.5 py-1 rounded-md
+                                 shadow-[2px_2px_0_rgba(255,255,255,0.3)]">
+                  CAMPUS
+                </span>
+                <span className="font-display font-black text-xl text-white tracking-tight">
+                  CONNECT.
+                </span>
+              </div>
+              <p className="text-white/60 text-sm font-medium leading-relaxed max-w-xs">
+                The smartest way to discover, join, and manage campus events. Built for students and organizers.
               </p>
             </div>
+
+            {/* Info */}
             <div>
-              <p className="font-black text-[16px] tracking-[0.6em] uppercase mb-12 text-nb-green italic decoration-white decoration-4 underline underline-offset-12">INFO</p>
-              <ul className="space-y-6 text-sm font-black italic tracking-[0.2em]">
-                <li><button onClick={() => navigate('/role-selection')} className="hover:text-nb-yellow transition-all hover:translate-x-2 text-left block">BROWSE EVENTS →</button></li>
-                <li><button onClick={() => navigate('/auth?role=organizer')} className="hover:text-nb-yellow transition-all hover:translate-x-2 text-left block">ORGANIZER PORTAL →</button></li>
+              <p className="text-xs font-bold uppercase tracking-widest text-nb-green mb-4">Info</p>
+              <ul className="space-y-2.5">
+                <li>
+                  <button
+                    onClick={() => navigate('/role-selection')}
+                    className="text-sm text-white/60 font-medium hover:text-white hover:translate-x-1
+                               transition-all flex items-center gap-1.5"
+                  >
+                    Browse Events →
+                  </button>
+                </li>
+                <li>
+                  <button
+                    onClick={() => navigate('/auth')}
+                    className="text-sm text-white/60 font-medium hover:text-white hover:translate-x-1
+                               transition-all flex items-center gap-1.5"
+                  >
+                    Organizer Portal →
+                  </button>
+                </li>
               </ul>
             </div>
+
+            {/* Support */}
             <div>
-              <p className="font-black text-[16px] tracking-[0.6em] uppercase mb-12 text-nb-green italic decoration-white decoration-4 underline underline-offset-12">SUPPORT</p>
-              <ul className="space-y-6 text-sm font-black italic tracking-[0.2em]">
-                <li><a href="mailto:support@campusconnect.com" className="hover:text-nb-yellow transition-all hover:translate-x-2 block">EMAIL SUPPORT →</a></li>
-                <li><a href="#" className="hover:text-nb-yellow transition-all hover:translate-x-2 block">PROJECT FAQ →</a></li>
+              <p className="text-xs font-bold uppercase tracking-widest text-nb-green mb-4">Support</p>
+              <ul className="space-y-2.5">
+                <li>
+                  <a href="mailto:support@campusconnect.com"
+                    className="text-sm text-white/60 font-medium hover:text-white hover:translate-x-1
+                               transition-all block">
+                    Email Support →
+                  </a>
+                </li>
+                <li>
+                  <a href="#"
+                    className="text-sm text-white/60 font-medium hover:text-white hover:translate-x-1
+                               transition-all block">
+                    Project FAQ →
+                  </a>
+                </li>
               </ul>
             </div>
           </div>
-          <div className="pt-20 border-t-8 border-white/10 flex flex-col sm:flex-row justify-between items-center gap-10 text-[14px] font-black uppercase tracking-[0.8em] text-white/30 italic leading-none">
-            <p>© 2026 CAMPUS CONNECT PROJECT</p>
-            <p>DESIGNED BY PRASANNA // CODED WITH IMPACT</p>
+
+          {/* Divider */}
+          <div className="h-px bg-white/10 mb-6" />
+
+          {/* Bottom strip */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3
+                          text-xs text-white/40 font-medium">
+            <p>© 2026 Campus Connect Project</p>
+            <p>Designed by Prasanna · Built with impact</p>
           </div>
         </div>
       </footer>

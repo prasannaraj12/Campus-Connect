@@ -212,13 +212,15 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
                   )}
                 </>
               ) : (
-                <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 nb-sm bg-nb-yellow border-2 border-nb-black flex items-center justify-center">
-                    <User className="w-6 h-6 text-nb-black" />
+                <div className="flex items-center gap-4 min-w-0">
+                  <div className="w-10 h-10 shrink-0 nb-sm bg-nb-yellow border-2 border-nb-black flex items-center justify-center">
+                    <User className="w-5 h-5 text-nb-black" />
                   </div>
-                  <div>
-                    <p className="text-[8px] font-black text-white/40 uppercase">CAMPUS LOGISTICS</p>
-                    <p className="text-xs font-black uppercase">{organizer?.email || 'SYSTEM AUTOMATED'}</p>
+                  <div className="min-w-0">
+                    <p className="text-[8px] font-black text-white/40 uppercase mb-1">CAMPUS LOGISTICS</p>
+                    <p className="text-xs font-black uppercase truncate">
+                      {organizer?.email || 'SYSTEM AUTOMATED'}
+                    </p>
                   </div>
                 </div>
               )}
