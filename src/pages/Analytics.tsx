@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom'
 import { useQuery } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, TrendingUp, Users, Calendar, ArrowLeft } from 'lucide-react'
 import AppShell from '../components/AppShell'
 import { PageLoader } from '../components/Skeleton'
 
@@ -52,26 +52,39 @@ export default function Analytics() {
         peakTimes === undefined
 
     return (
-        <AppShell>
-            <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
-                {/* Page title */}
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-indigo-100 rounded-xl flex items-center justify-center">
-                        <BarChart3 className="w-5 h-5 text-indigo-600" />
+        <AppShell className="grid-bg">
+            <div className="max-w-6xl mx-auto px-4 py-12 space-y-12">
+                {/* ── Page navigation + Header ─────────────────────────── */}
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
+                    <div className="flex items-center gap-6">
+                        <button 
+                            onClick={() => navigate('/dashboard')}
+                            className="nb bg-white p-4 border-3 border-black shadow-[4px_4px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+                        >
+                            <ArrowLeft className="w-6 h-6 text-black" />
+                        </button>
+                        <div>
+                            <p className="text-[12px] font-black uppercase tracking-[0.4em] text-black/40 underline decoration-nb-purple underline-offset-4 mb-2">INTELLIGENCE ENGINE</p>
+                            <h1 className="font-display text-5xl font-black text-black uppercase tracking-tighter italic">CORE ANALYTICS</h1>
+                        </div>
                     </div>
-                    <div>
-                        <h1 className="font-display text-2xl font-extrabold text-slate-900">Analytics</h1>
-                        <p className="text-sm text-slate-500">Your event performance insights</p>
+                    <div className="nb bg-nb-yellow border-4 border-black px-6 py-3 flex items-center gap-3 shadow-[6px_6px_0_#000000]">
+                        <TrendingUp className="w-6 h-6 text-black" />
+                        <span className="font-black text-xs uppercase tracking-[0.2em] italic">LIVE PERFORMANCE SYNC</span>
                     </div>
                 </div>
+
                 {/* Loading State */}
                 {isLoading ? (
-                    <PageLoader message="Loading analytics..." />
+                    <PageLoader message="PROCESSING DATASTREAM..." />
                 ) : (
                     <>
-                        {/* Overview Stats */}
+                        {/* ── Overview Stats ───────────────────────────────── */}
                         <section>
-                            <h2 className="text-lg font-bold text-gray-900 mb-4">Overview</h2>
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="h-10 w-4 bg-nb-purple shadow-[4px_4px_0_#000000]" />
+                                <h2 className="font-display text-3xl font-black text-black uppercase tracking-tighter italic">PRIMARY INDICATORS</h2>
+                            </div>
                             <OverviewStats
                                 totalEvents={overviewStats?.totalEvents || 0}
                                 totalRegistrations={overviewStats?.totalRegistrations || 0}
@@ -81,34 +94,37 @@ export default function Analytics() {
                             />
                         </section>
 
-                        {/* Charts Grid */}
+                        {/* ── Charts Grid ──────────────────────────────────── */}
                         <section>
-                            <h2 className="text-lg font-bold text-gray-900 mb-4">Insights</h2>
-                            <div className="grid lg:grid-cols-2 gap-6">
-                                <RegistrationTrendChart data={registrationTrends || []} />
-                                <CategoryPieChart data={categoryStats || []} />
-                                <AttendanceBarChart data={attendanceRates || []} />
-                                <PeakTimesChart data={peakTimes || []} />
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="h-10 w-4 bg-nb-green shadow-[4px_4px_0_#000000]" />
+                                <h2 className="font-display text-3xl font-black text-black uppercase tracking-tighter italic">VISUAL BREAKDOWN</h2>
+                            </div>
+                            <div className="grid lg:grid-cols-2 gap-10">
+                                <div className="nb bg-white p-8 border-4 shadow-[12px_12px_0_#000000] rotate-[-0.5deg]"><RegistrationTrendChart data={registrationTrends || []} /></div>
+                                <div className="nb bg-white p-8 border-4 shadow-[12px_12px_0_#7400E8] rotate-[0.5deg]"><CategoryPieChart data={categoryStats || []} /></div>
+                                <div className="nb bg-white p-8 border-4 shadow-[12px_12px_0_#00FF75] rotate-[-0.5deg]"><AttendanceBarChart data={attendanceRates || []} /></div>
+                                <div className="nb bg-white p-8 border-4 shadow-[12px_12px_0_#FF2D92] rotate-[0.5deg]"><PeakTimesChart data={peakTimes || []} /></div>
                             </div>
                         </section>
 
-                        {/* Empty State */}
+                        {/* ── Empty State ───────────────────────────────────── */}
                         {overviewStats?.totalEvents === 0 && (
                             <motion.div
                                 initial={{ opacity: 0, y: 20 }}
                                 animate={{ opacity: 1, y: 0 }}
-                                className="bg-white rounded-2xl p-12 text-center border border-gray-100 shadow-sm"
+                                className="nb bg-white p-24 text-center border-4 shadow-[20px_20px_0_#000000]"
                             >
-                                <BarChart3 className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                                <h3 className="text-xl font-bold text-gray-700 mb-2">No Data Yet</h3>
-                                <p className="text-gray-500 mb-6">
-                                    Create your first event to start seeing analytics.
+                                <BarChart3 className="w-24 h-24 mx-auto mb-8 text-black/10 animate-bounce" />
+                                <h3 className="font-display text-4xl font-black text-black mb-4 uppercase italic tracking-tighter">NO DATA DETECTED</h3>
+                                <p className="text-black/40 font-black uppercase tracking-tight mb-12 max-w-sm mx-auto italic">
+                                    YOU HAVE NOT LAUNCHED ANY EVENTS YET. ANALYTICS WILL POPULATE ONCE THE FIRST EVENT IS CREATED.
                                 </p>
                                 <button
                                     onClick={() => navigate('/dashboard')}
-                                    className="px-6 py-3 bg-indigo-600 text-white rounded-xl font-bold hover:bg-indigo-700 transition-colors"
+                                    className="nb bg-nb-yellow text-black font-black px-12 py-5 text-sm tracking-[0.3em] uppercase border-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
                                 >
-                                    Go to Dashboard
+                                    RETURN TO DASHBOARD →
                                 </button>
                             </motion.div>
                         )}

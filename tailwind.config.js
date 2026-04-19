@@ -21,15 +21,17 @@ export default {
 
         // Neo-brutal accent palette
         nb: {
-          yellow:  '#FACC15',   // primary accent
-          orange:  '#F97316',   // secondary
-          red:     '#EF4444',
-          green:   '#22C55E',
-          blue:    '#3B82F6',
-          purple:  '#A855F7',
-          pink:    '#EC4899',
-          black:   '#0A0A0A',
-          cream:   '#FAFAF5',
+          yellow:  '#FFF500',   // absolute neon yellow
+          orange:  '#FF9F43',
+          red:     '#FF2A2A',   // aggressive red
+          green:   '#00FF75',   // neon green
+          blue:    '#2DF2FF',   // vibrant cyan
+          purple:  '#7400E8',   // electric purple
+          lavender:'#C4B5FD',
+          pink:    '#FF2D92',   // candy pink
+          black:   '#0F0F0F',
+          white:   '#FFFFFF',
+          cream:   '#FEF2E4',   // softer peach cream
           paper:   '#F5F0E8',
         },
 
@@ -56,11 +58,12 @@ export default {
 
       // Neo-brutal hard shadows
       boxShadow: {
-        'brutal':      '4px 4px 0px 0px #0A0A0A',
-        'brutal-lg':   '6px 6px 0px 0px #0A0A0A',
-        'brutal-xl':   '8px 8px 0px 0px #0A0A0A',
-        'brutal-sm':   '2px 2px 0px 0px #0A0A0A',
-        'brutal-color':'4px 4px 0px 0px #FACC15',
+        'brutal':      '4px 4px 0px 0px #000000',
+        'brutal-lg':   '8px 8px 0px 0px #000000',
+        'brutal-xl':   '12px 12px 0px 0px #000000',
+        'brutal-sm':   '2px 2px 0px 0px #000000',
+        'brutal-yellow':'4px 4px 0px 0px #FFD037',
+        'brutal-blue':  '4px 4px 0px 0px #88AAEE',
         'glass':       '0 8px 32px rgba(0,0,0,0.12)',
         'card':        '0 4px 24px rgba(0,0,0,0.08)',
         'card-hover':  '0 12px 32px rgba(0,0,0,0.14)',
@@ -68,6 +71,7 @@ export default {
 
       borderWidth: {
         '3': '3px',
+        '4': '4px',
       },
 
       keyframes: {

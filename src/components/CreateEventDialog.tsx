@@ -90,30 +90,34 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
     }
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none font-medium transition-colors bg-white text-slate-900 placeholder-slate-400'
-  const labelClass = 'block text-sm font-semibold text-slate-700 mb-1.5'
+  const inputClass = 'nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black text-sm italic placeholder:text-black/20'
+  const labelClass = 'block text-[10px] font-black uppercase tracking-[0.4em] text-black mb-3 italic'
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
-        >
-          {/* Header */}
-          <div className="sticky top-0 bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between rounded-t-2xl z-10">
-            <h2 className="font-display text-xl font-extrabold text-slate-900">Create New Event</h2>
-            <button
-              onClick={onClose}
-              className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition-colors"
-            >
-              <X className="w-5 h-5 text-slate-600" />
-            </button>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="bg-white max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[20px_20px_0_#000000] border-4 border-black"
+      >
+        {/* Header */}
+        <div className="sticky top-0 bg-nb-yellow border-b-4 border-black px-8 py-6 flex items-center justify-between z-10">
+          <div>
+            <h2 className="font-display text-3xl font-black text-black uppercase italic tracking-tighter">NEW_EVENT_PROTOCOL</h2>
           </div>
+          <button
+            onClick={onClose}
+            className="nb bg-nb-pink text-white p-3 border-4 border-black hover:bg-black transition-colors shadow-[4px_4px_0_#000000]"
+          >
+            <X className="w-6 h-6 stroke-[3px]" />
+          </button>
+        </div>
 
-          <div className="p-6 space-y-5">
+        <div className="flex-1 overflow-y-auto p-8 bg-white relative">
+          <HappyDog className="absolute bottom-10 right-4 w-40 h-40 opacity-5 pointer-events-none" />
+
             {/* Error */}
             {error && (
               <motion.div
@@ -143,16 +147,16 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
 
               {/* Description */}
               <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-sm font-semibold text-slate-700">Description *</label>
+                <div className="flex items-center justify-between mb-3">
+                  <label className={labelClass}>Description *</label>
                   <button
                     type="button"
                     onClick={handleGenerateDescription}
                     disabled={generating || !formData.title}
-                    className="flex items-center gap-1.5 text-xs font-semibold text-brand-600 hover:text-brand-700 disabled:opacity-40 disabled:cursor-not-allowed transition-colors"
+                    className="flex items-center gap-2 nb-pill bg-white px-4 py-2 border-3 border-black text-[10px] font-black uppercase tracking-widest hover:bg-nb-yellow disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-[4px_4px_0_#000000] italic"
                   >
-                    <Sparkles className="w-3.5 h-3.5" />
-                    {generating ? 'Generating...' : 'AI Generate'}
+                    <Sparkles className="w-4 h-4 text-nb-purple" />
+                    {generating ? 'PROCESSING...' : 'AI_ENHANCE'}
                   </button>
                 </div>
                 <textarea
@@ -161,7 +165,7 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
                   onChange={e => setFormData({ ...formData, description: e.target.value })}
                   rows={4}
                   className={`${inputClass} resize-none`}
-                  placeholder="Describe your event..."
+                  placeholder="Tell the world about your gathering..."
                 />
               </div>
 
@@ -232,8 +236,8 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
               </div>
 
               {/* Team Event Toggle */}
-              <div className="bg-blue-50 rounded-xl p-4 border border-blue-100">
-                <label className="flex items-start gap-3 cursor-pointer">
+              <div className="bg-nb-yellow/10 p-6 border-4 border-black shadow-[6px_6px_0_#000000]">
+                <label className="flex items-center gap-4 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={formData.isTeamEvent}
@@ -242,13 +246,10 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
                       isTeamEvent: e.target.checked,
                       teamSize: e.target.checked ? formData.teamSize : undefined,
                     })}
-                    className="mt-0.5 w-5 h-5 accent-brand-500 rounded"
+                    className="w-6 h-6 border-4 border-black bg-white checked:bg-nb-green appearance-none shadow-[2px_2px_0_#000000]"
                   />
                   <div>
-                    <span className="font-bold text-slate-900">Team Event</span>
-                    <p className="text-sm text-slate-500 mt-0.5">
-                      Enable if participants must register as teams
-                    </p>
+                    <span className="font-black text-lg uppercase italic">Team Event Protocol</span>
                   </div>
                 </label>
               </div>
@@ -284,13 +285,13 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
 
               {/* Submit */}
               <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02, rotate: 1 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="w-full bg-green-500 hover:bg-green-600 text-white py-3.5 rounded-xl font-bold text-base shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-nb-green text-black py-5 border-4 border-black font-black text-xl uppercase italic shadow-[10px_10px_0_#000000] hover:bg-nb-purple hover:text-white transition-all disabled:opacity-50 mt-8"
               >
-                {loading ? 'Creating...' : 'Create Event'}
+                {loading ? 'INITIALIZING...' : 'CREATE_EVENT'}
               </motion.button>
             </form>
           </div>

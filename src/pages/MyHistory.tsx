@@ -15,7 +15,8 @@ import {
     XCircle,
     Users,
     Trophy,
-    Download
+    Download,
+    ArrowLeft
 } from 'lucide-react'
 
 export default function MyHistory() {
@@ -37,190 +38,144 @@ export default function MyHistory() {
     const isLoading = history === undefined || stats === undefined
 
     return (
-        <AppShell>
-            <div className="max-w-3xl mx-auto px-4 py-8 space-y-6">
-                {/* Page title */}
-                <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-emerald-100 rounded-xl flex items-center justify-center">
-                        <Trophy className="w-5 h-5 text-emerald-600" />
-                    </div>
+        <AppShell className="grid-bg">
+            <div className="max-w-4xl mx-auto px-4 py-12 space-y-12">
+                {/* ── Page Header ────────────────────────────────────── */}
+                <div className="flex items-center gap-6">
+                    <button 
+                        onClick={() => navigate('/dashboard')}
+                        className="nb bg-white p-4 border-3 border-black shadow-[4px_4px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+                    >
+                        <ArrowLeft className="w-6 h-6 text-black" />
+                    </button>
                     <div>
-                        <h1 className="font-display text-2xl font-extrabold text-slate-900">My History</h1>
-                        <p className="text-sm text-slate-500">Your event participation journey</p>
+                        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-black/40 underline decoration-nb-purple underline-offset-4 mb-2">OPERATIONAL_LOG</p>
+                        <h1 className="font-display text-5xl font-black text-black uppercase tracking-tighter italic">MISSION_HISTORY</h1>
                     </div>
                 </div>
+
                 {isLoading ? (
-                    <PageLoader message="Loading your history..." />
+                    <PageLoader message="RETRIEVING ENCRYPTED RECORDS..." />
                 ) : (
                     <>
-                        {/* Stats Cards */}
-                        <section>
-                            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        {/* ── Stats Container ──────────────────────────────── */}
+                        <section className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                            {[
+                                { label: 'DEPLOYS', value: stats?.totalRegistrations || 0, icon: Calendar, color: 'bg-white', shadow: 'shadow-nb-purple' },
+                                { label: 'SUCCESS', value: stats?.totalAttended || 0, icon: CheckCircle, color: 'bg-nb-green', shadow: 'shadow-black' },
+                                { label: 'EFFICIENCY', value: `${stats?.attendanceRate || 0}%`, icon: Award, color: 'bg-nb-pink text-white', shadow: 'shadow-nb-yellow' },
+                                { label: 'RANK', value: stats?.topCategory || 'RECRUIT', icon: Trophy, color: 'bg-nb-purple text-white', isTag: true, shadow: 'shadow-nb-green' },
+                            ].map((stat, i) => (
                                 <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm"
+                                    key={stat.label}
+                                    initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+                                    animate={{ opacity: 1, scale: 1, rotate: i % 2 === 0 ? 1 : -1 }}
+                                    transition={{ delay: i * 0.05 }}
+                                    className={`nb ${stat.color} p-6 flex flex-col justify-between h-40 border-4 shadow-[8px_8px_0_#000000] hover:rotate-0 transition-all`}
                                 >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Calendar className="w-5 h-5 text-blue-500" />
-                                        <span className="text-xs font-semibold text-gray-500">Registered</span>
+                                    <div className="flex justify-between items-start">
+                                        <stat.icon className="w-6 h-6 opacity-40" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest opacity-60 underline decoration-black/20">{stat.label}</span>
                                     </div>
-                                    <p className="text-3xl font-black text-gray-900">{stats?.totalRegistrations || 0}</p>
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.1 }}
-                                    className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <CheckCircle className="w-5 h-5 text-emerald-500" />
-                                        <span className="text-xs font-semibold text-gray-500">Attended</span>
-                                    </div>
-                                    <p className="text-3xl font-black text-gray-900">{stats?.totalAttended || 0}</p>
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.2 }}
-                                    className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Award className="w-5 h-5 text-amber-500" />
-                                        <span className="text-xs font-semibold text-gray-500">Rate</span>
-                                    </div>
-                                    <p className="text-3xl font-black text-gray-900">{stats?.attendanceRate || 0}%</p>
-                                </motion.div>
-
-                                <motion.div
-                                    initial={{ opacity: 0, y: 20 }}
-                                    animate={{ opacity: 1, y: 0 }}
-                                    transition={{ delay: 0.3 }}
-                                    className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm"
-                                >
-                                    <div className="flex items-center gap-2 mb-2">
-                                        <Trophy className="w-5 h-5 text-purple-500" />
-                                        <span className="text-xs font-semibold text-gray-500">Top Category</span>
-                                    </div>
-                                    <p className="text-lg font-bold text-gray-900 truncate">
-                                        {stats?.topCategory || 'N/A'}
+                                    <p className={`${stat.isTag ? 'text-xl font-black leading-tight' : 'text-5xl font-black'} font-display uppercase truncate italic tracking-tighter`}>
+                                        {stat.value}
                                     </p>
                                 </motion.div>
-                            </div>
+                            ))}
                         </section>
 
-                        {/* History List */}
+                        {/* ── History Content ──────────────────────────────── */}
                         <section>
-                            <h2 className="text-lg font-bold text-gray-900 mb-4">Event History</h2>
+                            <div className="flex items-center gap-4 mb-8">
+                                <div className="h-10 w-4 bg-black shadow-[4px_4px_0_#7400E8]" />
+                                <h2 className="font-display text-3xl font-black text-black uppercase tracking-tighter italic">RECORDED_ACTIVITIES</h2>
+                            </div>
 
                             {history && history.length === 0 ? (
-                                <div className="bg-white rounded-2xl p-12 text-center border border-gray-100">
-                                    <Calendar className="w-16 h-16 mx-auto mb-4 text-gray-300" />
-                                    <h3 className="text-xl font-bold text-gray-700 mb-2">No Events Yet</h3>
-                                    <p className="text-gray-500 mb-6">
-                                        Register for events to start building your history.
+                                <div className="nb bg-white p-24 text-center border-4 shadow-[15px_15px_0_#000000]">
+                                    <Calendar className="w-24 h-24 mx-auto mb-8 text-black/10 animate-pulse" />
+                                    <h3 className="font-display text-4xl font-black text-black mb-4 italic uppercase">EMPTY_RECORDS</h3>
+                                    <p className="text-black/50 font-black uppercase tracking-tight mb-12 max-w-sm mx-auto text-sm italic">
+                                        YOUR PARTICIPATION LOG IS VOID. COMMENCE NEW OPERATIONS IMMEDIATELY.
                                     </p>
                                     <button
                                         onClick={() => navigate('/dashboard')}
-                                        className="px-6 py-3 bg-emerald-600 text-white rounded-xl font-bold hover:bg-emerald-700 transition-colors"
+                                        className="nb bg-nb-yellow text-black font-black px-12 py-5 text-sm tracking-[0.3em] uppercase border-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
                                     >
-                                        Browse Events
+                                        DISCOVER MISSIONS →
                                     </button>
                                 </div>
                             ) : (
-                                <div className="space-y-4">
+                                <div className="space-y-6">
                                     {history?.map((item, index) => (
                                         <motion.div
                                             key={item.registrationId}
                                             initial={{ opacity: 0, x: -20 }}
                                             animate={{ opacity: 1, x: 0 }}
                                             transition={{ delay: index * 0.05 }}
-                                            className="bg-white rounded-2xl p-5 border border-gray-100 shadow-sm hover:shadow-md transition-shadow"
+                                            className="nb bg-white p-8 border-4 shadow-[12px_12px_0_#000000] hover:shadow-[16px_16px_0_#7400E8] transition-all group"
                                         >
-                                            <div className="flex items-start justify-between gap-4">
-                                                <div className="flex-1">
-                                                    <div className="flex items-center gap-2 mb-2">
-                                                        <span className={`px-2 py-0.5 rounded-full text-xs font-semibold ${item.attended
-                                                                ? 'bg-emerald-100 text-emerald-700'
-                                                                : 'bg-gray-100 text-gray-600'
-                                                            }`}>
-                                                            {item.attended ? 'Attended' : 'Registered'}
+                                            <div className="flex flex-col md:flex-row md:items-center justify-between gap-8">
+                                                <div className="flex-1 space-y-4">
+                                                    <div className="flex flex-wrap items-center gap-3">
+                                                        <span className={`nb px-3 py-1 font-black text-[9px] uppercase tracking-widest border-2 border-black ${item.attended ? 'bg-nb-green text-black' : 'bg-nb-cream text-black/40'}`}>
+                                                            {item.attended ? 'STATUS: COMPLETED' : 'STATUS: PENDING'}
                                                         </span>
-                                                        <span className="px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">
-                                                            {item.eventCategory}
+                                                        <span className="nb px-3 py-1 bg-nb-purple text-white border-2 border-black font-black text-[9px] uppercase tracking-widest italic">
+                                                            TYPE: {item.eventCategory.toUpperCase()}
                                                         </span>
                                                         {item.isTeamEvent && (
-                                                            <span className="px-2 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold flex items-center gap-1">
-                                                                <Users className="w-3 h-3" />
-                                                                Team
+                                                            <span className="nb px-3 py-1 bg-nb-pink text-white border-2 border-black font-black text-[9px] uppercase tracking-widest flex items-center gap-2 italic">
+                                                                <Users className="w-4 h-4" /> TEAM_ENTRY
                                                             </span>
                                                         )}
                                                     </div>
 
                                                     <h3
-                                                        className="text-lg font-bold text-gray-900 mb-2 cursor-pointer hover:text-indigo-600 transition-colors"
+                                                        className="font-display text-4xl font-black text-black uppercase tracking-tighter italic cursor-pointer group-hover:text-nb-purple transition-colors leading-none"
                                                         onClick={() => navigate(`/event/${item.eventId}`)}
                                                     >
                                                         {item.eventTitle}
                                                     </h3>
 
-                                                    <div className="flex flex-wrap gap-4 text-sm text-gray-500">
-                                                        <div className="flex items-center gap-1">
-                                                            <Calendar className="w-4 h-4" />
+                                                    <div className="flex flex-wrap gap-x-8 gap-y-3 text-[11px] font-black text-black/50 uppercase tracking-[0.2em] italic">
+                                                        <div className="flex items-center gap-3">
+                                                            <Calendar className="w-5 h-5 text-nb-purple" />
                                                             {new Date(item.eventDate).toLocaleDateString('en-US', {
-                                                                weekday: 'short',
                                                                 month: 'short',
                                                                 day: 'numeric',
                                                                 year: 'numeric'
                                                             })}
                                                         </div>
-                                                        <div className="flex items-center gap-1">
-                                                            <Clock className="w-4 h-4" />
+                                                        <div className="flex items-center gap-3">
+                                                            <Clock className="w-5 h-5 text-nb-green" />
                                                             {item.eventTime}
                                                         </div>
-                                                        <div className="flex items-center gap-1">
-                                                            <MapPin className="w-4 h-4" />
+                                                        <div className="flex items-center gap-3">
+                                                            <MapPin className="w-5 h-5 text-nb-pink" />
                                                             {item.eventLocation}
                                                         </div>
                                                     </div>
-
-                                                    {item.teamName && (
-                                                        <p className="text-sm text-purple-600 mt-2">
-                                                            Team: {item.teamName} {item.isTeamLeader && '(Leader)'}
-                                                        </p>
-                                                    )}
                                                 </div>
 
-                                                {/* Actions */}
-                                                <div className="flex flex-col gap-2">
+                                                <div className="flex md:flex-col items-center gap-4">
                                                     {item.attended ? (
-                                                        <>
-                                                            <div className="flex items-center gap-1 text-emerald-600">
-                                                                <CheckCircle className="w-5 h-5" />
-                                                            </div>
-                                                            <button
-                                                                onClick={() => navigate(`/ticket/${item.registrationId}`)}
-                                                                className="px-3 py-1.5 bg-amber-500 text-white rounded-lg text-xs font-bold hover:bg-amber-600 transition-colors flex items-center gap-1"
-                                                            >
-                                                                <Download className="w-3 h-3" />
-                                                                Certificate
-                                                            </button>
-                                                        </>
+                                                        <button
+                                                            onClick={() => navigate(`/ticket/${item.registrationId}`)}
+                                                            className="nb bg-black text-white px-8 py-5 text-xs font-black tracking-[0.3em] uppercase border-4 shadow-[6px_6px_0_#00FF75] group-hover:bg-nb-purple transition-all italic flex items-center gap-3"
+                                                        >
+                                                            <Download className="w-5 h-5" /> REWARD
+                                                        </button>
                                                     ) : (
-                                                        <div className="flex items-center gap-1 text-gray-400">
-                                                            <XCircle className="w-5 h-5" />
-                                                        </div>
+                                                        <button 
+                                                            onClick={() => navigate(`/event/${item.eventId}`)}
+                                                            className="nb bg-nb-yellow text-black px-8 py-5 text-xs font-black tracking-[0.3em] uppercase border-4 shadow-[6px_6px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all italic"
+                                                        >
+                                                            COMM_LINK
+                                                        </button>
                                                     )}
                                                 </div>
                                             </div>
-
-                                            {item.attended && item.attendedAt && (
-                                                <div className="mt-3 pt-3 border-t border-gray-100 text-xs text-gray-500">
-                                                    Checked in: {new Date(item.attendedAt).toLocaleString()}
-                                                </div>
-                                            )}
                                         </motion.div>
                                     ))}
                                 </div>

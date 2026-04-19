@@ -9,20 +9,10 @@ interface SimilarEventsProps {
     eventId: Id<"events">
 }
 
-const categoryColors: Record<string, string> = {
-    Workshop: 'bg-purple-100 text-purple-700',
-    Seminar: 'bg-blue-100 text-blue-700',
-    Sports: 'bg-green-100 text-green-700',
-    Cultural: 'bg-pink-100 text-pink-700',
-    Technical: 'bg-orange-100 text-orange-700',
-    Social: 'bg-yellow-100 text-yellow-700',
-}
-
 export default function SimilarEvents({ eventId }: SimilarEventsProps) {
     const navigate = useNavigate()
     const similarEvents = useQuery(api.recommendations.getSimilarEvents, { eventId })
 
-    // Don't render if no similar events or loading
     if (!similarEvents || similarEvents.length === 0) {
         return null
     }
@@ -31,49 +21,55 @@ export default function SimilarEvents({ eventId }: SimilarEventsProps) {
         <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            className="mt-8"
+            className="mt-16"
         >
-            {/* Section Header */}
-            <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 bg-gradient-to-br from-amber-500 to-orange-500 rounded-lg flex items-center justify-center">
-                    <Lightbulb className="w-4 h-4 text-white" />
+            <div className="flex items-center justify-between mb-8 border-b-4 border-nb-black/5 pb-6">
+                <div className="flex items-center gap-4">
+                    <div className="w-12 h-12 nb-sm bg-nb-yellow border-2 border-nb-black flex items-center justify-center">
+                        <Lightbulb className="w-6 h-6 text-nb-black animate-pulse" />
+                    </div>
+                    <div>
+                        <h2 className="font-display text-4xl font-black uppercase tracking-tight text-nb-black">RECOMMENDED</h2>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-nb-black/30 leading-none">Intelligence Matching Signals</p>
+                    </div>
                 </div>
-                <h2 className="text-xl font-black text-gray-900">Similar Events</h2>
             </div>
 
-            {/* Grid of Similar Events */}
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {similarEvents.map((event: any) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                {similarEvents.map((event: any, idx: number) => (
                     <motion.div
                         key={event._id}
-                        whileHover={{ y: -4 }}
-                        whileTap={{ scale: 0.98 }}
+                        initial={{ opacity: 0, scale: 0.9 }}
+                        animate={{ opacity: 1, scale: 1 }}
+                        transition={{ delay: idx * 0.1 }}
                         onClick={() => navigate(`/event/${event._id}`)}
-                        className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100 p-4"
+                        className="nb-sm bg-white border-2 border-nb-black p-6 cursor-pointer drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] hover:drop-shadow-[0px_0px_0px_rgba(0,0,0,1)] hover:translate-x-1 hover:translate-y-1 transition-all group"
                     >
-                        {/* Category Badge */}
-                        <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-full ${categoryColors[event.category] || 'bg-gray-100 text-gray-700'} mb-2`}>
-                            {event.category}
-                        </span>
+                        <div className="flex justify-between items-start mb-4">
+                            <span className="nb-tag bg-nb-orange text-white text-[8px] uppercase font-black px-2 py-1">
+                                {event.category}
+                            </span>
+                            <div className="w-2 h-2 rounded-full bg-nb-black animate-pulse" />
+                        </div>
 
-                        {/* Title */}
-                        <h3 className="font-bold text-gray-900 mb-2 line-clamp-2 text-sm">{event.title}</h3>
+                        <h3 className="font-display text-lg font-black uppercase tracking-tight text-nb-black mb-4 group-hover:text-nb-orange transition-colors line-clamp-2 leading-[0.9]">
+                            {event.title}
+                        </h3>
 
-                        {/* Meta Info */}
-                        <div className="space-y-1 text-xs text-gray-500">
-                            <div className="flex items-center gap-1.5">
-                                <Calendar className="w-3 h-3" />
+                        <div className="space-y-2 text-[10px] font-black uppercase tracking-widest text-nb-black/40 mb-6">
+                            <div className="flex items-center gap-2">
+                                <Calendar className="w-3.5 h-3.5" />
                                 <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
                             </div>
-                            <div className="flex items-center gap-1.5">
-                                <MapPin className="w-3 h-3" />
+                            <div className="flex items-center gap-2">
+                                <MapPin className="w-3.5 h-3.5 text-nb-orange" />
                                 <span className="truncate">{event.location}</span>
                             </div>
                         </div>
 
-                        {/* Action */}
-                        <div className="mt-3 flex items-center text-xs font-semibold text-indigo-600">
-                            View <ArrowRight className="w-3 h-3 ml-1" />
+                        <div className="pt-4 border-t-2 border-nb-black/5 flex items-center justify-between">
+                          <span className="text-[9px] font-black uppercase tracking-[0.2em] group-hover:tracking-[0.4em] transition-all">VIEW SIGNAL</span>
+                          <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                         </div>
                     </motion.div>
                 ))}

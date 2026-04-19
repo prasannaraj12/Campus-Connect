@@ -4,7 +4,8 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
-import { Mail, Lock, Check, AlertCircle, Shield } from 'lucide-react'
+import { Mail, Lock, Check, AlertCircle, Shield, Zap, Sparkles } from 'lucide-react'
+import { Brainbox, GhostBlob, NBStar } from '../components/Mascots'
 
 export default function Auth() {
   const navigate = useNavigate()
@@ -135,101 +136,103 @@ export default function Auth() {
   const isOtpComplete = otp.every(d => d !== '')
 
   return (
-    <div className="min-h-screen bg-nb-black flex items-center justify-center p-4 relative overflow-hidden">
-      <div className="absolute top-0 right-0 w-72 h-72 bg-nb-yellow opacity-5" />
-      <div className="absolute bottom-0 left-0 w-48 h-48 bg-nb-orange opacity-5" />
+    <div className="min-h-screen bg-nb-green flex items-center justify-center p-4 relative overflow-hidden grid-bg">
+      {/* Background Decorative Elements - Fixed positioning */}
+      <Brainbox className="absolute top-[-5%] left-[-5%] w-80 h-80 opacity-20 hidden lg:block rotate-[-15deg] pointer-events-none" />
+      <GhostBlob className="absolute bottom-[-5%] right-[-5%] w-80 h-80 opacity-20 hidden lg:block rotate-[15deg] pointer-events-none" />
+      
+      <div className="absolute bottom-10 left-10 flex gap-4 opacity-20 pointer-events-none">
+        <Zap className="w-16 h-16 text-black" />
+        <NBStar className="w-16 h-16" />
+      </div>
 
-      <div className="absolute top-6 left-1/2 -translate-x-1/2">
-        <button onClick={() => navigate('/')} className="font-display font-bold text-xl text-white tracking-tight">
-          Campus<span className="text-nb-yellow">Connect</span>
+      <div className="absolute top-12 left-1/2 -translate-x-1/2">
+        <button onClick={() => navigate('/')} className="font-display font-black text-5xl text-black tracking-tighter uppercase italic flex items-center gap-3 hover:scale-105 transition-transform group">
+          CAMPUS<span className="bg-nb-purple text-white px-4 border-4 border-black -rotate-3 shadow-[8px_8px_0_#FFF500] group-hover:rotate-0 transition-transform">CONNECT.</span>
         </button>
       </div>
 
       <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="nb-lg bg-white w-full max-w-md relative z-10"
+        initial={{ opacity: 0, scale: 0.9, rotate: -1 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        className="nb bg-white w-full max-w-md relative z-10 border-4 shadow-[20px_20px_0_#7400E8] overflow-hidden"
       >
         {/* Header strip */}
-        <div className="bg-nb-yellow border-b-4 border-black px-8 py-6">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-nb-black border-2 border-black flex items-center justify-center">
-              <Shield className="w-5 h-5 text-nb-yellow" />
+        <div className="bg-nb-purple border-b-4 border-black px-10 py-10 text-white relative">
+          <div className="absolute top-6 right-6 text-nb-green opacity-30 pointer-events-none"><Zap className="w-16 h-16" /></div>
+          <div className="flex items-center gap-6 relative z-10">
+            <div className="w-16 h-16 bg-white border-4 border-black flex items-center justify-center shadow-[6px_6px_0_#FFF500] rotate-3">
+              <Shield className="w-10 h-10 text-black stroke-[3px]" />
             </div>
             <div>
-              <h1 className="font-display text-xl font-bold text-black">Organizer Login</h1>
-              <p className="text-black/60 text-xs font-medium">Secure · No password required</p>
+              <h1 className="font-display text-4xl font-black uppercase italic tracking-tighter leading-none">COMMAND_LOGIN</h1>
+              <p className="text-nb-yellow text-[10px] font-black uppercase tracking-[0.4em] mt-3 underline underline-offset-4 decoration-4">SECURE // AUTHENTICATE</p>
             </div>
           </div>
         </div>
 
-        <div className="p-8">
-          {/* Error */}
+        <div className="p-10">
           <AnimatePresence>
             {error && (
               <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="nb-sm bg-red-400 text-black p-3 mb-5 flex items-center gap-2">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <p className="text-sm font-semibold">{error}</p>
+                className="nb bg-nb-pink text-white p-5 mb-8 flex items-center gap-4 border-4 border-black shadow-[6px_6px_0_#000000]">
+                <AlertCircle className="w-8 h-8 flex-shrink-0" />
+                <p className="text-xs font-black uppercase italic tracking-widest">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
 
-          {/* Dev OTP */}
           {generatedOtp && (
-            <div className="nb-sm bg-nb-yellow p-3 mb-5">
-              <p className="font-bold text-sm text-black">Your OTP: <span className="font-mono tracking-widest">{generatedOtp}</span></p>
-              <p className="text-xs text-black/60 mt-0.5">In production, this would be emailed</p>
+            <div className="nb bg-nb-yellow border-4 border-black p-6 mb-10 shadow-[8px_8px_0_#000000] rotate-[-1deg]">
+              <p className="font-black text-[10px] text-black/40 uppercase tracking-[0.3em] mb-2 underline decoration-black/10">INTERCEPTED_ACCESS_CODE</p>
+              <p className="font-display font-black text-4xl text-black tracking-[0.4em] italic leading-none">{generatedOtp}</p>
             </div>
           )}
 
           <AnimatePresence mode="wait">
             {step === 'email' ? (
-              <motion.form key="email" initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}
-                onSubmit={handleSendOTP} className="space-y-5">
-                <div className="nb-sm bg-nb-paper p-3 flex items-center gap-2 text-sm text-black/60">
-                  <Lock className="w-4 h-4 flex-shrink-0" />
-                  We'll send a one-time code to verify your account.
+              <motion.form key="email" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
+                onSubmit={handleSendOTP} className="space-y-8">
+                <div className="nb bg-nb-cream p-5 flex items-center gap-4 text-[10px] font-black text-black border-4 border-black shadow-[6px_6px_0_#7400E8] italic uppercase">
+                  <Lock className="w-6 h-6 flex-shrink-0 text-nb-purple" />
+                  WE WILL DISPATCH A ONE-TIME AUTH CODE TO VERIFY YOUR OPERATIVE STATUS.
                 </div>
 
                 <div>
-                  <label className="block font-bold text-sm mb-2">Email Address</label>
+                  <label className="block font-black text-[12px] mb-4 uppercase tracking-[0.3em] italic underline decoration-nb-purple decoration-4 underline-offset-4">INTEL_ADDRESS (EMAIL)</label>
                   <div className="relative">
-                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40" />
+                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-black/40" />
                     <input
                       ref={emailInputRef}
                       type="email"
                       value={email}
                       onChange={(e) => handleEmailChange(e.target.value)}
                       required
-                      className={`nb-input w-full pl-10 pr-10 py-3 text-sm ${emailValid === null ? '' : emailValid ? 'input-valid' : 'input-invalid'}`}
-                      placeholder="name@college.edu"
+                      className={`nb-input w-full pl-14 pr-14 py-6 text-sm uppercase font-black border-4 shadow-[8px_8px_0_#000000] transition-all bg-nb-cream/20 ${emailValid === null ? 'border-black' : emailValid ? 'border-nb-green shadow-nb-green/20' : 'border-nb-pink shadow-nb-pink/20'}`}
+                      placeholder="OPERATIVE@COLLEGE.EDU"
                     />
                     {emailValid !== null && (
-                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
-                        {emailValid ? <Check className="w-4 h-4 text-green-600" /> : <AlertCircle className="w-4 h-4 text-red-500" />}
+                      <div className="absolute right-5 top-1/2 -translate-y-1/2">
+                        {emailValid ? <Check className="w-8 h-8 text-nb-green stroke-[4px]" /> : <AlertCircle className="w-8 h-8 text-nb-pink stroke-[4px]" />}
                       </div>
                     )}
                   </div>
-                  {emailValid === false && email && (
-                    <p className="validation-message error">Please enter a valid email address</p>
-                  )}
                 </div>
 
                 <button type="submit" disabled={loading || !emailValid}
-                  className={`nb-btn w-full py-3 text-sm ${emailValid ? 'bg-nb-yellow text-black' : 'bg-nb-paper text-black/40 cursor-not-allowed shadow-none border-black/20'}`}>
-                  {loading ? 'Sending...' : 'Send Verification Code'}
+                  className={`nb w-full py-6 text-xl font-black uppercase tracking-[0.4em] border-4 shadow-[10px_10px_0_#000000] active:shadow-none active:translate-x-1.5 active:translate-y-1.5 transition-all italic ${emailValid ? 'bg-nb-purple text-white hover:bg-nb-yellow hover:text-black' : 'bg-nb-paper text-black/20 cursor-not-allowed shadow-none border-black/10'}`}>
+                  {loading ? 'TRANSMITTING...' : 'REQUEST_CODE →'}
                 </button>
               </motion.form>
             ) : (
-              <motion.form key="otp" initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}
-                onSubmit={handleVerifyOTP} className="space-y-5">
-                <div className="text-center">
-                  <p className="text-sm text-black/50">Enter the 6-digit code sent to</p>
-                  <p className="font-bold text-sm mt-0.5">{email}</p>
+              <motion.form key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
+                onSubmit={handleVerifyOTP} className="space-y-8">
+                <div className="text-center mb-10">
+                  <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] mb-4 underline decoration-black/10 underline-offset-8">ENTER THE 6-DIGIT CODE DISPATCHED TO</p>
+                  <p className="font-display font-black text-2xl mt-4 bg-nb-purple text-white px-4 py-2 border-4 border-black -rotate-1 shadow-[6px_6px_0_#00FF75] italic tracking-tighter">{email}</p>
                 </div>
 
-                <div className="flex justify-center gap-2" onPaste={handleOtpPaste}>
+                <div className="flex justify-center gap-4" onPaste={handleOtpPaste}>
                   {otp.map((digit, i) => (
                     <input
                       key={i}
@@ -240,39 +243,39 @@ export default function Auth() {
                       value={digit}
                       onChange={e => handleOtpChange(i, e.target.value)}
                       onKeyDown={e => handleOtpKeyDown(i, e)}
-                      className={`w-11 h-12 text-center text-xl font-bold nb-input transition-all ${digit ? 'bg-nb-yellow' : 'bg-white'}`}
+                      className={`w-12 h-20 text-center text-3xl font-black border-4 shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1.5 focus:translate-y-1.5 transition-all ${digit ? 'bg-nb-yellow border-black rotate-2 shadow-none' : 'bg-white border-black/20'}`}
                     />
                   ))}
                 </div>
 
                 <div className="text-center text-sm">
                   {resendTimer > 0 ? (
-                    <p className="text-black/40 font-medium">Resend in <span className="font-bold text-black">{resendTimer}s</span></p>
+                    <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] italic">RETRANSMIT_SYNC IN <span className="text-nb-purple font-black underline decoration-4 underline-offset-4">{resendTimer}S</span></p>
                   ) : (
-                    <button type="button" onClick={handleResendOTP} className="font-bold underline underline-offset-2">
-                      Resend OTP
+                    <button type="button" onClick={handleResendOTP} className="text-[10px] font-black uppercase tracking-[0.3em] underline underline-offset-8 decoration-nb-purple decoration-4 hover:text-nb-purple transition-colors italic">
+                      RETRANSMIT_CODE
                     </button>
                   )}
                 </div>
 
                 <button type="submit" disabled={loading || !isOtpComplete}
-                  className={`nb-btn w-full py-3 text-sm ${isOtpComplete ? 'bg-nb-yellow text-black' : 'bg-nb-paper text-black/40 cursor-not-allowed shadow-none border-black/20'}`}>
-                  {loading ? 'Verifying...' : 'Verify & Sign In'}
+                  className={`nb w-full py-6 text-xl font-black uppercase tracking-[0.4em] border-4 shadow-[10px_10px_0_#000000] active:shadow-none active:translate-x-1.5 active:translate-y-1.5 transition-all italic ${isOtpComplete ? 'bg-nb-purple text-white hover:bg-nb-green hover:text-black' : 'bg-nb-paper text-black/20 cursor-not-allowed shadow-none border-black/10'}`}>
+                  {loading ? 'VALIDATING...' : 'VERIFY_SYNC →'}
                 </button>
 
                 <button type="button"
                   onClick={() => { setStep('email'); setOtp(['','','','','','']); setError(''); setGeneratedOtp('') }}
-                  className="w-full text-center text-sm font-semibold text-black/50 hover:text-black transition-colors">
-                  ← Change email
+                  className="w-full text-center text-[10px] font-black uppercase tracking-[0.3em] text-black/40 hover:text-black transition-colors italic underline decoration-black/10 underline-offset-8">
+                  ← REVISE_INTEL_ADDRESS
                 </button>
               </motion.form>
             )}
           </AnimatePresence>
 
-          <div className="mt-6 pt-6 border-t-2 border-black text-center text-sm text-black/50">
-            Are you a participant?{' '}
-            <button onClick={() => navigate('/role-selection')} className="font-bold text-black underline underline-offset-2">
-              Participant Login
+          <div className="mt-12 pt-10 border-t-4 border-black text-center">
+            <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] mb-6 underline decoration-black/10 underline-offset-8">NOT AN ORGANIZER?</p>
+            <button onClick={() => navigate('/role-selection')} className="nb bg-white text-black font-black px-10 py-4 text-xs uppercase tracking-[0.3em] border-4 shadow-[8px_8px_0_#FF2D92] hover:bg-nb-purple hover:text-white transition-all italic hover:shadow-none hover:translate-x-1 hover:translate-y-1">
+              ENTER AS PIONEER →
             </button>
           </div>
         </div>

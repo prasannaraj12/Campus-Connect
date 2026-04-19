@@ -222,12 +222,34 @@ export const isRegistered = query({
 });
 
 export const getEventRegistrations = query({
-  args: { eventId: v.id("events") },
+  args: { 
+    eventId: v.id("events"),
+    userId: v.id("users") // Requester ID
+  },
   handler: async (ctx, args) => {
+    // 🛡️ SECURITY CHECK: Verify requester is the organizer
+    const user = await ctx.db.get(args.userId);
+    const event = await ctx.db.get(args.eventId);
+    
+    if (!user || !event || (user.role !== "organizer" && event.organizerId !== args.userId)) {
+      throw new Error("UNAUTHORIZED: Only event organizers can access the master registration log.");
+    }
+
     return await ctx.db
       .query("registrations")
       .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
       .collect();
+  },
+});
+
+export const getRegistrationCount = query({
+  args: { eventId: v.id("events") },
+  handler: async (ctx, args) => {
+    const registrations = await ctx.db
+      .query("registrations")
+      .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
+      .collect();
+    return registrations.length;
   },
 });
 
@@ -306,12 +328,32 @@ export const getAttendance = query({
 });
 
 export const getEventAttendance = query({
-  args: { eventId: v.id("events") },
+  args: { 
+    eventId: v.id("events"),
+    userId: v.id("users") // Requester ID
+  },
   handler: async (ctx, args) => {
+    // 🛡️ SECURITY CHECK: Verify requester is the organizer
+    const user = await ctx.db.get(args.userId);
+    if (!user || user.role !== "organizer") {
+      throw new Error("UNAUTHORIZED: Only organizers can view detailed attendance logs.");
+    }
+
     return await ctx.db
       .query("attendance")
       .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
       .collect();
+  },
+});
+
+export const getAttendanceCount = query({
+  args: { eventId: v.id("events") },
+  handler: async (ctx, args) => {
+    const attendance = await ctx.db
+      .query("attendance")
+      .withIndex("by_event", (q) => q.eq("eventId", args.eventId))
+      .collect();
+    return attendance.length;
   },
 });
 
@@ -353,10 +395,19 @@ export const getMyAttendanceCount = query({
 
 
 export const getRegistrationById = query({
-  args: { registrationId: v.id("registrations") },
+  args: { 
+    registrationId: v.id("registrations"),
+    userId: v.id("users") // Requester ID
+  },
   handler: async (ctx, args) => {
     const registration = await ctx.db.get(args.registrationId);
     if (!registration) return null;
+
+    // 🛡️ SECURITY CHECK: Must be owner or organizer
+    const user = await ctx.db.get(args.userId);
+    if (!user || (registration.userId !== args.userId && user.role !== "organizer")) {
+      throw new Error("UNAUTHORIZED: Access to individual registration records is restricted.");
+    }
 
     const event = await ctx.db.get(registration.eventId);
     return {
@@ -371,7 +422,10 @@ export const getRegistrationById = query({
 
 
 export const getRegistrationByCode = query({
-  args: { code: v.string() },
+  args: { 
+    code: v.string(),
+    userId: v.id("users") // Requester ID
+  },
   handler: async (ctx, args) => {
     const registration = await ctx.db
       .query("registrations")
@@ -379,6 +433,12 @@ export const getRegistrationByCode = query({
       .first();
 
     if (!registration) return null;
+
+    // 🛡️ SECURITY CHECK: Must be owner or organizer
+    const user = await ctx.db.get(args.userId);
+    if (!user || (registration.userId !== args.userId && user.role !== "organizer")) {
+      throw new Error("UNAUTHORIZED: Scanning or viewing records by code is restricted to authorized personnel.");
+    }
 
     const event = await ctx.db.get(registration.eventId);
     return {

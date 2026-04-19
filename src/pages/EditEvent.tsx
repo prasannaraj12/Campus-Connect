@@ -145,70 +145,67 @@ export default function EditEvent() {
     const lastUpdated = event._creationTime ? new Date(event._creationTime).toLocaleString() : null
 
     return (
-        <div className="min-h-screen bg-slate-50 pb-8">
+        <div className="min-h-screen bg-nb-cream pb-12 grid-bg">
             {/* Sticky Header */}
-            <div className="sticky top-0 bg-white/80 backdrop-blur-md border-b border-gray-100 z-10">
-                <div className="container mx-auto px-4 py-3 max-w-3xl flex items-center justify-between">
+            <div className="sticky top-0 bg-black text-white border-b-4 border-white/20 z-20">
+                <div className="container mx-auto px-4 py-4 max-w-3xl flex items-center justify-between">
                     <button
                         onClick={() => navigate(`/event/${eventId}`)}
-                        className="text-gray-600 hover:text-gray-900 font-semibold inline-flex items-center gap-2 transition-colors"
+                        className="nb bg-white text-black p-2 border-2 border-black hover:rotate-6 transition-all shadow-[3px_3px_0_#7400E8]"
                     >
-                        <ArrowLeft className="w-4 h-4" />
-                        Back to Event
+                        <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h1 className="text-lg font-bold text-gray-900">Edit Event</h1>
-                    <div className="w-24"></div>
+                    <h1 className="font-display text-2xl font-black uppercase italic tracking-tighter">EDIT_MISSION_PROTOCOL</h1>
+                    <div className="w-10"></div>
                 </div>
             </div>
 
-            <div className="container mx-auto px-4 max-w-3xl pt-6">
+            <div className="container mx-auto px-4 max-w-3xl pt-10">
                 {/* Error Display */}
                 {error && (
                     <motion.div
                         initial={{ opacity: 0, y: -10 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-red-50 border border-red-200 rounded-xl p-4 mb-6 flex items-center gap-3"
+                        className="nb bg-nb-pink text-white border-4 border-black p-5 mb-8 flex items-center gap-4 shadow-[6px_6px_0_#000000]"
                     >
-                        <AlertCircle className="w-4 h-4 text-red-500" />
-                        <p className="text-sm text-red-700">{error}</p>
+                        <AlertCircle className="w-6 h-6 flex-shrink-0" />
+                        <p className="text-sm font-black uppercase italic tracking-widest">{error}</p>
                     </motion.div>
                 )}
 
-                <form onSubmit={handleSubmit} className="space-y-6">
+                <form onSubmit={handleSubmit} className="space-y-10">
                     {/* Section 1: Basic Info */}
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="bg-white rounded-2xl shadow-md p-6"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#000000] rotate-[-0.5deg]"
                     >
-                        <h2 className="text-lg font-bold text-gray-900 mb-4">Basic Information</h2>
+                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-purple decoration-4 underline-offset-8">BASIC_INFORMATION</h2>
 
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Event Title *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">MISSION_TITLE_SERIAL *</label>
                                 <input
                                     type="text"
                                     required
                                     maxLength={60}
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
-                                    placeholder="e.g., AI Workshop 2026"
+                                    className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
+                                    placeholder="e.g., TECH_SYNC_2026"
                                 />
-                                <p className="text-xs text-gray-400 mt-1">Keep it short and clear (max 60 characters)</p>
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Description *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">BRIEF_DESCRIPTION *</label>
                                 <textarea
                                     required
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={4}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium resize-none transition-colors"
-                                    placeholder="Describe what the event is about..."
+                                    className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black resize-none"
+                                    placeholder="Describe the mission parameters..."
                                 />
-                                <p className="text-xs text-gray-400 mt-1">This will be shown to participants</p>
                             </div>
                         </div>
                     </motion.div>
@@ -218,30 +215,30 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="bg-white rounded-2xl shadow-md p-6"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#00FF75] rotate-[0.5deg]"
                     >
-                        <h2 className="text-lg font-bold text-gray-900 mb-4">Schedule</h2>
+                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-green decoration-4 underline-offset-8">TIMELINE_SYNC</h2>
 
-                        <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="grid sm:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Date *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">LAUNCH_DATE *</label>
                                 <input
                                     type="date"
                                     required
                                     value={formData.date}
                                     onChange={(e) => setFormData({ ...formData, date: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
+                                    className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Time *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">COORD_TIME *</label>
                                 <input
                                     type="time"
                                     required
                                     value={formData.time}
                                     onChange={(e) => setFormData({ ...formData, time: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
+                                    className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black"
                                 />
                             </div>
                         </div>
@@ -252,55 +249,54 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="bg-white rounded-2xl shadow-md p-6"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#7400E8] rotate-[-0.5deg]"
                     >
-                        <h2 className="text-lg font-bold text-gray-900 mb-4">Location & Capacity</h2>
+                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-purple decoration-4 underline-offset-8">LOGISTICS_&_QUOTA</h2>
 
-                        <div className="space-y-4">
+                        <div className="space-y-6">
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Location *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">DEPLOY_LOCATION *</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.location}
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
-                                    placeholder="e.g., Seminar Hall 1, Block A"
+                                    className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
+                                    placeholder="e.g., BASE_CAMP_DELTA"
                                 />
                             </div>
 
-                            <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="grid sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Category *</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">SECTOR_CATEGORY *</label>
                                     <select
                                         required
                                         value={formData.category}
                                         onChange={(e) => setFormData({ ...formData, category: e.target.value as any })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black uppercase"
                                     >
                                         {categories.map((cat) => (
-                                            <option key={cat} value={cat}>{cat}</option>
+                                            <option key={cat} value={cat}>{cat.toUpperCase()}</option>
                                         ))}
                                     </select>
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Max Participants *</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">UNIT_CAPACITY *</label>
                                     <input
                                         type="number"
                                         required
                                         min="1"
                                         value={formData.maxParticipants}
                                         onChange={(e) => setFormData({ ...formData, maxParticipants: parseInt(e.target.value) || 50 })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black"
                                     />
-                                    <p className="text-xs text-gray-400 mt-1">Maximum registrations allowed</p>
                                 </div>
                             </div>
 
                             {/* Team Event Toggle */}
-                            <div className="bg-blue-50 rounded-xl p-4">
-                                <label className="flex items-start gap-3 cursor-pointer">
+                            <div className="bg-nb-yellow/10 border-4 border-black p-6 rotate-[0.5deg]">
+                                <label className="flex items-start gap-4 cursor-pointer">
                                     <input
                                         type="checkbox"
                                         checked={formData.isTeamEvent}
@@ -309,40 +305,29 @@ export default function EditEvent() {
                                             isTeamEvent: e.target.checked,
                                             teamSize: e.target.checked ? formData.teamSize : undefined
                                         })}
-                                        className="mt-1 w-5 h-5 accent-indigo-500 rounded"
+                                        className="mt-1 w-6 h-6 accent-nb-purple"
                                     />
                                     <div>
-                                        <span className="font-bold text-gray-900">This is a Team Event</span>
-                                        <p className="text-sm text-gray-600 mt-1">Enable if participants must register as teams</p>
+                                        <span className="font-black text-black uppercase italic tracking-tighter">SQUAD_FORMATION_REQUIRED</span>
+                                        <p className="text-[10px] font-black text-black/50 mt-1 uppercase">ENABLE IF OPERATIVES MUST JOIN AS A SQUAD</p>
                                     </div>
                                 </label>
                             </div>
 
                             {formData.isTeamEvent && (
-                                <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">Team Size *</label>
+                                <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">SQUAD_UNIT_SIZE *</label>
                                     <input
                                         type="number"
                                         required={formData.isTeamEvent}
                                         min="2"
                                         value={formData.teamSize || ''}
                                         onChange={(e) => setFormData({ ...formData, teamSize: e.target.value ? parseInt(e.target.value) : undefined })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black"
                                         placeholder="e.g., 4"
                                     />
-                                </div>
+                                </motion.div>
                             )}
-
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-1">Requirements (Optional)</label>
-                                <textarea
-                                    value={formData.requirements}
-                                    onChange={(e) => setFormData({ ...formData, requirements: e.target.value })}
-                                    rows={3}
-                                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium resize-none transition-colors"
-                                    placeholder="Any prerequisites or requirements..."
-                                />
-                            </div>
                         </div>
                     </motion.div>
 
@@ -351,85 +336,60 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="bg-white rounded-2xl shadow-md p-6"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#FF2D92] rotate-[0.5deg]"
                     >
-                        <div className="flex items-center justify-between mb-4">
-                            <h2 className="text-lg font-bold text-gray-900">Organizer Details</h2>
-                            <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded-full font-semibold">Visible to participants</span>
+                        <div className="flex items-center justify-between mb-8">
+                            <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter underline decoration-nb-pink decoration-4 underline-offset-8">COMMAND_IDENT</h2>
+                            <span className="text-[10px] font-black bg-black text-white px-3 py-1 uppercase tracking-widest italic">PUBLIC_INTEL</span>
                         </div>
 
-                        <div className="space-y-4">
-                            <div className="grid sm:grid-cols-2 gap-4">
+                        <div className="space-y-6">
+                            <div className="grid sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        <User className="w-4 h-4 inline mr-1" />
-                                        Organizer Name
-                                    </label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">IDENT_NAME</label>
                                     <input
                                         type="text"
                                         value={formData.organizerName}
                                         onChange={(e) => setFormData({ ...formData, organizerName: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
-                                        placeholder="e.g., Tech Club – AIML Dept"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
+                                        placeholder="COMM_UNIT_01"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        <Building className="w-4 h-4 inline mr-1" />
-                                        Role / Club (Optional)
-                                    </label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">OPERATIONAL_ROLE</label>
                                     <input
                                         type="text"
                                         value={formData.organizerRole}
                                         onChange={(e) => setFormData({ ...formData, organizerRole: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
-                                        placeholder="e.g., Event Coordinator"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
+                                        placeholder="EVENT_COORD"
                                     />
                                 </div>
                             </div>
 
-                            <div className="grid sm:grid-cols-2 gap-4">
+                            <div className="grid sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        <Mail className="w-4 h-4 inline mr-1" />
-                                        Contact Email
-                                    </label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">SYNC_EMAIL</label>
                                     <input
                                         type="email"
                                         value={formData.organizerEmail}
                                         onChange={(e) => setFormData({ ...formData, organizerEmail: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
-                                        placeholder="techclub@college.edu"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
+                                        placeholder="SYNC@BASE.EDU"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-sm font-semibold text-gray-700 mb-1">
-                                        <Phone className="w-4 h-4 inline mr-1" />
-                                        Contact Phone (Optional)
-                                    </label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">COMM_LINE</label>
                                     <input
                                         type="tel"
                                         value={formData.organizerPhone}
                                         onChange={(e) => setFormData({ ...formData, organizerPhone: e.target.value })}
-                                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-indigo-500 focus:outline-none font-medium transition-colors"
-                                        placeholder="+91 9XXXXXXXXX"
+                                        className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black"
+                                        placeholder="+91_XXXXXXXXXX"
                                     />
                                 </div>
-                            </div>
-
-                            {/* Show contact toggle */}
-                            <div className="bg-gray-50 rounded-xl p-4">
-                                <label className="flex items-center gap-3 cursor-pointer">
-                                    <input
-                                        type="checkbox"
-                                        checked={formData.showContactInfo}
-                                        onChange={(e) => setFormData({ ...formData, showContactInfo: e.target.checked })}
-                                        className="w-5 h-5 accent-indigo-500 rounded"
-                                    />
-                                    <span className="font-semibold text-gray-700">Show organizer contact to participants</span>
-                                </label>
                             </div>
                         </div>
                     </motion.div>
@@ -439,41 +399,41 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="bg-white rounded-2xl shadow-md p-6"
+                        className="nb bg-black border-4 border-black p-10 shadow-[20px_20px_0_#FFF500] rotate-[-0.5deg]"
                     >
-                        <div className="flex flex-wrap gap-3">
+                        <div className="flex flex-wrap gap-6">
                             <motion.button
-                                whileHover={{ scale: 1.01 }}
-                                whileTap={{ scale: 0.99 }}
+                                whileHover={{ scale: 1.02, rotate: -1 }}
+                                whileTap={{ scale: 0.98 }}
                                 type="submit"
                                 disabled={loading}
-                                className="flex-1 bg-green-500 text-white py-3 px-6 rounded-xl font-bold inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all disabled:opacity-50"
+                                className="flex-1 bg-nb-green text-black py-5 px-10 border-4 border-black font-black uppercase tracking-[0.4em] flex items-center justify-center gap-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 italic"
                             >
-                                <Save className="w-5 h-5" />
-                                {loading ? 'Saving...' : 'Save Changes'}
+                                <Save className="w-6 h-6 stroke-[3px]" />
+                                {loading ? 'SYNCING...' : 'COMMIT_CHANGES'}
                             </motion.button>
 
                             <button
                                 type="button"
                                 onClick={() => navigate(`/event/${eventId}`)}
-                                className="bg-gray-100 text-gray-700 py-3 px-6 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+                                className="bg-white text-black py-5 px-10 border-4 border-black font-black uppercase tracking-[0.4em] hover:bg-nb-yellow transition-all italic"
                             >
-                                Cancel
+                                ABORT
                             </button>
 
                             <button
                                 type="button"
                                 onClick={() => setShowDeleteConfirm(true)}
-                                className="bg-red-50 text-red-600 py-3 px-6 rounded-xl font-semibold hover:bg-red-100 transition-colors inline-flex items-center gap-2"
+                                className="bg-nb-pink text-white py-5 px-10 border-4 border-black font-black uppercase tracking-[0.4em] hover:shadow-[8px_8px_0_#000000] transition-all flex items-center gap-4 italic"
                             >
-                                <Trash2 className="w-4 h-4" />
-                                Delete
+                                <Trash2 className="w-5 h-5 stroke-[3px]" />
+                                PURGE
                             </button>
                         </div>
 
                         {lastUpdated && (
-                            <p className="text-xs text-gray-400 text-center mt-4">
-                                Created: {lastUpdated}
+                            <p className="text-[10px] font-black text-white/40 text-center mt-8 uppercase tracking-[0.5em] italic">
+                                INITIAL_DEPLOY_LOG: {lastUpdated}
                             </p>
                         )}
                     </motion.div>
@@ -482,33 +442,33 @@ export default function EditEvent() {
 
             {/* Delete Confirmation Modal */}
             {showDeleteConfirm && (
-                <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+                <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-6">
                     <motion.div
-                        initial={{ opacity: 0, scale: 0.9 }}
-                        animate={{ opacity: 1, scale: 1 }}
-                        className="bg-white rounded-2xl shadow-xl p-6 max-w-md w-full"
+                        initial={{ opacity: 0, scale: 0.9, rotate: -3 }}
+                        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+                        className="bg-white nb border-4 border-black p-12 max-w-md w-full shadow-[25px_25px_0_#000000]"
                     >
                         <div className="text-center">
-                            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                                <Trash2 className="w-8 h-8 text-red-500" />
+                            <div className="w-20 h-20 bg-nb-pink border-4 border-black rounded-full flex items-center justify-center mx-auto mb-8 shadow-[8px_8px_0_#000000]">
+                                <Trash2 className="w-10 h-10 text-white stroke-[4px]" />
                             </div>
-                            <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Event?</h3>
-                            <p className="text-gray-600 mb-6">
-                                This will permanently delete "<strong>{event.title}</strong>" and all registrations. This action cannot be undone.
+                            <h3 className="font-display text-4xl font-black text-black mb-4 uppercase italic tracking-tighter">CONFIRM_PURGE?</h3>
+                            <p className="text-sm font-black text-black/60 mb-10 uppercase italic leading-tight">
+                                THIS WILL PERMANENTLY ERASE <span className="text-nb-pink underline underline-offset-4 decoration-4">"{event.title}"</span> AND ALL PARTICIPANT INTEL. <br/>ACTION IS IRREVERSIBLE.
                             </p>
-                            <div className="flex gap-3">
+                            <div className="flex gap-4">
                                 <button
                                     onClick={() => setShowDeleteConfirm(false)}
-                                    className="flex-1 bg-gray-100 text-gray-700 py-3 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+                                    className="flex-1 bg-white text-black py-5 border-4 border-black font-black uppercase tracking-[0.2em] hover:bg-nb-yellow transition-all italic"
                                 >
-                                    Cancel
+                                    ABORT
                                 </button>
                                 <button
                                     onClick={handleDelete}
                                     disabled={deleting}
-                                    className="flex-1 bg-red-500 text-white py-3 rounded-xl font-bold hover:bg-red-600 transition-colors disabled:opacity-50"
+                                    className="flex-1 bg-nb-pink text-white py-5 border-4 border-black font-black uppercase tracking-[0.2em] shadow-[6px_6px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all italic"
                                 >
-                                    {deleting ? 'Deleting...' : 'Delete Event'}
+                                    {deleting ? 'PURGING...' : 'EXECUTE_PURGE'}
                                 </button>
                             </div>
                         </div>

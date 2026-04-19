@@ -16,28 +16,27 @@ interface AttendanceBarChartProps {
 export default function AttendanceBarChart({ data }: AttendanceBarChartProps) {
     if (!data || data.length === 0) {
         return (
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Attendance by Event</h3>
-                <div className="h-48 flex items-center justify-center text-gray-400">
-                    No attendance data yet
+            <div className="h-full flex flex-col">
+                <h3 className="text-sm font-black text-nb-black mb-4 uppercase tracking-[0.2em]">Attendance by Event</h3>
+                <div className="flex-1 nb-sm bg-nb-paper flex items-center justify-center text-nb-black/20 text-[10px] font-black uppercase">
+                    No session data
                 </div>
             </div>
         )
     }
 
-    // Show only top 6 events
     const displayData = data.slice(0, 6)
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
-        >
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Attendance by Event</h3>
-            <p className="text-sm text-gray-500 mb-4">Showing {displayData.length} most recent events</p>
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-6">
+                <div>
+                    <h3 className="text-sm font-black text-nb-black uppercase tracking-[0.2em]">ATTENDANCE METRICS</h3>
+                    <p className="text-[10px] font-bold text-nb-black/40 uppercase tracking-widest mt-1 italic">RECENT PERFORMANCE</p>
+                </div>
+            </div>
 
-            <div className="space-y-4">
+            <div className="space-y-6">
                 {displayData.map((event, index) => (
                     <motion.div
                         key={event.eventId}
@@ -45,25 +44,22 @@ export default function AttendanceBarChart({ data }: AttendanceBarChartProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ delay: index * 0.05 }}
                     >
-                        <div className="flex items-center justify-between mb-1">
-                            <span className="text-sm font-medium text-gray-700 truncate max-w-[200px]">
+                        <div className="flex items-center justify-between mb-2">
+                            <span className="text-[10px] font-black text-nb-black uppercase truncate max-w-[200px]">
                                 {event.title}
                             </span>
-                            <span className="text-sm text-gray-500">
-                                {event.attendance}/{event.registrations} ({event.rate}%)
+                            <span className="text-[10px] font-bold text-nb-black/50">
+                                {event.attendance}/{event.registrations} — <span className="text-nb-black font-black">{event.rate}%</span>
                             </span>
                         </div>
-                        <div className="h-3 bg-gray-100 rounded-full overflow-hidden">
+                        <div className="h-4 bg-nb-paper border-2 border-nb-black overflow-hidden nb-sm">
                             <motion.div
                                 initial={{ width: 0 }}
                                 animate={{ width: `${event.rate}%` }}
-                                transition={{ duration: 0.5, delay: index * 0.1 }}
-                                className={`h-full rounded-full ${event.rate >= 80
-                                        ? 'bg-gradient-to-r from-emerald-400 to-emerald-500'
-                                        : event.rate >= 50
-                                            ? 'bg-gradient-to-r from-amber-400 to-amber-500'
-                                            : 'bg-gradient-to-r from-rose-400 to-rose-500'
-                                    }`}
+                                transition={{ duration: 0.8, delay: index * 0.1, ease: 'easeOut' }}
+                                className={`h-full border-r-2 border-nb-black ${
+                                    event.rate >= 80 ? 'bg-nb-yellow' : event.rate >= 50 ? 'bg-nb-orange' : 'bg-nb-paper'
+                                }`}
                             />
                         </div>
                     </motion.div>
@@ -71,20 +67,20 @@ export default function AttendanceBarChart({ data }: AttendanceBarChartProps) {
             </div>
 
             {/* Legend */}
-            <div className="mt-6 pt-4 border-t border-gray-100 flex flex-wrap gap-4 text-xs">
-                <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-emerald-500" />
-                    <span className="text-gray-500">80%+ Excellent</span>
+            <div className="mt-8 pt-6 border-t-2 border-nb-black/5 flex flex-wrap gap-6 text-[9px] font-black uppercase tracking-widest">
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 nb-sm bg-nb-yellow border border-nb-black" />
+                    <span className="text-nb-black/40">EXCELLENT [80%+]</span>
                 </div>
-                <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-amber-500" />
-                    <span className="text-gray-500">50-79% Good</span>
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 nb-sm bg-nb-orange border border-nb-black" />
+                    <span className="text-nb-black/40">NOMINAL [50%+]</span>
                 </div>
-                <div className="flex items-center gap-1">
-                    <div className="w-3 h-3 rounded-full bg-rose-500" />
-                    <span className="text-gray-500">&lt;50% Needs Improvement</span>
+                <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 nb-sm bg-nb-paper border border-nb-black" />
+                    <span className="text-nb-black/40">CRITICAL [LOW]</span>
                 </div>
             </div>
-        </motion.div>
+        </div>
     )
 }

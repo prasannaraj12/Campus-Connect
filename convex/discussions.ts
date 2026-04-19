@@ -34,9 +34,16 @@ export const createDiscussion = mutation({
 export const getEventDiscussions = query({
   args: {
     eventId: v.id("events"),
+    userId: v.id("users"), // Requester ID
     type: v.optional(v.union(v.literal("discussion"), v.literal("question"))),
   },
   handler: async (ctx, args) => {
+    // 🛡️ SECURITY CHECK: Verify requester is authenticated
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      throw new Error("UNAUTHORIZED: Comm-line access requires a valid User ID.");
+    }
+
     let discussionsQuery = ctx.db
       .query("discussions")
       .withIndex("by_event", (q) => q.eq("eventId", args.eventId));
@@ -164,8 +171,17 @@ export const addComment = mutation({
 
 // Get comments for a discussion
 export const getDiscussionComments = query({
-  args: { discussionId: v.id("discussions") },
+  args: { 
+    discussionId: v.id("discussions"),
+    userId: v.id("users") // Requester ID
+  },
   handler: async (ctx, args) => {
+    // 🛡️ SECURITY CHECK: Verify requester is authenticated
+    const user = await ctx.db.get(args.userId);
+    if (!user) {
+      throw new Error("UNAUTHORIZED: Community reply logs are restricted to authenticated terminal users.");
+    }
+
     const comments = await ctx.db
       .query("comments")
       .withIndex("by_discussion", (q) => q.eq("discussionId", args.discussionId))

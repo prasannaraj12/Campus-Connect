@@ -1,30 +1,41 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { Home } from 'lucide-react'
+import { Home, Zap } from 'lucide-react'
+import { GhostBlob, NBStar } from '../components/Mascots'
 
 export default function NotFound() {
   const navigate = useNavigate()
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-red-100 via-yellow-100 to-blue-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-nb-purple flex items-center justify-center p-6 relative overflow-hidden grid-bg">
+      {/* Decorative Elements */}
+      <GhostBlob className="absolute top-20 right-10 w-64 h-64 opacity-20 rotate-12" />
+      <NBStar className="absolute bottom-20 left-10 w-32 h-32 opacity-20" color="#FFF500" />
+      <Zap className="absolute top-1/2 left-10 -translate-y-1/2 w-48 h-48 opacity-10 text-white pointer-events-none" />
+
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        className="neo-brutal-lg bg-white p-12 text-center max-w-lg"
+        initial={{ opacity: 0, scale: 0.9, rotate: -5 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        className="nb bg-white p-16 text-center max-w-xl border-4 shadow-[20px_20px_0_#000000] relative"
       >
-        <h1 className="text-9xl font-black mb-4">404</h1>
-        <h2 className="text-3xl font-bold mb-6">Page Not Found</h2>
-        <p className="text-xl mb-8">
-          Oops! The page you're looking for doesn't exist.
+        <div className="absolute -top-10 -left-10 bg-nb-yellow border-4 border-black px-6 py-2 rotate-[-10deg] shadow-[6px_6px_0_#000000]">
+          <p className="font-black text-xs uppercase tracking-[0.3em]">ERROR_CODE: 404</p>
+        </div>
+        
+        <h1 className="font-display text-[12rem] font-black mb-0 leading-none italic tracking-tighter [text-shadow:12px_12px_0_#00FF75]">404</h1>
+        <h2 className="font-display text-4xl font-black mb-6 uppercase italic tracking-tighter underline underline-offset-8 decoration-nb-pink decoration-8">LOST_IN_TRANSMISSION</h2>
+        <p className="text-xl font-black mb-12 uppercase tracking-tight italic opacity-60">
+          WE COULD NOT LOCATE THE COORDINATES YOU REQUESTED. <br/>RECALIBRATING_CORE...
         </p>
+        
         <motion.button
-          whileHover={{ scale: 1.05 }}
+          whileHover={{ scale: 1.05, rotate: 1 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/')}
-          className="neo-brutal bg-blue-400 px-8 py-4 font-bold text-lg inline-flex items-center gap-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+          className="nb bg-nb-purple text-white px-12 py-6 font-black text-xl uppercase tracking-[0.4em] inline-flex items-center gap-4 border-4 shadow-[10px_10px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all italic"
         >
-          <Home className="w-5 h-5" />
-          Go Home
+          <Home className="w-8 h-8 stroke-[3px]" />
+          RETURN_TO_BASE
         </motion.button>
       </motion.div>
     </div>

@@ -14,22 +14,21 @@ interface CategoryPieChartProps {
 export default function CategoryPieChart({ data }: CategoryPieChartProps) {
     if (!data || data.length === 0) {
         return (
-            <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                <h3 className="text-lg font-bold text-gray-900 mb-4">Events by Category</h3>
-                <div className="h-48 flex items-center justify-center text-gray-400">
-                    No category data yet
+            <div className="h-full flex flex-col">
+                <h3 className="text-sm font-black text-nb-black mb-4 uppercase tracking-[0.2em]">Events by Category</h3>
+                <div className="flex-1 nb-sm bg-nb-paper flex items-center justify-center text-nb-black/20 text-[10px] font-black uppercase">
+                    No classification data
                 </div>
             </div>
         )
     }
 
     const total = data.reduce((sum, d) => sum + d.eventCount, 0)
-    const radius = 80
+    const radius = 90
     const centerX = 100
     const centerY = 100
 
-    // Calculate pie slices
-    let currentAngle = -90 // Start from top
+    let currentAngle = -90
 
     const slices = data.map((d) => {
         const percentage = d.eventCount / total
@@ -38,7 +37,6 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
         const endAngle = currentAngle + angle
         currentAngle = endAngle
 
-        // Calculate path for pie slice
         const startRad = (startAngle * Math.PI) / 180
         const endRad = (endAngle * Math.PI) / 180
 
@@ -59,66 +57,68 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
     })
 
     return (
-        <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm"
-        >
-            <h3 className="text-lg font-bold text-gray-900 mb-4">Events by Category</h3>
+        <div className="flex flex-col h-full">
+            <div className="flex items-center justify-between mb-8">
+                <div>
+                    <h3 className="text-sm font-black text-nb-black uppercase tracking-[0.2em]">CATEGORY RATIO</h3>
+                    <p className="text-[10px] font-bold text-nb-black/40 uppercase tracking-widest mt-1 italic">DISTRUBUTION BY TYPE</p>
+                </div>
+            </div>
 
-            <div className="flex flex-col md:flex-row items-center gap-6">
+            <div className="flex flex-col lg:flex-row items-center gap-10">
                 {/* Pie Chart */}
-                <svg width="200" height="200" viewBox="0 0 200 200" className="flex-shrink-0">
+                <svg width="200" height="200" viewBox="0 0 200 200" className="flex-shrink-0 drop-shadow-[4px_4px_0px_rgba(0,0,0,1)]">
                     {slices.map((slice, i) => (
                         <motion.path
                             key={slice.category}
                             d={slice.path}
                             fill={slice.color}
-                            initial={{ opacity: 0, scale: 0.8 }}
-                            animate={{ opacity: 1, scale: 1 }}
-                            transition={{ delay: i * 0.1 }}
-                            className="hover:opacity-80 transition-opacity cursor-pointer"
-                            style={{ transformOrigin: 'center' }}
+                            stroke="#000"
+                            strokeWidth="3"
+                            initial={{ opacity: 0, rotate: -10 }}
+                            animate={{ opacity: 1, rotate: 0 }}
+                            transition={{ delay: i * 0.05 }}
+                            className="hover:translate-x-1 hover:-translate-y-1 transition-transform cursor-pointer"
                         />
                     ))}
-                    {/* Center circle for donut effect */}
-                    <circle cx={centerX} cy={centerY} r={45} fill="white" />
+                    {/* Donut hole with border */}
+                    <circle cx={centerX} cy={centerY} r={50} fill="white" stroke="#000" strokeWidth="3" />
                     <text
                         x={centerX}
-                        y={centerY - 5}
+                        y={centerY - 2}
                         textAnchor="middle"
-                        className="text-2xl font-bold fill-gray-900"
+                        className="font-display text-2xl font-black fill-nb-black"
                     >
                         {total}
                     </text>
                     <text
                         x={centerX}
-                        y={centerY + 15}
+                        y={centerY + 16}
                         textAnchor="middle"
-                        className="text-xs fill-gray-500"
+                        className="text-[8px] font-black uppercase fill-nb-black/30 tracking-widest"
                     >
-                        Events
+                        EVENTS
                     </text>
                 </svg>
 
                 {/* Legend */}
-                <div className="flex-1 space-y-2">
+                <div className="flex-1 w-full space-y-2">
                     {slices.map((slice) => (
-                        <div key={slice.category} className="flex items-center justify-between">
-                            <div className="flex items-center gap-2">
+                        <div key={slice.category} className="nb-sm bg-nb-paper p-3 flex items-center justify-between group hover:bg-nb-yellow transition-colors">
+                            <div className="flex items-center gap-3">
                                 <div
-                                    className="w-3 h-3 rounded-full"
-                                    style={{ backgroundColor: slice.color }}
+                                    className="w-4 h-4 nb-sm"
+                                    style={{ backgroundColor: slice.color, borderWidth: '2px', borderColor: '#000' }}
                                 />
-                                <span className="text-sm font-medium text-gray-700">
+                                <span className="text-[10px] font-black text-nb-black uppercase tracking-tight">
                                     {slice.category}
                                 </span>
                             </div>
-                            <div className="flex items-center gap-3">
-                                <span className="text-sm text-gray-500">
-                                    {slice.eventCount} events
+                            <div className="flex items-center gap-4">
+                                <span className="text-[10px] font-bold text-nb-black/40 uppercase">
+                                    {slice.eventCount}
                                 </span>
-                                <span className="text-xs font-semibold text-gray-400">
+                                <span className="text-[10px] font-black text-nb-black">
                                     {slice.percentage}%
                                 </span>
                             </div>
@@ -126,6 +126,6 @@ export default function CategoryPieChart({ data }: CategoryPieChartProps) {
                     ))}
                 </div>
             </div>
-        </motion.div>
+        </div>
     )
 }

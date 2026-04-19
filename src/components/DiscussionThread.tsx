@@ -126,162 +126,168 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
       initial={{ opacity: 0, y: 10 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, scale: 0.95 }}
-      className={`bg-white rounded-xl border ${discussion.isPinned ? 'border-2 border-yellow-400 shadow-md' : 'border-gray-100 shadow-sm'} p-5 hover:shadow-md transition-shadow`}
+      className={`bg-white border-[6px] border-black p-10 shadow-[20px_20px_0_#000000] transition-all my-8 relative overflow-hidden ${discussion.isPinned ? 'ring-8 ring-nb-yellow/20' : ''}`}
     >
-      {/* Header */}
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex-1 min-w-0">
-          {/* Title */}
-          <h3 className="font-bold text-gray-900 mb-2 leading-snug">
-            {isQuestion && discussion.title ? discussion.title : discussion.message.split('\n')[0].substring(0, 100)}
-          </h3>
+      {/* Pinned Diagonal Ribbon */}
+      {discussion.isPinned && (
+        <div className="absolute top-0 right-0 bg-nb-yellow text-black px-12 py-2 border-b-4 border-l-4 border-black font-black uppercase text-[10px] tracking-widest italic translate-x-[30%] translate-y-[30%] rotate-45 z-10">
+          PRIORITY_INTEL
+        </div>
+      )}
 
-          {/* Metadata */}
-          <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-sm text-gray-500">
-            <span className="font-medium text-gray-700">{discussion.userName}</span>
-            <span>•</span>
-            <span>{getTimeAgo(discussion.createdAt)}</span>
-            {commentCount > 0 && (
-              <>
-                <span>•</span>
-                <span className="font-medium">{commentCount} {commentCount === 1 ? 'reply' : 'replies'}</span>
-              </>
-            )}
+      {/* Header */}
+      <div className="flex items-start justify-between gap-6">
+        <div className="flex-1 min-w-0">
+          {/* Metadata Bar */}
+          <div className="flex items-center gap-4 mb-6">
+            <div className={`px-4 py-2 border-4 border-black font-black uppercase text-[10px] italic tracking-widest ${discussion.userRole === 'organizer' ? 'bg-nb-purple text-white shadow-[4px_4px_0_#000000]' : 'bg-nb-cream text-black'}`}>
+              AGENT_{discussion.userName.replace(/\s+/g, '_').toUpperCase()}
+            </div>
+            <div className="h-1 flex-1 bg-black/10" />
+            <span className="text-[10px] font-black uppercase opacity-30 italic tracking-widest">{getTimeAgo(discussion.createdAt)}</span>
           </div>
 
+          {/* Title */}
+          <h3 className="font-display text-3xl font-black uppercase italic tracking-tighter text-black mb-6 leading-[0.9] group">
+            {isQuestion && discussion.title ? (
+              <span className="underline decoration-[6px] decoration-nb-pink underline-offset-8 decoration-skip-ink-none">{discussion.title}</span>
+            ) : (
+              <span className="underline decoration-[6px] decoration-nb-purple underline-offset-8 decoration-skip-ink-none">{discussion.message.split('\n')[0].substring(0, 100)}</span>
+            )}
+          </h3>
+
           {/* Status Badges */}
-          <div className="flex flex-wrap items-center gap-2 mt-3">
-            {discussion.userRole === 'organizer' && (
-              <span className="text-xs px-2.5 py-1 bg-purple-100 text-purple-700 font-semibold rounded-lg">
-                Organizer
-              </span>
-            )}
-            {discussion.isPinned && (
-              <span className="text-xs px-2.5 py-1 bg-yellow-100 text-yellow-700 font-semibold rounded-lg inline-flex items-center gap-1">
-                <Pin className="w-3 h-3" />
-                Pinned
-              </span>
-            )}
+          <div className="flex flex-wrap items-center gap-4 mt-8">
             {isQuestion && discussion.isAnswered && (
-              <span className="text-xs px-2.5 py-1 bg-green-100 text-green-700 font-semibold rounded-lg inline-flex items-center gap-1">
-                <CheckCircle className="w-3 h-3" />
-                Answered
-              </span>
+              <div className="bg-nb-green text-black border-4 border-black px-4 py-2 text-[10px] font-black uppercase tracking-widest italic flex items-center gap-2 shadow-[4px_4px_0_#000000]">
+                <CheckCircle className="w-4 h-4 stroke-[3px]" />
+                SECTOR_RESOLVED
+              </div>
             )}
             {isQuestion && !discussion.isAnswered && (
-              <span className="text-xs px-2.5 py-1 bg-orange-100 text-orange-700 font-semibold rounded-lg">
-                Awaiting Answer
-              </span>
+              <div className="bg-nb-pink text-white border-4 border-black px-4 py-2 text-[10px] font-black uppercase tracking-widest italic shadow-[4px_4px_0_#000000]">
+                AWAITING_SIGINT
+              </div>
             )}
           </div>
         </div>
 
-        {/* Actions */}
-        <div className="flex gap-1.5">
-          {user && !isAuthor && !isOrganizer && (
+        {/* Actions Console */}
+        <div className="flex flex-col gap-3">
+          {(isAuthor || isOrganizer) && (
             <button
-              onClick={handleReport}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-500 hover:text-gray-700 transition-colors"
-              title="Report"
+              onClick={() => setConfirmDelete('discussion')}
+              className="w-14 h-14 flex items-center justify-center border-4 border-black bg-white text-nb-pink shadow-[6px_6px_0_#000000] hover:bg-nb-pink hover:text-white hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+              title="PURGE_RECORD"
             >
-              <Flag className="w-4 h-4" />
+              <Trash2 className="w-6 h-6 stroke-[3px]" />
             </button>
           )}
           {isOrganizer && (
             <button
               onClick={handleTogglePin}
-              className={`w-8 h-8 flex items-center justify-center rounded-lg transition-colors ${discussion.isPinned
-                  ? 'bg-yellow-100 text-yellow-600 hover:bg-yellow-200'
-                  : 'bg-gray-100 text-gray-500 hover:bg-gray-200 hover:text-gray-700'
+              className={`w-14 h-14 flex items-center justify-center border-4 border-black transition-all shadow-[6px_6px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 ${discussion.isPinned
+                  ? 'bg-nb-yellow text-black'
+                  : 'bg-white text-black/20 hover:text-black'
                 }`}
-              title={discussion.isPinned ? 'Unpin' : 'Pin'}
+              title={discussion.isPinned ? 'RELEASE_PIN' : 'SECURE_PIN'}
             >
-              <Pin className="w-4 h-4" />
-            </button>
-          )}
-          {(isAuthor || isOrganizer) && (
-            <button
-              onClick={() => setConfirmDelete('discussion')}
-              className="w-8 h-8 flex items-center justify-center rounded-lg bg-red-50 hover:bg-red-100 text-red-500 hover:text-red-600 transition-colors"
-              title="Delete"
-            >
-              <Trash2 className="w-4 h-4" />
+              <Pin className="w-6 h-6 stroke-[3px]" />
             </button>
           )}
         </div>
       </div>
 
-      {/* Message Content */}
-      {isQuestion && discussion.title ? (
-        <p className="text-gray-600 mt-3 leading-relaxed whitespace-pre-wrap">
-          {discussion.message}
-        </p>
-      ) : discussion.message.split('\n').length > 1 ? (
-        <p className="text-gray-600 mt-3 leading-relaxed whitespace-pre-wrap">
-          {discussion.message.split('\n').slice(1).join('\n')}
-        </p>
-      ) : null}
+      {/* Message Content Body */}
+      <div className="mt-10 bg-nb-cream/30 border-l-8 border-black p-8 relative">
+        <div className="absolute top-0 right-0 p-4 opacity-10">
+          <MessageCircle className="w-20 h-20 text-black rotate-12" />
+        </div>
+        {isQuestion && discussion.title ? (
+          <p className="text-lg font-black italic uppercase tracking-tight leading-[1.3] text-black/80 whitespace-pre-wrap">
+            {discussion.message}
+          </p>
+        ) : discussion.message.split('\n').length > 1 ? (
+          <p className="text-lg font-black italic uppercase tracking-tight leading-[1.3] text-black/80 whitespace-pre-wrap">
+            {discussion.message.split('\n').slice(1).join('\n')}
+          </p>
+        ) : (
+           <p className="text-lg font-black italic uppercase tracking-tight leading-[1.3] text-black/80 whitespace-pre-wrap">
+            {discussion.message}
+          </p>
+        )}
+      </div>
 
-      {/* View Replies Button */}
-      <button
-        onClick={() => setShowComments(!showComments)}
-        className="mt-4 flex items-center gap-2 text-sm font-semibold text-blue-600 hover:text-blue-700 transition-colors"
-      >
-        <MessageCircle className="w-4 h-4" />
-        {showComments ? 'Hide' : 'View'} {commentCount} {commentCount === 1 ? 'Reply' : 'Replies'}
-        {showComments ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
-      </button>
+      {/* Footer Console */}
+      <div className="mt-10 pt-10 border-t-4 border-dashed border-black/10 flex items-center justify-between">
+        <button
+          onClick={() => setShowComments(!showComments)}
+          className={`flex items-center gap-4 px-8 py-4 border-4 border-black text-xs font-black uppercase tracking-[0.3em] italic transition-all shadow-[6px_6px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 ${showComments ? 'bg-black text-white' : 'bg-nb-yellow text-black'}`}
+        >
+          <MessageSquare className="w-5 h-5" />
+          {showComments ? 'CLOSE_COMMS_LOG' : 'ACCESS_COMMS_LOG'} ({commentCount})
+        </button>
 
-      {/* Comments Section */}
+        <div className="hidden sm:flex items-center gap-6">
+             <div className="flex -space-x-3">
+                 {[1,2,3].map(i => (
+                     <div key={i} className="w-10 h-10 border-4 border-black bg-white flex items-center justify-center shadow-[2px_2px_0_#000000] rotate-[5deg]">
+                         <span className="text-[10px] font-black italic">#{i}</span>
+                     </div>
+                 ))}
+             </div>
+             <div className="h-10 w-[2px] bg-black/10" />
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 italic">ENCRYPTED_SIGNAL_ACTIVE</span>
+        </div>
+      </div>
+
+      {/* Comments Section Console */}
       <AnimatePresence>
         {showComments && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="mt-4 space-y-3"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 10 }}
+            className="mt-10 p-10 bg-black/5 border-4 border-black border-dashed space-y-6"
           >
-            {/* Existing Comments */}
+            {/* Existing Comments Log */}
             {comments && comments.length > 0 && (
-              <div className="space-y-3">
+              <div className="space-y-6">
                 {comments.map((comment) => (
                   <motion.div
                     key={comment._id}
-                    initial={{ opacity: 0, x: -10 }}
+                    initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
-                    className={`p-4 rounded-xl border-l-4 ${comment.isAnswer
-                        ? 'bg-green-50 border-green-500'
+                    className={`p-8 border-4 shadow-[8px_8px_0_#000000] transition-all relative ${comment.isAnswer
+                        ? 'bg-nb-green border-black rotate-[0.5deg]'
                         : comment.userRole === 'organizer'
-                          ? 'bg-purple-50 border-purple-500'
-                          : 'bg-gray-50 border-gray-200'
+                          ? 'bg-nb-purple text-white border-black rotate-[-0.5deg]'
+                          : 'bg-white border-black text-black'
                       }`}
                   >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="font-semibold text-sm text-gray-900">{comment.userName}</span>
-                        {comment.userRole === 'organizer' && (
-                          <span className="text-xs px-2 py-0.5 bg-purple-100 text-purple-700 font-semibold rounded-md">
-                            Organizer
-                          </span>
-                        )}
+                    <div className="flex items-center justify-between mb-6">
+                      <div className="flex items-center gap-4">
+                        <div className={`px-4 py-1 border-2 border-black text-[9px] font-black uppercase italic tracking-widest ${comment.userRole === 'organizer' ? 'bg-white text-black' : 'bg-nb-yellow text-black'}`}>
+                          {comment.userName.toUpperCase()}
+                        </div>
                         {comment.isAnswer && (
-                          <span className="text-xs px-2 py-0.5 bg-green-500 text-white font-semibold rounded-md inline-flex items-center gap-1">
-                            <CheckCircle className="w-3 h-3" />
-                            Answer
-                          </span>
+                          <div className="bg-black text-white px-3 py-1 text-[8px] font-black uppercase tracking-widest italic flex items-center gap-1">
+                            <CheckCircle className="w-3 h-3 text-nb-green" />
+                            VERIFIED_INTEL
+                          </div>
                         )}
-                        <span className="text-xs text-gray-400">{getTimeAgo(comment.createdAt)}</span>
+                        <span className="text-[8px] font-black uppercase opacity-50 italic tracking-widest">{getTimeAgo(comment.createdAt)}</span>
                       </div>
                       {(user?.userId === comment.userId || isOrganizer) && (
                         <button
                           onClick={() => setConfirmDelete(comment._id)}
-                          className="text-red-400 hover:text-red-600 transition-colors"
+                          className="w-10 h-10 flex items-center justify-center border-2 border-black bg-white text-nb-pink hover:bg-nb-pink hover:text-white shadow-[3px_3px_0_#000000] transition-all"
                         >
-                          <Trash2 className="w-3.5 h-3.5" />
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       )}
                     </div>
-                    <p className="text-sm text-gray-700 leading-relaxed whitespace-pre-wrap">{comment.message}</p>
+                    <p className="text-sm font-black italic uppercase tracking-tight leading-relaxed whitespace-pre-wrap">{comment.message}</p>
                   </motion.div>
                 ))}
               </div>
@@ -289,20 +295,20 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
 
             {/* Add Comment Form */}
             {user && (
-              <form onSubmit={handleAddComment} className="flex gap-2">
+              <form onSubmit={handleAddComment} className="flex gap-4 mt-8">
                 <input
                   type="text"
                   value={commentText}
                   onChange={(e) => setCommentText(e.target.value)}
-                  placeholder="Write a reply..."
-                  className="flex-1 px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all"
+                  placeholder="TRANSMIT_REPLY..."
+                  className="nb-input flex-1 px-6 py-4 text-xs font-black uppercase transition-all"
                 />
                 <button
                   type="submit"
                   disabled={loading || !commentText.trim()}
-                  className="px-4 py-2.5 bg-gradient-to-r from-green-500 to-emerald-500 text-white font-semibold rounded-xl shadow-sm hover:shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                  className="nb bg-nb-green text-black px-10 py-4 text-xs font-black uppercase tracking-[0.2em] border-4 shadow-[6px_6px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all italic disabled:opacity-20"
                 >
-                  <Send className="w-4 h-4" />
+                  <Send className="w-5 h-5 stroke-[3px]" />
                 </button>
               </form>
             )}

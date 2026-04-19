@@ -98,24 +98,24 @@ export default function PhotoGallery({ eventId }: Props) {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-8">
       {/* Upload Section */}
       {user && (
-        <div className="neo-brutal bg-white p-4">
-          <h3 className="font-black text-lg mb-3 flex items-center gap-2">
-            <Camera className="w-5 h-5" />
-            Upload Photo
+        <div className="bg-nb-cream border-4 border-black p-8 shadow-[10px_10px_0_#000000] rotate-[0.5deg]">
+          <h3 className="font-black text-2xl mb-6 flex items-center gap-4 uppercase italic tracking-tighter">
+            <Camera className="w-8 h-8 text-nb-pink" />
+            UPLOAD_MEMORY
           </h3>
-          <div className="space-y-3">
+          <div className="space-y-6">
             <input
               type="text"
               value={caption}
               onChange={(e) => setCaption(e.target.value)}
-              placeholder="Add a caption (optional)"
-              className="neo-brutal-sm w-full px-3 py-2 font-semibold focus:outline-none focus:ring-2 focus:ring-black"
+              placeholder="ADD_CAPTION_LOG..."
+              className="nb-input w-full px-6 py-4 font-black uppercase text-sm"
               maxLength={200}
             />
-            <div className="flex gap-2">
+            <div className="flex flex-col sm:flex-row gap-4">
               <input
                 ref={fileInputRef}
                 type="file"
@@ -127,25 +127,26 @@ export default function PhotoGallery({ eventId }: Props) {
               <button
                 onClick={() => fileInputRef.current?.click()}
                 disabled={uploading}
-                className="neo-brutal bg-blue-400 px-4 py-2 font-bold flex-1 disabled:opacity-50 disabled:cursor-not-allowed hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all inline-flex items-center justify-center gap-2"
+                className="nb bg-nb-blue text-white px-10 py-5 font-black uppercase tracking-[0.4em] border-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all inline-flex items-center justify-center gap-3 italic disabled:opacity-20"
               >
-                <Upload className="w-4 h-4" />
-                {uploading ? 'Uploading...' : 'Choose Image'}
+                <Upload className="w-6 h-6 stroke-[3px]" />
+                {uploading ? 'UPLOADING...' : 'CHOOSE_FILE'}
               </button>
             </div>
             {/* Upload Progress Bar */}
             {uploading && (
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-4 bg-black/10 border-2 border-black overflow-hidden relative">
                 <motion.div
                   initial={{ width: 0 }}
                   animate={{ width: `${uploadProgress}%` }}
                   transition={{ duration: 0.3 }}
-                  className="h-full bg-blue-500 rounded-full"
+                  className="h-full bg-nb-green"
                 />
+                <span className="absolute inset-0 flex items-center justify-center text-[10px] font-black uppercase text-black mix-blend-difference">{uploadProgress}%</span>
               </div>
             )}
-            <p className="text-xs text-gray-500 font-semibold">
-              Max size: 5MB • Formats: JPG, PNG, GIF, WebP
+            <p className="text-[9px] text-black/40 font-black uppercase tracking-[0.4em] italic leading-tight">
+              MAX_SIZE: 5MB • FORMATS: [JPG, PNG, GIF, WEBP]
             </p>
           </div>
         </div>
@@ -167,17 +168,14 @@ export default function PhotoGallery({ eventId }: Props) {
           ))}
         </div>
       ) : (
-        <div className="neo-brutal bg-gray-50 p-12 text-center">
-          <p className="font-bold text-gray-900 text-lg mb-2">No photos shared yet</p>
-          <p className="text-gray-600 mb-4">
-            Photos can be uploaded by organizers and participants after the event.
+        <div className="bg-nb-cream border-4 border-dashed border-black/20 p-20 text-center rotate-[-1deg]">
+          <div className="w-20 h-20 bg-nb-yellow border-4 border-black flex items-center justify-center mx-auto mb-8 shadow-[8px_8px_0_#000000] rotate-3">
+            <Camera className="w-10 h-10 text-black stroke-[3px]" />
+          </div>
+          <h3 className="font-display text-4xl font-black mb-4 uppercase italic tracking-tighter">ZERO_PHOTOS_LOGGED</h3>
+          <p className="text-black/40 text-sm font-black uppercase tracking-[0.3em] mb-12 italic leading-tight max-w-md mx-auto">
+            THE GALLERY IS EMPTY. BE THE FIRST TO CAPTURE THE MOMENT.
           </p>
-          {user && (
-            <p className="text-sm text-gray-500 flex flex-col items-center">
-              <Camera className="w-12 h-12 text-gray-400 mb-2" />
-              Upload photos to share memories and highlights from this event.
-            </p>
-          )}
         </div>
       )}
 
@@ -226,34 +224,34 @@ function PhotoCard({ photo, onLike, onDelete, onClick, isOrganizer, currentUserI
       initial={{ opacity: 0, scale: 0.9 }}
       animate={{ opacity: 1, scale: 1 }}
       exit={{ opacity: 0, scale: 0.9 }}
-      className="neo-brutal bg-white overflow-hidden group cursor-pointer relative"
+      className="bg-white border-4 border-black shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all group cursor-pointer relative rotate-[1deg]"
       onClick={onClick}
     >
       {/* Image */}
-      <div className="aspect-square bg-gray-100 relative overflow-hidden">
+      <div className="aspect-square bg-nb-cream relative overflow-hidden border-b-4 border-black">
         {photoUrl ? (
           <img
             src={photoUrl}
             alt={photo.caption || 'Event photo'}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            className="w-full h-full object-cover grayscale hover:grayscale-0 transition-all duration-300"
           />
         ) : (
           <div className="w-full h-full flex items-center justify-center">
-            <div className="animate-spin w-8 h-8 border-4 border-blue-500 border-t-transparent rounded-full" />
+            <div className="w-10 h-10 border-4 border-black border-t-transparent animate-spin" />
           </div>
         )}
 
         {/* Overlay on hover */}
-        <div className="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-30 transition-all flex items-center justify-center opacity-0 group-hover:opacity-100">
-          <div className="flex gap-2">
+        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-all flex items-center justify-center">
+          <div className="flex gap-3">
             <button
               onClick={(e) => {
                 e.stopPropagation()
                 onLike(photo._id)
               }}
-              className={`neo-brutal-sm p-2 ${hasLiked ? 'bg-red-400' : 'bg-white'}`}
+              className={`nb border-4 border-black p-3 shadow-[4px_4px_0_#000000] ${hasLiked ? 'bg-nb-pink text-white' : 'bg-white text-black'}`}
             >
-              <Heart className={`w-4 h-4 ${hasLiked ? 'fill-white text-white' : ''}`} />
+              <Heart className={`w-6 h-6 ${hasLiked ? 'fill-white' : ''}`} />
             </button>
             {canDelete && (
               <button
@@ -261,22 +259,23 @@ function PhotoCard({ photo, onLike, onDelete, onClick, isOrganizer, currentUserI
                   e.stopPropagation()
                   onDelete(photo._id)
                 }}
-                className="neo-brutal-sm bg-red-400 p-2"
+                className="nb bg-white text-nb-pink border-4 border-black p-3 shadow-[4px_4px_0_#000000]"
               >
-                <Trash2 className="w-4 h-4" />
+                <Trash2 className="w-6 h-6" />
               </button>
-            )}          </div>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Info */}
-      <div className="p-2">
+      <div className="p-4 bg-white">
         <div className="flex items-center justify-between">
-          <span className="text-xs font-bold text-gray-600 truncate">
+          <span className="text-[10px] font-black uppercase italic tracking-widest text-black/50 truncate">
             {photo.uploadedByName}
           </span>
-          <span className="text-xs font-bold text-red-500 flex items-center gap-1">
-            <Heart className={`w-3 h-3 ${hasLiked ? 'fill-current' : ''}`} />
+          <span className="text-xs font-black text-nb-pink flex items-center gap-2">
+            <Heart className={`w-4 h-4 ${hasLiked ? 'fill-current' : ''} stroke-[3px]`} />
             {photo.likes || 0}
           </span>
         </div>
@@ -296,52 +295,52 @@ function PhotoModal({ photo, onClose, onLike, onDelete, isOrganizer, currentUser
   const canDelete = isOrganizer || currentUserId === photo.uploadedByUserId
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center p-4 z-50">
+    <div className="fixed inset-0 bg-black/90 backdrop-blur-xl flex items-center justify-center p-6 z-[100]">
       <motion.div
-        initial={{ opacity: 0, scale: 0.9 }}
-        animate={{ opacity: 1, scale: 1 }}
-        exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white rounded-2xl max-w-4xl w-full max-h-[90vh] overflow-hidden flex flex-col"
+        initial={{ opacity: 0, scale: 0.9, rotate: -2 }}
+        animate={{ opacity: 1, scale: 1, rotate: 0 }}
+        exit={{ opacity: 0, scale: 0.9, rotate: 2 }}
+        className="bg-white border-8 border-black max-w-5xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[40px_40px_0_#000000]"
       >
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b-4 border-black">
+        <div className="flex items-center justify-between p-8 border-b-8 border-black bg-nb-yellow">
           <div>
-            <p className="font-black">{photo.uploadedByName}</p>
-            <p className="text-xs text-gray-500">
-              {new Date(photo.uploadedAt).toLocaleString()}
+            <p className="font-black text-2xl uppercase italic tracking-tighter">{photo.uploadedByName}</p>
+            <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40 mt-1">
+              LOGGED_AT: {new Date(photo.uploadedAt).toLocaleString()}
             </p>
           </div>
           <button
             onClick={onClose}
-            className="neo-brutal-sm bg-red-400 p-2 hover:translate-x-0.5 hover:translate-y-0.5 transition-all"
+            className="nb bg-nb-pink text-white p-4 border-4 border-black hover:rotate-90 transition-transform shadow-[6px_6px_0_#000000]"
           >
-            <X className="w-5 h-5" />
+            <X className="w-8 h-8 stroke-[4px]" />
           </button>
         </div>
 
         {/* Image */}
-        <div className="flex-1 overflow-auto bg-gray-100 flex items-center justify-center p-4">
+        <div className="flex-1 overflow-auto bg-nb-cream flex items-center justify-center p-8 relative">
           {photoUrl && (
             <img
               src={photoUrl}
               alt={photo.caption || 'Event photo'}
-              className="max-w-full max-h-full object-contain"
+              className="max-w-full max-h-full object-contain border-8 border-black shadow-[20px_20px_0_#000000]"
             />
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t-4 border-black">
+        <div className="p-8 border-t-8 border-black bg-white">
           {photo.caption && (
-            <p className="font-semibold mb-3">{photo.caption}</p>
+            <p className="font-black text-xl uppercase italic tracking-tight mb-8 border-l-8 border-nb-purple pl-6 py-2 bg-nb-purple/5">{photo.caption}</p>
           )}
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-6">
             <button
               onClick={() => onLike(photo._id)}
-              className={`neo-brutal ${hasLiked ? 'bg-red-400' : 'bg-gray-200'} px-4 py-2 font-bold flex items-center gap-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all`}
+              className={`nb border-4 border-black px-10 py-5 font-black uppercase tracking-[0.4em] italic shadow-[10px_10px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all flex items-center gap-4 ${hasLiked ? 'bg-nb-pink text-white border-black' : 'bg-nb-cream text-black'}`}
             >
-              <Heart className={`w-5 h-5 ${hasLiked ? 'fill-white text-white' : ''}`} />
-              {photo.likes || 0} Likes
+              <Heart className={`w-8 h-8 ${hasLiked ? 'fill-white' : ''} stroke-[3px]`} />
+              {photo.likes || 0}_LIKES
             </button>
             {canDelete && (
               <button
@@ -349,10 +348,10 @@ function PhotoModal({ photo, onClose, onLike, onDelete, isOrganizer, currentUser
                   onDelete(photo._id)
                   onClose()
                 }}
-                className="neo-brutal bg-red-400 px-4 py-2 font-bold flex items-center gap-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+                className="nb bg-white text-nb-pink px-10 py-5 font-black uppercase tracking-[0.4em] italic border-4 border-black shadow-[10px_10px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all flex items-center gap-4"
               >
-                <Trash2 className="w-5 h-5" />
-                Delete
+                <Trash2 className="w-8 h-8 stroke-[3px]" />
+                PURGE_PHOTO
               </button>
             )}
           </div>

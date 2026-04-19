@@ -9,85 +9,82 @@ interface RecommendedEventsProps {
     userId: Id<"users">
 }
 
-const categoryColors: Record<string, string> = {
-    Workshop: 'bg-purple-100 text-purple-700 border-purple-200',
-    Seminar: 'bg-blue-100 text-blue-700 border-blue-200',
-    Sports: 'bg-green-100 text-green-700 border-green-200',
-    Cultural: 'bg-pink-100 text-pink-700 border-pink-200',
-    Technical: 'bg-orange-100 text-orange-700 border-orange-200',
-    Social: 'bg-yellow-100 text-yellow-700 border-yellow-200',
+const categoryColors: Record<string, { bg: string, text: string }> = {
+    Workshop: { bg: 'bg-nb-purple', text: 'text-white' },
+    Seminar: { bg: 'bg-nb-green', text: 'text-black' },
+    Sports: { bg: 'bg-nb-yellow', text: 'text-black' },
+    Cultural: { bg: 'bg-nb-pink', text: 'text-white' },
+    Technical: { bg: 'bg-nb-purple', text: 'text-white' },
+    Social: { bg: 'bg-nb-yellow', text: 'text-black' },
+    Hackathon: { bg: 'bg-black', text: 'text-white' },
 }
 
 export default function RecommendedEvents({ userId }: RecommendedEventsProps) {
     const navigate = useNavigate()
     const recommendedEvents = useQuery(api.recommendations.getRecommendedEvents, { userId })
 
-    // Don't render if no recommendations or loading
-    if (!recommendedEvents || recommendedEvents.length === 0) {
-        return null
-    }
+    if (!recommendedEvents || recommendedEvents.length === 0) return null
 
     return (
         <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mb-6"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            className="mb-12"
         >
             {/* Section Header */}
-            <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-gradient-to-br from-purple-500 to-pink-500 rounded-lg flex items-center justify-center">
-                        <Sparkles className="w-4 h-4 text-white" />
-                    </div>
-                    <h2 className="text-xl font-black text-gray-900">Events You Might Like</h2>
+            <div className="flex items-center gap-6 mb-8">
+                <div className="flex items-center gap-4 bg-black text-white px-6 py-2 nb-pill border-4 border-black shadow-[6px_6px_0_#FF2D92] rotate-[-2deg]">
+                    <Sparkles className="w-6 h-6 text-nb-yellow fill-nb-yellow animate-pulse" />
+                    <h2 className="text-xl font-black uppercase tracking-tighter italic">RECOMMENDED EVENTS</h2>
                 </div>
-                <span className="text-sm text-gray-500">Based on your interests</span>
+                <div className="h-2 flex-1 bg-black/10" />
+                <span className="text-[10px] font-black text-black/30 uppercase tracking-[0.4em] italic hidden md:block">PERSONALIZED FOR YOU</span>
             </div>
 
             {/* Horizontal Scrollable Cards */}
             <div className="relative">
-                <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+                <div className="flex gap-10 overflow-x-auto pb-10 custom-scrollbar scroll-smooth p-2">
                     {recommendedEvents.map((event: any) => (
                         <motion.div
                             key={event._id}
-                            whileHover={{ y: -4, scale: 1.02 }}
+                            whileHover={{ y: -10, rotate: -1 }}
                             whileTap={{ scale: 0.98 }}
                             onClick={() => navigate(`/event/${event._id}`)}
-                            className="flex-shrink-0 w-72 bg-white rounded-xl shadow-sm hover:shadow-lg transition-all cursor-pointer border border-gray-100 overflow-hidden"
+                            className="flex-shrink-0 w-80 bg-white nb shadow-[12px_12px_0_#000000] border-4 border-black cursor-pointer group hover:shadow-[4px_4px_0_#000000] transition-all"
                         >
-                            {/* Category Accent Bar */}
-                            <div className={`h-1 ${categoryColors[event.category]?.split(' ')[0] || 'bg-gray-200'}`} />
+                            {/* Category Badge */}
+                            <div className={`${categoryColors[event.category]?.bg || 'bg-black'} ${categoryColors[event.category]?.text || 'text-white'} px-6 py-4 border-b-4 border-black flex justify-between items-center group-hover:bg-nb-yellow group-hover:text-black transition-colors`}>
+                                <span className="text-[10px] font-black uppercase tracking-[0.3em] italic">{event.category}</span>
+                                <ChevronRight className="w-5 h-5 group-hover:translate-x-2 transition-transform" />
+                            </div>
 
-                            <div className="p-4">
-                                {/* Category Badge */}
-                                <span className={`inline-block text-xs font-semibold px-2 py-1 rounded-full border ${categoryColors[event.category] || 'bg-gray-100 text-gray-700'} mb-2`}>
-                                    {event.category}
-                                </span>
-
+                            <div className="p-8 space-y-6">
                                 {/* Title */}
-                                <h3 className="font-bold text-gray-900 mb-2 line-clamp-2">{event.title}</h3>
+                                <h3 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter leading-tight group-hover:underline underline-offset-8 decoration-nb-pink decoration-4">
+                                    {event.title}
+                                </h3>
 
                                 {/* Meta Info */}
-                                <div className="space-y-1 text-sm text-gray-500">
-                                    <div className="flex items-center gap-2">
-                                        <Calendar className="w-3.5 h-3.5" />
-                                        <span>{new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>
-                                        <span className="text-gray-300">•</span>
-                                        <span>{event.time}</span>
+                                <div className="space-y-3">
+                                    <div className="flex items-center gap-3 text-black/40 group-hover:text-black transition-colors">
+                                        <Calendar className="w-5 h-5" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest italic leading-none">
+                                            {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} · {event.time}
+                                        </span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <MapPin className="w-3.5 h-3.5" />
-                                        <span className="truncate">{event.location}</span>
-                                    </div>
-                                    <div className="flex items-center gap-2">
-                                        <Users className="w-3.5 h-3.5" />
-                                        <span>{event.maxParticipants} spots</span>
+                                    <div className="flex items-center gap-3 text-black/40 group-hover:text-black transition-colors">
+                                        <MapPin className="w-5 h-5" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest italic leading-none truncate">{event.location}</span>
                                     </div>
                                 </div>
 
-                                {/* View Button */}
-                                <div className="mt-3 flex items-center justify-end text-sm font-semibold text-indigo-600">
-                                    View Details <ChevronRight className="w-4 h-4" />
+                                {/* Status Meter */}
+                                <div className="pt-6 border-t-2 border-dashed border-black/10 flex items-center justify-between">
+                                    <div className="flex items-center gap-3">
+                                        <Users className="w-5 h-5 text-nb-purple" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest italic">{event.maxParticipants} SPOTS</span>
+                                    </div>
+                                    <div className="bg-nb-green/20 text-nb-green px-3 py-1 border-2 border-nb-green text-[8px] font-black tracking-widest uppercase">AVAILABLE</div>
                                 </div>
                             </div>
                         </motion.div>

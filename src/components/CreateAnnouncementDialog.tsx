@@ -44,35 +44,36 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
     }
   }
 
-  const inputClass = 'w-full px-4 py-3 rounded-xl border-2 border-slate-200 focus:border-brand-500 focus:outline-none font-medium transition-colors bg-white text-slate-900 placeholder-slate-400'
-  const labelClass = 'block text-sm font-semibold text-slate-700 mb-1.5'
+  const inputClass = 'nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black text-sm italic placeholder:text-black/20'
+  const labelClass = 'block text-[10px] font-black uppercase tracking-[0.4em] text-black mb-3 italic'
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.95 }}
-          className="bg-white rounded-2xl shadow-2xl w-full max-w-lg overflow-hidden"
-        >
-          {/* Header */}
-          <div className="flex items-center justify-between px-6 py-4 border-b border-slate-100">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-amber-100 rounded-xl flex items-center justify-center">
-                <Megaphone className="w-5 h-5 text-amber-600" />
-              </div>
-              <h2 className="font-display text-lg font-extrabold text-slate-900">Create Announcement</h2>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={{ opacity: 0, scale: 0.9 }}
+        className="bg-white max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[20px_20px_0_#000000] border-4 border-black"
+      >
+        {/* Header */}
+        <div className="flex items-center justify-between px-8 py-6 border-b-4 border-black bg-nb-green">
+          <div className="flex items-center gap-4">
+            <div className="w-10 h-10 bg-white border-4 border-black flex items-center justify-center shadow-[4px_4px_0_#000000]">
+              <Megaphone className="w-5 h-5 text-black" />
             </div>
-            <button
-              onClick={onClose}
-              className="w-9 h-9 bg-slate-100 hover:bg-slate-200 rounded-xl flex items-center justify-center transition-colors"
-            >
-              <X className="w-5 h-5 text-slate-600" />
-            </button>
+            <h2 className="font-display text-2xl font-black text-black">DISPATCH_INTEL</h2>
           </div>
+          <button
+            onClick={onClose}
+            className="nb bg-nb-pink text-white p-2 border-4 border-black hover:bg-black transition-colors shadow-[4px_4px_0_#000000]"
+          >
+            <X className="w-6 h-6 stroke-[3px]" />
+          </button>
+        </div>
 
-          <div className="p-6 space-y-5">
+        <div className="p-8 space-y-6 bg-white overflow-y-auto">
+
             {error && (
               <motion.div
                 initial={{ opacity: 0, y: -8 }}
@@ -142,13 +143,13 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
               </div>
 
               <motion.button
-                whileHover={{ scale: 1.01 }}
-                whileTap={{ scale: 0.99 }}
+                whileHover={{ scale: 1.02, rotate: -1 }}
+                whileTap={{ scale: 0.98 }}
                 type="submit"
                 disabled={loading}
-                className="w-full bg-amber-500 hover:bg-amber-600 text-white py-3.5 rounded-xl font-bold shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-nb-yellow text-black py-4 border-4 border-black font-black text-lg uppercase italic shadow-[10px_10px_0_#000000] hover:bg-nb-purple hover:text-white transition-all disabled:opacity-50 mt-6"
               >
-                {loading ? 'Creating...' : 'Create Announcement'}
+                {loading ? 'TRANSMITTING...' : 'BROADCAST_INTEL'}
               </motion.button>
             </form>
           </div>

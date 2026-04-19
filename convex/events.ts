@@ -73,25 +73,61 @@ export const createEvent = mutation({
 export const getAllEvents = query({
   handler: async (ctx) => {
     const events = await ctx.db.query("events").collect();
-    console.log("Fetched events:", events.length);
-    return events;
+    
+    // 🛡️ SECURITY CHECK: Redact contact info if showContactInfo is false
+    return events.map(event => {
+      if (!event.showContactInfo) {
+        return {
+          ...event,
+          organizerEmail: undefined,
+          organizerPhone: undefined,
+          organizerName: event.organizerName ? "(Hidden)" : undefined,
+        };
+      }
+      return event;
+    });
   },
 });
 
 export const getEventById = query({
   args: { eventId: v.id("events") },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.eventId);
+    const event = await ctx.db.get(args.eventId);
+    if (!event) return null;
+
+    // 🛡️ SECURITY CHECK: Redact contact info if showContactInfo is false
+    if (!event.showContactInfo) {
+      return {
+        ...event,
+        organizerEmail: undefined,
+        organizerPhone: undefined,
+        organizerName: event.organizerName ? "(Hidden)" : undefined,
+      };
+    }
+    return event;
   },
 });
 
 export const getEventsByOrganizer = query({
   args: { organizerId: v.id("users") },
   handler: async (ctx, args) => {
-    return await ctx.db
+    const events = await ctx.db
       .query("events")
       .withIndex("by_organizer", (q) => q.eq("organizerId", args.organizerId))
       .collect();
+
+    // 🛡️ SECURITY CHECK: Redact contact info if showContactInfo is false
+    return events.map(event => {
+      if (!event.showContactInfo) {
+        return {
+          ...event,
+          organizerEmail: undefined,
+          organizerPhone: undefined,
+          organizerName: event.organizerName ? "(Hidden)" : undefined,
+        };
+      }
+      return event;
+    });
   },
 });
 

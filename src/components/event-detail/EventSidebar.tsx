@@ -1,11 +1,11 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useMutation, useQuery } from 'convex/react'
 import { api } from '../../../convex/_generated/api'
 import { useAuth } from '../../hooks/use-auth'
 import { Id } from '../../../convex/_generated/dataModel'
 import QRCode from 'react-qr-code'
-import { UserPlus, Check, Download, FileDown, Users, CheckCircle, XCircle } from 'lucide-react'
+import { UserPlus, Check, Download, FileDown, Users, CheckCircle, XCircle, ShieldCheck } from 'lucide-react'
 import EventRegistrationDialog from '../EventRegistrationDialog'
 
 interface Props {
@@ -22,7 +22,6 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
   const { user } = useAuth()
   const [internalShowDialog, setInternalShowDialog] = useState(false)
 
-  // Use external state if provided, otherwise use internal state
   const showRegistrationDialog = externalShowDialog !== undefined ? externalShowDialog : internalShowDialog
   const setShowRegistrationDialog = externalSetShowDialog || setInternalShowDialog
 
@@ -31,39 +30,35 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
   const cancelRegistration = useMutation(api.registrations.cancelRegistration)
   const markAttendance = useMutation(api.registrations.markAttendance)
 
-  // Fetch attendance for this event
-  const attendance = useQuery(
-    api.registrations.getEventAttendance,
+  const attendanceCount = useQuery(
+    api.registrations.getAttendanceCount,
     { eventId: event._id }
   )
+  const attendance = useQuery(
+    api.registrations.getEventAttendance,
+    user?.role === 'organizer' && user.userId ? { eventId: event._id, userId: user.userId } : "skip"
+  )
 
-  // Get attendance for my registration
   const myAttendance = useQuery(
     api.registrations.getAttendance,
     myRegistration ? { registrationId: myRegistration._id } : "skip"
   )
 
-  // Create attendance map for quick lookup
   const attendanceMap = new Map()
   attendance?.forEach((att: any) => {
     attendanceMap.set(att.registrationId, att)
   })
 
-  const presentCount = attendance?.length || 0
+  const presentCount = attendanceCount ?? (attendance?.length || 0)
   const absentCount = registrations.length - presentCount
 
   const handleCancelRegistration = async () => {
-    if (!user?.userId || !confirm('Are you sure you want to cancel your registration?')) return
-
+    if (!user?.userId || !confirm('Confirm identity termination for this event?')) return
     setLoading(true)
     try {
-      await cancelRegistration({
-        eventId: event._id,
-        userId: user.userId,
-      })
+      await cancelRegistration({ eventId: event._id, userId: user.userId })
     } catch (err) {
-      console.error('Failed to cancel registration:', err)
-      alert('Failed to cancel registration')
+      console.error(err)
     } finally {
       setLoading(false)
     }
@@ -77,7 +72,7 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
         organizerId: user.userId as Id<"users">
       })
     } catch (err) {
-      console.error('Failed to mark attendance:', err)
+      console.error(err)
     }
   }
 
@@ -93,205 +88,197 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
         }
       }
     } catch (err) {
-      console.error('Failed to mark all:', err)
+      console.error(err)
     } finally {
       setMarkingAll(false)
     }
   }
 
-  const downloadQR = (registrationId: string) => {
-    window.open(`/ticket/${registrationId}`, '_blank')
-  }
-
-  const handleExportCSV = () => {
-    import('../../lib/utils').then(({ exportToCSV }) => {
-      const data = registrations.map(r => ({
-        ...r,
-        eventName: event.title,
-        attendance: attendanceMap.has(r._id) ? 'Present' : 'Absent',
-        markedAt: attendanceMap.get(r._id)?.markedAt || ''
-      }))
-      exportToCSV(data, `${event.title}_attendance`)
-    })
-  }
-
   return (
-    <div className="space-y-4">
-      {/* Participant Registration View */}
+    <div className="space-y-8">
+      {/* ── Participant Section ──────────────────────────────── */}
       {!isOrganizer && (
         <motion.div
-          initial={{ opacity: 0, x: 20 }}
-          animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-2xl shadow-md p-6"
+          initial={{ opacity: 0, scale: 0.9 }}
+          animate={{ opacity: 1, scale: 1 }}
+          className="nb bg-white p-8 border-4 border-nb-black shadow-[8px_8px_0px_rgba(0,0,0,1)]"
         >
           {myRegistration ? (
-            <>
-              <div className="bg-green-100 rounded-xl p-4 mb-4 text-center">
-                <Check className="w-8 h-8 mx-auto mb-2 text-green-600" />
-                <p className="font-bold text-green-800">You're Registered!</p>
+            <div className="space-y-8">
+              <div className="nb-sm bg-nb-yellow p-6 border-2 border-nb-black text-center flex flex-col items-center gap-2">
+                <CheckCircle className="w-10 h-10 text-nb-black grow-animation" />
+                <p className="text-sm font-black uppercase tracking-widest">YOU ARE REGISTERED</p>
               </div>
 
-              {/* QR Code Ticket */}
-              <div className="border border-gray-200 rounded-xl p-4 mb-4">
-                <h3 className="font-bold text-center mb-3">Your Ticket</h3>
-                <div className="bg-blue-50 rounded-lg p-3 mb-3 text-center">
-                  <p className="text-xs text-gray-500 mb-1">Registration Code</p>
-                  <p className="font-black text-2xl text-blue-600">{myRegistration.registrationCode}</p>
+              <div className="space-y-4">
+                <div className="flex items-center gap-3 mb-2">
+                  <div className="w-1.5 h-4 bg-nb-black" />
+                  <h3 className="text-[10px] font-black uppercase tracking-widest">YOUR TICKET</h3>
                 </div>
-                <div className="flex justify-center p-3">
-                  <QRCode value={myRegistration.registrationCode} size={160} />
+                
+                <div className="nb bg-nb-paper p-6 border-2 border-nb-black text-center relative overflow-hidden group">
+                  <div className="absolute top-0 right-0 w-12 h-12 bg-nb-orange -rotate-45 translate-x-6 -translate-y-6 border-b-2 border-nb-black" />
+                  <p className="text-[8px] font-black uppercase opacity-40 mb-3 tracking-[0.3em]">SECURE CODE</p>
+                  <p className="font-display text-4xl font-black text-nb-black tracking-widest mb-6 group-hover:scale-110 transition-transform">
+                    {myRegistration.registrationCode}
+                  </p>
+                  
+                  <div className="bg-white p-4 border-2 border-nb-black nb-sm inline-block shadow-[4px_4px_0px_rgba(0,0,0,1)] mb-6">
+                    <QRCode value={myRegistration.registrationCode} size={180} level="H" />
+                  </div>
+                  
+                  <button
+                    onClick={() => window.open(`/ticket/${myRegistration._id}`, '_blank')}
+                    className="nb-btn-sm bg-nb-black text-white w-full py-4 text-[10px]"
+                  >
+                    DOWNLOAD CREDENTIALS
+                  </button>
                 </div>
-                <p className="text-center text-xs text-gray-500 mt-2">Show this code at the event</p>
-                <motion.button
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  onClick={() => downloadQR(myRegistration._id)}
-                  className="bg-blue-500 text-white w-full mt-3 py-2 rounded-xl font-semibold text-sm inline-flex items-center justify-center gap-2"
-                >
-                  <Download className="w-4 h-4" />
-                  View Ticket
-                </motion.button>
               </div>
 
-              {/* Attendance Status */}
               {myAttendance && (
-                <div className="bg-green-100 rounded-xl p-3 mb-4 text-center">
-                  <CheckCircle className="w-6 h-6 mx-auto mb-1 text-green-600" />
-                  <p className="font-semibold text-green-800 text-sm">Attendance Marked</p>
-                  <p className="text-xs text-green-600">{new Date(myAttendance.markedAt).toLocaleString()}</p>
+                <div className="glass nb-sm p-5 border-2 border-nb-black/10 text-center flex items-center gap-3">
+                  <ShieldCheck className="w-6 h-6 text-nb-orange" />
+                  <div className="text-left">
+                    <p className="text-[9px] font-black uppercase text-nb-black">IDENTITY VERIFIED</p>
+                    <p className="text-[8px] font-bold text-nb-black/40 uppercase">{new Date(myAttendance.markedAt).toLocaleTimeString()}</p>
+                  </div>
                 </div>
               )}
 
               <button
                 onClick={handleCancelRegistration}
                 disabled={loading}
-                className="text-red-600 w-full py-2 font-semibold text-sm hover:underline disabled:opacity-50"
+                className="text-nb-black opacity-30 w-full py-4 text-[9px] font-black uppercase tracking-widest hover:opacity-100 hover:text-nb-orange transition-all disabled:opacity-10"
               >
-                Cancel Registration
+                CANCEL REGISTRATION
               </button>
-            </>
+            </div>
           ) : participantCount >= event.maxParticipants ? (
-            <div className="bg-red-100 rounded-xl p-6 text-center">
-              <XCircle className="w-12 h-12 mx-auto mb-2 text-red-500" />
-              <p className="font-bold text-red-800">Event Full</p>
+            <div className="nb bg-nb-paper p-10 border-4 border-nb-black flex flex-col items-center gap-4 text-center grayscale opacity-50">
+              <XCircle className="w-16 h-16 text-nb-black" />
+              <p className="text-lg font-black uppercase italic tracking-tighter">EVENT IS FULL</p>
             </div>
           ) : (
-            <motion.button
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
+            <button
               onClick={() => setShowRegistrationDialog(true)}
-              className="bg-green-500 text-white w-full py-4 rounded-xl font-bold text-lg inline-flex items-center justify-center gap-2 shadow-md hover:shadow-lg transition-all"
+              className="nb-btn bg-nb-yellow text-black w-full py-8 text-xl font-black uppercase italic tracking-tighter flex flex-col items-center gap-2 drop-shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
             >
-              <UserPlus className="w-5 h-5" />
-              Register Now
-            </motion.button>
+              <div className="flex items-center gap-4">
+                <UserPlus className="w-8 h-8" />
+                <span>JOIN EVENT</span>
+              </div>
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">REGISTER NOW</span>
+            </button>
           )}
         </motion.div>
       )}
 
-      {/* Organizer View - Attendance Manager */}
+      {/* ── Organizer View ──────────────────────────────────── */}
       {isOrganizer && (
         <motion.div
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
-          className="bg-white rounded-2xl shadow-md p-6"
+          className="nb bg-nb-paper p-8 border-4 border-nb-black shadow-[8px_8px_0px_rgba(250,204,21,1)]"
         >
-          {/* Header */}
-          <div className="flex justify-between items-center mb-4">
-            <div>
-              <h3 className="text-lg font-black text-gray-900">Attendance Manager</h3>
-              <p className="text-sm text-gray-500">{registrations.length} registrations</p>
-            </div>
-          </div>
+          <div className="space-y-8">
+            <header>
+              <h3 className="font-display text-2xl font-black uppercase tracking-tight text-nb-black mb-1 leading-none">ATTENDANCE HUB</h3>
+              <p className="text-[9px] font-black uppercase tracking-widest text-nb-black/40">VIEWING • {registrations.length} REGISTERED</p>
+            </header>
 
-          {/* Quick Stats */}
-          <div className="grid grid-cols-2 gap-3 mb-4">
-            <div className="bg-green-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-black text-green-600">{presentCount}</p>
-              <p className="text-xs text-gray-600">Present</p>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="nb-sm bg-nb-yellow p-4 border-2 border-nb-black text-center group hover:-translate-y-1 transition-transform">
+                <p className="text-[9px] font-black uppercase opacity-40 mb-2">PRESENT</p>
+                <p className="text-4xl font-black text-nb-black leading-none">{presentCount}</p>
+              </div>
+              <div className="nb-sm bg-nb-orange p-4 border-2 border-nb-black text-center group hover:-translate-y-1 transition-transform">
+                <p className="text-[9px] font-black uppercase opacity-40 mb-2 text-white/50">ABSENT</p>
+                <p className="text-4xl font-black text-white leading-none">{absentCount}</p>
+              </div>
             </div>
-            <div className="bg-red-50 rounded-xl p-3 text-center">
-              <p className="text-2xl font-black text-red-500">{absentCount}</p>
-              <p className="text-xs text-gray-600">Absent</p>
+
+            <div className="flex gap-4">
+              <button
+                onClick={handleMarkAllPresent}
+                disabled={markingAll || registrations.length === 0}
+                className="flex-1 nb-btn-sm bg-nb-black text-white py-4 text-[10px] font-black uppercase tracking-widest disabled:opacity-20"
+              >
+                {markingAll ? 'SYNCING...' : 'SYNC ALL'}
+              </button>
+              <button
+                onClick={() => import('../../lib/utils').then(({ exportToCSV }) => {
+                  const data = registrations.map(r => ({
+                    ...r,
+                    eventName: event.title,
+                    attendance: attendanceMap.has(r._id) ? 'Present' : 'Absent',
+                    markedAt: attendanceMap.get(r._id)?.markedAt || ''
+                  }))
+                  exportToCSV(data, `${event.title}_attendance`)
+                })}
+                disabled={registrations.length === 0}
+                className="nb-btn-sm bg-white text-black py-4 px-6 border-2 border-nb-black disabled:opacity-20"
+              >
+                <FileDown className="w-5 h-5" />
+              </button>
             </div>
-          </div>
 
-          {/* Bulk Actions */}
-          <div className="flex gap-2 mb-4">
-            <button
-              onClick={handleMarkAllPresent}
-              disabled={markingAll || registrations.length === 0}
-              className="flex-1 bg-green-100 text-green-700 py-2 px-3 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1 hover:bg-green-200 transition-colors disabled:opacity-50"
-            >
-              <CheckCircle className="w-3 h-3" />
-              {markingAll ? 'Marking...' : 'Mark All'}
-            </button>
-            <button
-              onClick={handleExportCSV}
-              disabled={registrations.length === 0}
-              className="flex-1 bg-blue-100 text-blue-700 py-2 px-3 rounded-lg text-xs font-semibold inline-flex items-center justify-center gap-1 hover:bg-blue-200 transition-colors disabled:opacity-50"
-            >
-              <FileDown className="w-3 h-3" />
-              Export
-            </button>
-          </div>
+            <div className="space-y-4 pt-6 border-t-4 border-nb-black/5">
+              <div className="flex items-center gap-2 mb-2">
+                <div className="w-1.5 h-4 bg-nb-black" />
+                <h4 className="text-[10px] font-black uppercase tracking-widest">MANIFEST ENTRIES</h4>
+              </div>
 
-          {/* Participants List */}
-          {registrations.length === 0 ? (
-            <div className="text-center py-8 text-gray-400">
-              <Users className="w-12 h-12 mx-auto mb-2 opacity-50" />
-              <p className="text-sm">No registrations yet</p>
-            </div>
-          ) : (
-            <div className="space-y-2 max-h-[400px] overflow-y-auto">
-              {registrations.map((reg) => {
-                const hasAttendance = attendanceMap.has(reg._id)
-                const attendanceRecord = attendanceMap.get(reg._id)
+              {registrations.length === 0 ? (
+                <div className="text-center py-12 nb-sm border-2 border-dashed border-nb-black/10">
+                  <Users className="w-10 h-10 mx-auto mb-3 opacity-10" />
+                  <p className="text-[10px] font-black uppercase opacity-20 tracking-tighter italic">NO ONE HAS REGISTERED YET...</p>
+                </div>
+              ) : (
+                <div className="space-y-3 max-h-[500px] pr-2 overflow-y-auto custom-scrollbar">
+                  {registrations.map((reg) => {
+                    const hasAttendance = attendanceMap.has(reg._id)
+                    const attendanceRecord = attendanceMap.get(reg._id)
 
-                return (
-                  <div
-                    key={reg._id}
-                    className={`p-3 rounded-xl border ${hasAttendance ? 'bg-green-50 border-green-200' : 'bg-gray-50 border-gray-200'}`}
-                  >
-                    <div className="flex justify-between items-center">
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="font-semibold text-sm truncate">{reg.participantName}</p>
-                          {reg.isTeamLeader && (
-                            <span className="bg-blue-500 text-white px-1.5 py-0.5 text-xs font-bold rounded">
-                              LEAD
-                            </span>
+                    return (
+                      <div
+                        key={reg._id}
+                        className={`nb-sm p-4 border-2 transition-all flex items-center justify-between gap-4 group ${
+                          hasAttendance ? 'bg-nb-yellow border-nb-black scale-[0.98]' : 'bg-white border-nb-black/10 hover:border-nb-black'
+                        }`}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
+                            <span className="text-[11px] font-black uppercase truncate tracking-tight">{reg.participantName}</span>
+                            {reg.isTeamLeader && <span className="nb-tag bg-nb-black text-white text-[8px] px-1.5 font-black uppercase">LEAD</span>}
+                          </div>
+                          <p className="text-[9px] font-bold text-nb-black/30 truncate uppercase">{reg.participantEmail}</p>
+                          {hasAttendance && (
+                            <p className="text-[8px] font-black text-nb-black mt-2 uppercase opacity-40">ATTENDANCE MARKED @ {new Date(attendanceRecord.markedAt).toLocaleTimeString()}</p>
                           )}
                         </div>
-                        <p className="text-xs text-gray-500 truncate">{reg.participantEmail}</p>
-                        {hasAttendance && (
-                          <p className="text-xs text-green-600 mt-1">
-                            Marked at {new Date(attendanceRecord.markedAt).toLocaleTimeString()}
-                          </p>
-                        )}
-                      </div>
 
-                      {/* Attendance Toggle */}
-                      <button
-                        onClick={() => !hasAttendance && handleMarkAttendance(reg._id)}
-                        disabled={hasAttendance}
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center transition-colors ${hasAttendance
-                          ? 'bg-green-500 text-white cursor-default'
-                          : 'bg-gray-200 hover:bg-green-400 hover:text-white'
+                        <button
+                          onClick={() => !hasAttendance && handleMarkAttendance(reg._id)}
+                          disabled={hasAttendance}
+                          className={`w-12 h-12 nb-sm border-2 flex items-center justify-center transition-all ${
+                            hasAttendance 
+                            ? 'bg-nb-black text-nb-yellow border-nb-black' 
+                            : 'bg-nb-paper text-nb-black border-nb-black/10 group-hover:bg-nb-yellow group-hover:border-nb-black'
                           }`}
-                      >
-                        <Check className="w-5 h-5" />
-                      </button>
-                    </div>
-                  </div>
-                )
-              })}
+                        >
+                          <Check className={`w-5 h-5 ${hasAttendance ? 'stroke-[4px]' : 'stroke-2'}`} />
+                        </button>
+                      </div>
+                    )
+                  })}
+                </div>
+              )}
             </div>
-          )}
+          </div>
         </motion.div>
       )}
 
-      {/* Registration Dialog */}
       {showRegistrationDialog && user?.userId && (
         <EventRegistrationDialog
           event={event}
