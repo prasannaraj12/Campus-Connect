@@ -95,12 +95,12 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
 
   return (
     <AnimatePresence>
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
+    <div className="brutal-dialog-backdrop fixed inset-0 flex items-center justify-center p-6 z-[100]">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white max-w-2xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[20px_20px_0_#000000] border-4 border-black"
+        className="brutal-dialog flex flex-col"
       >
         {/* Header */}
         <div className="sticky top-0 bg-nb-yellow border-b-4 border-black px-8 py-6 flex items-center justify-between z-10">
@@ -116,7 +116,6 @@ export default function CreateEventDialog({ organizerId, onClose }: Props) {
         </div>
 
         <div className="flex-1 overflow-y-auto p-8 bg-white relative">
-          <HappyDog className="absolute bottom-10 right-4 w-40 h-40 opacity-5 pointer-events-none" />
 
             {/* Error */}
             {error && (

@@ -168,10 +168,10 @@ export default function Landing() {
               { value: '12+',  label: 'GROUPS',   color: 'text-white', bg: 'bg-nb-green' },
             ].map((stat) => (
               <div key={stat.label} className="text-center group">
-                <div className={`${stat.bg} nb border-4 border-black px-12 py-8 mb-4 shadow-[10px_10px_0_#000000] group-hover:translate-y-[-8px] transition-transform relative z-10`}>
-                  <p className={`font-display text-6xl font-black ${stat.color} leading-none tracking-tighter`}>{stat.value}</p>
+                <div className={`${stat.bg} nb border-4 border-black px-10 py-6 mb-3 shadow-[8px_8px_0_#000000] group-hover:translate-y-[-6px] transition-transform`}>
+                  <p className={`font-display text-5xl font-black ${stat.color} leading-none tracking-tighter`}>{stat.value}</p>
                 </div>
-                <p className="text-white text-[14px] font-black tracking-[0.5em] uppercase italic underline decoration-white/20 underline-offset-8">{stat.label}</p>
+                <p className="text-white text-xs font-black tracking-[0.4em] uppercase">{stat.label}</p>
               </div>
             ))}
           </motion.div>
@@ -241,122 +241,146 @@ export default function Landing() {
           </motion.div>
         )}
         {/* ── Events Control Console ────────────────────────────── */}
-        <section className="mb-20 space-y-12">
-          <div className="flex flex-col xl:flex-row gap-10 items-stretch xl:items-end">
-            {/* Search Module */}
-            <div className="flex-1 space-y-4">
-              <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/30 italic ml-2 underline decoration-nb-purple underline-offset-4">SEARCH ENGINE</p>
-              <div className="relative group">
-                <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-8 h-8 text-black/20 group-focus-within:text-nb-purple transition-all" />
-                <input
-                  type="text"
-                  placeholder="SEARCH FOR EVENTS..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="nb-input w-full pl-20 pr-10 py-6 text-xl uppercase font-black placeholder:text-black/10 border-4 shadow-[10px_10px_0_#000000] focus:shadow-none focus:translate-x-1.5 focus:translate-y-1.5 transition-all italic"
-                />
-              </div>
+        <section className="mb-8 space-y-4">
+          <div className="flex flex-col sm:flex-row gap-4 items-stretch sm:items-center">
+            {/* Search */}
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 pointer-events-none" />
+              <input
+                type="text"
+                placeholder="Search events..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full pl-9 pr-4 py-2.5 text-sm font-semibold
+                           bg-white rounded-lg border-2 border-black/20
+                           shadow-[2px_2px_0_rgba(0,0,0,0.6)]
+                           focus:outline-none focus:border-nb-purple
+                           focus:shadow-[1px_1px_0_rgba(0,0,0,0.5)]
+                           transition-all placeholder:text-black/30"
+              />
             </div>
 
-            {/* Filter Module */}
-            <div className="flex-shrink-0 space-y-4">
-              <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/30 italic ml-2 underline decoration-nb-pink underline-offset-4">SYNC FILTERS</p>
-              <div className="flex flex-wrap gap-4">
-                {DATE_FILTERS.map(date => (
-                  <button
-                    key={date}
-                    onClick={() => setDateFilter(date)}
-                    className={`nb px-6 py-4 text-[11px] font-black transition-all border-4 shadow-[6px_6px_0_#000000] uppercase tracking-widest italic leading-none ${
-                      dateFilter === date
-                        ? 'bg-nb-pink text-white shadow-none translate-x-1.5 translate-y-1.5 rotate-1deg'
-                        : 'bg-white text-black hover:bg-nb-yellow'
-                    }`}
-                  >
-                    {date}
-                  </button>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          {/* Category Quick-Select */}
-          <div className="bg-black/5 p-8 nb border-4 border-black/10">
-            <div className="flex flex-wrap gap-4 items-center">
-              <span className="text-[10px] font-black uppercase tracking-[0.3em] text-black/40 mr-4">CATEGORIES:</span>
-              {CATEGORIES.map(cat => (
+            {/* Date filters */}
+            <div className="flex flex-wrap gap-2">
+              {DATE_FILTERS.map(date => (
                 <button
-                  key={cat}
-                  onClick={() => setCategoryFilter(cat)}
-                  className={`nb-sm px-6 py-2.5 text-[10px] font-black transition-all border-3 border-black uppercase tracking-widest italic ${
-                    categoryFilter === cat
-                      ? 'bg-nb-purple text-white rotate-[-2deg]'
-                      : 'bg-white text-black hover:bg-nb-yellow'
-                  }`}
+                  key={date}
+                  onClick={() => setDateFilter(date)}
+                  className={`px-3 py-2 text-xs font-bold rounded-lg border transition-all
+                    ${dateFilter === date
+                      ? 'bg-nb-pink text-white border-nb-pink shadow-[2px_2px_0_rgba(0,0,0,0.7)]'
+                      : 'bg-white text-black/60 border-black/20 hover:border-black/40 hover:text-black'
+                    }`}
                 >
-                  {cat}
+                  {date}
                 </button>
               ))}
             </div>
           </div>
+
+          {/* Category filters */}
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs font-bold text-black/30 uppercase tracking-wider mr-1">Category:</span>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat}
+                onClick={() => setCategoryFilter(cat)}
+                className={`px-3 py-1.5 text-xs font-bold rounded-md border transition-all
+                  ${categoryFilter === cat
+                    ? 'bg-nb-purple text-white border-nb-purple shadow-[2px_2px_0_rgba(0,0,0,0.7)]'
+                    : 'bg-white text-black/60 border-black/15 hover:border-black/30 hover:text-black'
+                  }`}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
         </section>
 
-        {/* Events Grid */}
-        <div className="flex items-center justify-between mb-16 border-b-8 border-black pb-8">
-          <h2 className="font-display text-7xl font-black text-black italic tracking-tighter uppercase leading-none">
-            {dateFilter === 'Past' ? 'PAST EVENTS' : 'UPCOMING EVENTS'}
-            {filteredEvents.length > 0 && (
-              <span className="ml-8 text-3xl font-black text-white bg-nb-pink border-4 border-black px-5 py-2 inline-block vertical-middle rotate-3 shadow-[6px_6px_0_#00FF75]">{filteredEvents.length}</span>
-            )}
+        {/* ── Events Grid ──────────────────────────────────────── */}
+        <div className="flex items-center gap-3 mb-6 pb-4 border-b border-black/10">
+          <h2 className="font-display text-2xl font-black text-black tracking-tight">
+            {dateFilter === 'Past' ? 'Past Events' : 'Upcoming Events'}
           </h2>
+          {filteredEvents.length > 0 && (
+            <span className="px-2 py-0.5 rounded-md text-xs font-bold bg-nb-pink text-white
+                             border border-black/20 shadow-[1px_1px_0_rgba(0,0,0,0.6)]">
+              {filteredEvents.length}
+            </span>
+          )}
         </div>
 
         {isLoading ? (
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[1,2,3,4,5,6].map(i => <SkeletonCard key={i} />)}
           </div>
         ) : displayedEvents.length > 0 ? (
           <>
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-12">
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {displayedEvents.map((event: any, index: number) => {
                 const catColor = getCategoryColor(event.category)
+                const daysUntil = Math.ceil((new Date(event.date).getTime() - Date.now()) / 86400000)
                 return (
                   <motion.article
                     key={event._id}
-                    initial={{ opacity: 0, y: 30 }}
+                    initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: index * 0.1 }}
-                    className="nb bg-white flex flex-col group cursor-pointer nb-hover shadow-[15px_15px_0_#000000] border-4 overflow-hidden"
+                    transition={{ duration: 0.3, delay: index * 0.06 }}
+                    whileHover={{ y: -4 }}
+                    className="bg-white rounded-xl border-2 border-black/80
+                               shadow-[4px_4px_0_rgba(0,0,0,0.8)]
+                               hover:shadow-[6px_6px_0_rgba(0,0,0,0.9)]
+                               flex flex-col cursor-pointer overflow-hidden
+                               transition-all duration-200 group"
                     onClick={() => navigate('/role-selection')}
                   >
-                    <div className={`${catColor} px-8 py-5 border-b-4 border-black flex justify-between items-center bg-opacity-100`}>
-                      <span className="text-[12px] font-black uppercase tracking-[0.3em] italic">{event.category}</span>
-                      <div className="bg-white border-3 border-black px-3 py-1 shadow-[4px_4px_0_#000000] rotate-6 text-[10px] font-black tracking-widest">LIVE SYNC</div>
+                    {/* Category strip */}
+                    <div className={`${catColor} px-4 py-2.5 flex items-center justify-between border-b border-black/15`}>
+                      <span className="text-xs font-bold uppercase tracking-wide">{event.category}</span>
+                      {daysUntil === 0 && (
+                        <span className="text-[10px] font-bold bg-white/80 text-black px-2 py-0.5 rounded">Today</span>
+                      )}
+                      {daysUntil > 0 && daysUntil <= 3 && (
+                        <span className="text-[10px] font-bold bg-white/80 text-black px-2 py-0.5 rounded">Soon</span>
+                      )}
                     </div>
 
-                    <div className="p-10 flex flex-col flex-1">
-                      <h3 className="font-display text-3xl font-black text-black mb-6 line-clamp-2 uppercase italic leading-none tracking-tighter group-hover:underline underline-offset-8 decoration-nb-purple decoration-4">
+                    <div className="p-5 flex flex-col flex-1">
+                      <h3 className="font-display text-lg font-black text-black mb-2
+                                     line-clamp-2 tracking-tight leading-tight
+                                     group-hover:text-nb-purple transition-colors">
                         {event.title}
                       </h3>
-                      <p className="text-black/70 text-sm font-black mb-10 line-clamp-2 leading-relaxed flex-1 italic uppercase tracking-tight">
+                      <p className="text-black/55 text-sm mb-4 line-clamp-2 leading-relaxed flex-1 font-medium">
                         {event.description}
                       </p>
 
-                      <div className="flex gap-6 mb-10">
-                        <div className="bg-nb-cream nb border-4 border-black px-4 py-3 flex items-center gap-3">
-                           <Calendar className="w-5 h-5 text-nb-purple stroke-[3px]" />
-                           <span className="text-[11px] font-black uppercase tracking-widest">{new Date(event.date).toLocaleDateString()}</span>
+                      {/* Meta row */}
+                      <div className="flex gap-2 mb-4">
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
+                                        bg-nb-cream border border-black/15 text-xs font-semibold">
+                          <Calendar className="w-3.5 h-3.5 text-nb-purple" />
+                          {new Date(event.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}
                         </div>
-                        <div className="bg-nb-cream nb border-4 border-black px-4 py-3 flex items-center gap-3">
-                           <MapPin className="w-5 h-5 text-nb-pink stroke-[3px]" />
-                           <span className="text-[11px] font-black uppercase tracking-widest truncate max-w-[100px]">{event.location}</span>
+                        <div className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-md
+                                        bg-nb-cream border border-black/15 text-xs font-semibold truncate">
+                          <MapPin className="w-3.5 h-3.5 text-nb-pink shrink-0" />
+                          <span className="truncate">{event.location}</span>
                         </div>
                       </div>
 
+                      {/* CTA */}
                       <button
                         onClick={(e) => { e.stopPropagation(); navigate('/role-selection') }}
-                        className="nb bg-nb-purple text-white font-black text-lg py-6 uppercase tracking-[0.4em] hover:bg-nb-yellow hover:text-black transition-all border-4 shadow-[8px_8px_0_#000000] italic group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1"
+                        className="w-full py-2.5 rounded-lg text-sm font-bold
+                                   bg-nb-purple text-white border border-black/20
+                                   shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                                   hover:bg-nb-yellow hover:text-black
+                                   hover:shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                                   active:shadow-[1px_1px_0_rgba(0,0,0,0.6)]
+                                   transition-all"
                       >
-                        VIEW DETAILS →
+                        View Details →
                       </button>
                     </div>
                   </motion.article>
@@ -365,20 +389,44 @@ export default function Landing() {
             </div>
 
             {filteredEvents.length > 6 && !showMoreEvents && (
-              <div className="text-center mt-24">
+              <div className="text-center mt-10">
                 <button
                   onClick={() => setShowMoreEvents(true)}
-                  className="nb bg-white text-black font-black px-16 py-8 text-lg tracking-[0.4em] hover:bg-nb-green border-4 shadow-[15px_15px_0_#000000] active:shadow-none transition-all uppercase italic"
+                  className="px-8 py-3 rounded-lg text-sm font-bold bg-white text-black
+                             border-2 border-black/20 shadow-[3px_3px_0_rgba(0,0,0,0.7)]
+                             hover:shadow-[4px_4px_0_rgba(0,0,0,0.8)] hover:-translate-x-px hover:-translate-y-px
+                             active:shadow-[1px_1px_0_rgba(0,0,0,0.6)] active:translate-x-px active:translate-y-px
+                             transition-all"
                 >
-                  LOAD MORE EVENTS +
+                  Load more events +
                 </button>
               </div>
             )}
           </>
         ) : (
-          <div className="nb bg-white p-24 text-center border-4 shadow-[20px_20px_0_#000000] rotate-[-1deg]">
-             <h3 className="font-display text-5xl font-black text-black uppercase italic mb-6 tracking-tighter underline decoration-nb-pink decoration-8 underline-offset-8">{dateFilter === "Upcoming" ? "NO UPCOMING EVENTS" : "NO EVENTS FOUND"}</h3>
-             <p className="text-black/40 font-black text-xl uppercase tracking-[0.4em] italic leading-tight">{dateFilter === "Upcoming" ? "TRY SWITCHING TO 'PAST' EVENTS OR CHECK BACK SOON." : "NO RESULTS MATCH YOUR SEARCH."}<br/>STAY TUNED FOR UPDATES.</p>
+          <div className="flex flex-col items-center text-center py-16 px-6 max-w-md mx-auto">
+            <div className="w-14 h-14 rounded-xl bg-black/5 flex items-center justify-center mb-4">
+              <Calendar className="w-7 h-7 text-black/30" />
+            </div>
+            <h3 className="font-display text-xl font-black text-black mb-2">
+              {dateFilter === 'Upcoming' ? 'No upcoming events' : 'No events found'}
+            </h3>
+            <p className="text-sm text-black/40 font-medium mb-5">
+              {dateFilter === 'Upcoming'
+                ? "Try switching to 'Past' events or check back soon."
+                : 'No results match your search. Try different filters.'}
+            </p>
+            {(searchQuery || categoryFilter !== 'All') && (
+              <button
+                onClick={() => { setSearchQuery(''); setCategoryFilter('All') }}
+                className="px-4 py-2 rounded-lg text-sm font-bold bg-nb-yellow text-black
+                           border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                           hover:shadow-[3px_3px_0_rgba(0,0,0,0.8)] hover:-translate-x-px hover:-translate-y-px
+                           transition-all"
+              >
+                Clear filters
+              </button>
+            )}
           </div>
         )}
 
@@ -392,18 +440,18 @@ export default function Landing() {
               </div>
               <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
                 {[
-                  { icon: Calendar, title: 'MGMT', desc: 'EASY_EVENT_MANAGEMENT.', color: 'bg-white' },
-                  { icon: QrCode,   title: 'SCAN',  desc: 'QUICK_QR_TICKETS.', color: 'bg-nb-green' },
-                  { icon: Zap,      title: 'LIVE',  desc: 'REALTIME_SYNCING.', color: 'bg-nb-purple text-white' },
-                  { icon: Shield,   title: 'GUARD', desc: 'SECURE_AND_FAST.', color: 'bg-nb-pink text-white' },
+                  { icon: Calendar, title: 'MGMT',  desc: 'Easy Event Management', color: 'bg-white' },
+                  { icon: QrCode,   title: 'SCAN',  desc: 'Quick QR Tickets',       color: 'bg-nb-green' },
+                  { icon: Zap,      title: 'LIVE',  desc: 'Realtime Syncing',        color: 'bg-nb-purple text-white' },
+                  { icon: Shield,   title: 'GUARD', desc: 'Secure & Fast',           color: 'bg-nb-pink text-white' },
                 ].map((f, i) => (
-                  <motion.div key={i} whileHover={{ y: -15, rotate: i % 2 === 0 ? 2 : -2 }} 
-                    className={`nb p-10 ${f.color} border-4 shadow-[10px_10px_0_#000000] transition-all`}>
-                    <div className="nb border-4 border-black bg-white text-black w-20 h-20 flex items-center justify-center mb-8 shadow-[6px_6px_0_#000000] -rotate-2">
-                      <f.icon className="w-10 h-10 stroke-[3px]" />
+                  <motion.div key={i} whileHover={{ y: -10, rotate: i % 2 === 0 ? 1 : -1 }}
+                    className={`nb p-8 ${f.color} border-4 shadow-[8px_8px_0_#000000] transition-all`}>
+                    <div className="nb border-4 border-black bg-white text-black w-16 h-16 flex items-center justify-center mb-6 shadow-[4px_4px_0_#000000] -rotate-2">
+                      <f.icon className="w-8 h-8 stroke-[2.5px]" />
                     </div>
-                    <h3 className="font-display font-black text-3xl mb-4 uppercase italic leading-none tracking-tighter underline decoration-black/10 underline-offset-4">{f.title}</h3>
-                    <p className="text-xs font-black uppercase tracking-widest opacity-80 leading-tight italic">{f.desc}</p>
+                    <h3 className="font-display font-black text-2xl mb-2 uppercase tracking-tight leading-none">{f.title}</h3>
+                    <p className="text-sm font-semibold opacity-70 leading-snug">{f.desc}</p>
                   </motion.div>
                 ))}
               </div>

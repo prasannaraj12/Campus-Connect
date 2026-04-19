@@ -4,97 +4,73 @@ import { useNavigate } from 'react-router-dom'
 import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
-import { Mail, Lock, Check, AlertCircle, Shield, Zap, Sparkles } from 'lucide-react'
-import { Brainbox, GhostBlob, NBStar } from '../components/Mascots'
+import { Mail, Lock, Check, AlertCircle, Shield, ArrowLeft } from 'lucide-react'
 
 export default function Auth() {
   const navigate = useNavigate()
   const { login } = useAuth()
-  const [email, setEmail] = useState('')
-  const [otp, setOtp] = useState(['', '', '', '', '', ''])
-  const [step, setStep] = useState<'email' | 'otp'>('email')
+  const [email, setEmail]     = useState('')
+  const [otp, setOtp]         = useState(['', '', '', '', '', ''])
+  const [step, setStep]       = useState<'email' | 'otp'>('email')
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState('')
+  const [error, setError]     = useState('')
   const [generatedOtp, setGeneratedOtp] = useState('')
-  const [resendTimer, setResendTimer] = useState(0)
-  const [emailValid, setEmailValid] = useState<boolean | null>(null)
-  const emailInputRef = useRef<HTMLInputElement>(null)
-  const otpInputRefs = useRef<(HTMLInputElement | null)[]>([])
+  const [resendTimer, setResendTimer]   = useState(0)
+  const [emailValid, setEmailValid]     = useState<boolean | null>(null)
 
-  const sendOTP = useMutation(api.auth.sendOTP)
-  const verifyOTP = useMutation(api.auth.verifyOTP)
+  const emailInputRef = useRef<HTMLInputElement>(null)
+  const otpInputRefs  = useRef<(HTMLInputElement | null)[]>([])
+
+  const sendOTP           = useMutation(api.auth.sendOTP)
+  const verifyOTP         = useMutation(api.auth.verifyOTP)
   const createOrganizerUser = useMutation(api.users.createOrganizerUser)
 
-  // Auto-focus email input on mount
-  useEffect(() => {
-    emailInputRef.current?.focus()
-  }, [])
+  useEffect(() => { emailInputRef.current?.focus() }, [])
 
-  // Resend timer countdown
   useEffect(() => {
     if (resendTimer > 0) {
-      const timer = setTimeout(() => setResendTimer(r => r - 1), 1000)
-      return () => clearTimeout(timer)
+      const t = setTimeout(() => setResendTimer(r => r - 1), 1000)
+      return () => clearTimeout(t)
     }
   }, [resendTimer])
 
-  // Email validation
-  const validateEmail = (value: string) => {
-    const regex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    return regex.test(value)
-  }
+  const validateEmail = (v: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v)
 
-  const handleEmailChange = (value: string) => {
-    setEmail(value)
-    if (value.length > 0) {
-      setEmailValid(validateEmail(value))
-    } else {
-      setEmailValid(null)
-    }
+  const handleEmailChange = (v: string) => {
+    setEmail(v)
+    setEmailValid(v.length > 0 ? validateEmail(v) : null)
   }
 
   const handleSendOTP = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!emailValid) return
-
-    setLoading(true)
-    setError('')
-
+    setLoading(true); setError('')
     try {
       const result = await sendOTP({ email })
       setGeneratedOtp(result.code || '')
-      setStep('otp')
-      setResendTimer(30)
+      setStep('otp'); setResendTimer(30)
       setTimeout(() => otpInputRefs.current[0]?.focus(), 100)
-    } catch (err: any) {
-      setError(err.message || 'Failed to send OTP')
-    } finally {
-      setLoading(false)
-    }
+    } catch (err: any) { setError(err.message || 'Failed to send OTP') }
+    finally { setLoading(false) }
   }
 
   const handleOtpChange = (index: number, value: string) => {
     if (!/^\d*$/.test(value)) return
-    const newOtp = [...otp]
-    newOtp[index] = value.slice(-1)
-    setOtp(newOtp)
-    if (value && index < 5) {
-      otpInputRefs.current[index + 1]?.focus()
-    }
+    const next = [...otp]; next[index] = value.slice(-1); setOtp(next)
+    if (value && index < 5) otpInputRefs.current[index + 1]?.focus()
   }
 
   const handleOtpKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !otp[index] && index > 0) {
+    if (e.key === 'Backspace' && !otp[index] && index > 0)
       otpInputRefs.current[index - 1]?.focus()
-    }
   }
 
   const handleOtpPaste = (e: React.ClipboardEvent) => {
     e.preventDefault()
     const pasted = e.clipboardData.getData('text').replace(/\D/g, '').slice(0, 6)
-    const newOtp = [...otp]
-    pasted.split('').forEach((char, i) => { newOtp[i] = char })
-    setOtp(newOtp)
+    const next = [...otp]
+    pasted.split('').forEach((c, i) => { next[i] = c })
+    setOtp(next)
     otpInputRefs.current[Math.min(pasted.length, 5)]?.focus()
   }
 
@@ -102,137 +78,193 @@ export default function Auth() {
     e.preventDefault()
     const code = otp.join('')
     if (code.length !== 6) return
-
-    setLoading(true)
-    setError('')
-
+    setLoading(true); setError('')
     try {
       await verifyOTP({ email, code })
       const userId = await createOrganizerUser({ email })
       login({ userId, role: 'organizer', email })
       navigate('/dashboard')
-    } catch (err: any) {
-      setError(err.message || 'Invalid OTP')
-    } finally {
-      setLoading(false)
-    }
+    } catch (err: any) { setError(err.message || 'Invalid OTP') }
+    finally { setLoading(false) }
   }
 
   const handleResendOTP = async () => {
     if (resendTimer > 0) return
-    setLoading(true)
-    setError('')
+    setLoading(true); setError('')
     try {
       const result = await sendOTP({ email })
-      setGeneratedOtp(result.code || '')
-      setResendTimer(30)
-    } catch (err: any) {
-      setError(err.message || 'Failed to resend OTP')
-    } finally {
-      setLoading(false)
-    }
+      setGeneratedOtp(result.code || ''); setResendTimer(30)
+    } catch (err: any) { setError(err.message || 'Failed to resend OTP') }
+    finally { setLoading(false) }
   }
 
   const isOtpComplete = otp.every(d => d !== '')
 
   return (
-    <div className="min-h-screen bg-nb-green flex items-center justify-center p-4 relative overflow-hidden grid-bg">
-      {/* Background Decorative Elements - Fixed positioning */}
-      <Brainbox className="absolute top-[-5%] left-[-5%] w-80 h-80 opacity-20 hidden lg:block rotate-[-15deg] pointer-events-none" />
-      <GhostBlob className="absolute bottom-[-5%] right-[-5%] w-80 h-80 opacity-20 hidden lg:block rotate-[15deg] pointer-events-none" />
-      
-      <div className="absolute bottom-10 left-10 flex gap-4 opacity-20 pointer-events-none">
-        <Zap className="w-16 h-16 text-black" />
-        <NBStar className="w-16 h-16" />
-      </div>
+    <div className="min-h-screen bg-nb-green grid-bg flex flex-col items-center justify-center p-4 gap-6">
 
-      <div className="absolute top-12 left-1/2 -translate-x-1/2">
-        <button onClick={() => navigate('/')} className="font-display font-black text-5xl text-black tracking-tighter uppercase italic flex items-center gap-3 hover:scale-105 transition-transform group">
-          CAMPUS<span className="bg-nb-purple text-white px-4 border-4 border-black -rotate-3 shadow-[8px_8px_0_#FFF500] group-hover:rotate-0 transition-transform">CONNECT.</span>
-        </button>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, scale: 0.9, rotate: -1 }}
-        animate={{ opacity: 1, scale: 1, rotate: 0 }}
-        className="nb bg-white w-full max-w-md relative z-10 border-4 shadow-[20px_20px_0_#7400E8] overflow-hidden"
+      {/* ── Logo ─────────────────────────────────────────────────── */}
+      <button
+        onClick={() => navigate('/')}
+        className="flex items-center gap-2 group"
       >
-        {/* Header strip */}
-        <div className="bg-nb-purple border-b-4 border-black px-10 py-10 text-white relative">
-          <div className="absolute top-6 right-6 text-nb-green opacity-30 pointer-events-none"><Zap className="w-16 h-16" /></div>
-          <div className="flex items-center gap-6 relative z-10">
-            <div className="w-16 h-16 bg-white border-4 border-black flex items-center justify-center shadow-[6px_6px_0_#FFF500] rotate-3">
-              <Shield className="w-10 h-10 text-black stroke-[3px]" />
-            </div>
-            <div>
-              <h1 className="font-display text-4xl font-black uppercase italic tracking-tighter leading-none">COMMAND_LOGIN</h1>
-              <p className="text-nb-yellow text-[10px] font-black uppercase tracking-[0.4em] mt-3 underline underline-offset-4 decoration-4">SECURE // AUTHENTICATE</p>
-            </div>
+        <span className="bg-nb-purple text-white text-sm font-black px-2.5 py-1 rounded-md
+                         shadow-[2px_2px_0_rgba(0,0,0,0.8)]
+                         group-hover:bg-black transition-colors">
+          CAMPUS
+        </span>
+        <span className="font-display font-black text-xl text-black tracking-tight">
+          CONNECT.
+        </span>
+      </button>
+
+      {/* ── Card ─────────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 16 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.3 }}
+        className="w-full max-w-[600px] bg-white rounded-2xl overflow-hidden
+                   border-2 border-black/80 shadow-[6px_6px_0_rgba(0,0,0,0.85)]"
+      >
+
+        {/* ── Header ───────────────────────────────────────────── */}
+        <div className="bg-nb-purple px-8 py-6 flex items-center gap-4">
+          <div className="w-11 h-11 bg-white rounded-xl flex items-center justify-center
+                          shadow-[2px_2px_0_rgba(255,229,0,0.9)] shrink-0">
+            <Shield className="w-6 h-6 text-nb-purple" />
+          </div>
+          <div>
+            <h1 className="font-display text-2xl font-black text-white tracking-tight leading-none">
+              COMMAND_LOGIN
+            </h1>
+            <p className="text-nb-yellow text-xs font-semibold tracking-widest mt-1 uppercase">
+              Secure · Authenticate
+            </p>
           </div>
         </div>
 
-        <div className="p-10">
+        {/* ── Body ─────────────────────────────────────────────── */}
+        <div className="px-8 py-7 space-y-5">
+
+          {/* Error */}
           <AnimatePresence>
             {error && (
-              <motion.div initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
-                className="nb bg-nb-pink text-white p-5 mb-8 flex items-center gap-4 border-4 border-black shadow-[6px_6px_0_#000000]">
-                <AlertCircle className="w-8 h-8 flex-shrink-0" />
-                <p className="text-xs font-black uppercase italic tracking-widest">{error}</p>
+              <motion.div
+                initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}
+                className="flex items-center gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3"
+              >
+                <AlertCircle className="w-4 h-4 text-red-500 shrink-0" />
+                <p className="text-sm font-semibold text-red-700">{error}</p>
               </motion.div>
             )}
           </AnimatePresence>
 
+          {/* Dev OTP display */}
           {generatedOtp && (
-            <div className="nb bg-nb-yellow border-4 border-black p-6 mb-10 shadow-[8px_8px_0_#000000] rotate-[-1deg]">
-              <p className="font-black text-[10px] text-black/40 uppercase tracking-[0.3em] mb-2 underline decoration-black/10">INTERCEPTED_ACCESS_CODE</p>
-              <p className="font-display font-black text-4xl text-black tracking-[0.4em] italic leading-none">{generatedOtp}</p>
+            <div className="bg-nb-yellow/30 border border-nb-yellow rounded-lg px-4 py-3">
+              <p className="text-xs font-semibold text-black/50 uppercase tracking-wider mb-1">
+                Access Code (dev)
+              </p>
+              <p className="font-display font-black text-3xl text-black tracking-[0.3em]">
+                {generatedOtp}
+              </p>
             </div>
           )}
 
+          {/* ── Step: Email ──────────────────────────────────── */}
           <AnimatePresence mode="wait">
             {step === 'email' ? (
-              <motion.form key="email" initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 20 }}
-                onSubmit={handleSendOTP} className="space-y-8">
-                <div className="nb bg-nb-cream p-5 flex items-center gap-4 text-[10px] font-black text-black border-4 border-black shadow-[6px_6px_0_#7400E8] italic uppercase">
-                  <Lock className="w-6 h-6 flex-shrink-0 text-nb-purple" />
-                  WE WILL DISPATCH A ONE-TIME AUTH CODE TO VERIFY YOUR OPERATIVE STATUS.
+              <motion.form
+                key="email"
+                initial={{ opacity: 0, x: -16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 16 }}
+                onSubmit={handleSendOTP}
+                className="space-y-5"
+              >
+                {/* Info box — glass style */}
+                <div className="flex items-start gap-3 rounded-lg px-4 py-3
+                                bg-white/40 backdrop-blur-sm border border-black/15">
+                  <Lock className="w-4 h-4 text-nb-purple mt-0.5 shrink-0" />
+                  <p className="text-sm text-black/60 font-medium leading-snug">
+                    We'll send a one-time code to verify your organizer account.
+                  </p>
                 </div>
 
-                <div>
-                  <label className="block font-black text-[12px] mb-4 uppercase tracking-[0.3em] italic underline decoration-nb-purple decoration-4 underline-offset-4">INTEL_ADDRESS (EMAIL)</label>
+                {/* Email input */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-bold text-black/70 tracking-wide">
+                    Email Address
+                  </label>
                   <div className="relative">
-                    <Mail className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-black/40" />
+                    <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-black/35 pointer-events-none" />
                     <input
                       ref={emailInputRef}
                       type="email"
                       value={email}
-                      onChange={(e) => handleEmailChange(e.target.value)}
+                      onChange={e => handleEmailChange(e.target.value)}
                       required
-                      className={`nb-input w-full pl-14 pr-14 py-6 text-sm uppercase font-black border-4 shadow-[8px_8px_0_#000000] transition-all bg-nb-cream/20 ${emailValid === null ? 'border-black' : emailValid ? 'border-nb-green shadow-nb-green/20' : 'border-nb-pink shadow-nb-pink/20'}`}
-                      placeholder="OPERATIVE@COLLEGE.EDU"
+                      placeholder="you@college.edu"
+                      className={`w-full pl-10 pr-10 py-3 text-sm font-semibold rounded-lg
+                                  bg-white border-2 transition-all outline-none
+                                  placeholder:text-black/30
+                                  ${emailValid === null
+                                    ? 'border-black/20 focus:border-nb-purple shadow-[2px_2px_0_rgba(0,0,0,0.15)] focus:shadow-[2px_2px_0_rgba(116,0,232,0.4)]'
+                                    : emailValid
+                                      ? 'border-green-400 shadow-[2px_2px_0_rgba(34,197,94,0.4)]'
+                                      : 'border-red-400 shadow-[2px_2px_0_rgba(239,68,68,0.4)]'
+                                  }`}
                     />
                     {emailValid !== null && (
-                      <div className="absolute right-5 top-1/2 -translate-y-1/2">
-                        {emailValid ? <Check className="w-8 h-8 text-nb-green stroke-[4px]" /> : <AlertCircle className="w-8 h-8 text-nb-pink stroke-[4px]" />}
+                      <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+                        {emailValid
+                          ? <Check className="w-4 h-4 text-green-500" />
+                          : <AlertCircle className="w-4 h-4 text-red-500" />
+                        }
                       </div>
                     )}
                   </div>
                 </div>
 
-                <button type="submit" disabled={loading || !emailValid}
-                  className={`nb w-full py-6 text-xl font-black uppercase tracking-[0.4em] border-4 shadow-[10px_10px_0_#000000] active:shadow-none active:translate-x-1.5 active:translate-y-1.5 transition-all italic ${emailValid ? 'bg-nb-purple text-white hover:bg-nb-yellow hover:text-black' : 'bg-nb-paper text-black/20 cursor-not-allowed shadow-none border-black/10'}`}>
-                  {loading ? 'TRANSMITTING...' : 'REQUEST_CODE →'}
+                {/* CTA */}
+                <button
+                  type="submit"
+                  disabled={loading || !emailValid}
+                  className={`w-full py-3 rounded-lg text-sm font-bold tracking-wide
+                              border-2 transition-all
+                              ${emailValid && !loading
+                                ? `bg-nb-yellow text-black border-black/80
+                                   shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                                   hover:shadow-[5px_5px_0_rgba(0,0,0,0.9)]
+                                   hover:-translate-x-0.5 hover:-translate-y-0.5
+                                   active:shadow-[1px_1px_0_rgba(0,0,0,0.7)]
+                                   active:translate-x-0.5 active:translate-y-0.5`
+                                : 'bg-black/5 text-black/30 border-black/10 cursor-not-allowed'
+                              }`}
+                >
+                  {loading ? 'Sending code…' : 'Request Code →'}
                 </button>
               </motion.form>
+
             ) : (
-              <motion.form key="otp" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }}
-                onSubmit={handleVerifyOTP} className="space-y-8">
-                <div className="text-center mb-10">
-                  <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] mb-4 underline decoration-black/10 underline-offset-8">ENTER THE 6-DIGIT CODE DISPATCHED TO</p>
-                  <p className="font-display font-black text-2xl mt-4 bg-nb-purple text-white px-4 py-2 border-4 border-black -rotate-1 shadow-[6px_6px_0_#00FF75] italic tracking-tighter">{email}</p>
+              /* ── Step: OTP ──────────────────────────────────── */
+              <motion.form
+                key="otp"
+                initial={{ opacity: 0, x: 16 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -16 }}
+                onSubmit={handleVerifyOTP}
+                className="space-y-5"
+              >
+                {/* Sent-to label */}
+                <div className="text-center space-y-1">
+                  <p className="text-xs font-semibold text-black/40 uppercase tracking-wider">
+                    Code sent to
+                  </p>
+                  <p className="font-bold text-sm text-nb-purple bg-nb-purple/10
+                                 rounded-lg px-3 py-1.5 inline-block">
+                    {email}
+                  </p>
                 </div>
 
-                <div className="flex justify-center gap-4" onPaste={handleOtpPaste}>
+                {/* OTP boxes */}
+                <div className="flex justify-center gap-3" onPaste={handleOtpPaste}>
                   {otp.map((digit, i) => (
                     <input
                       key={i}
@@ -243,41 +275,79 @@ export default function Auth() {
                       value={digit}
                       onChange={e => handleOtpChange(i, e.target.value)}
                       onKeyDown={e => handleOtpKeyDown(i, e)}
-                      className={`w-12 h-20 text-center text-3xl font-black border-4 shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1.5 focus:translate-y-1.5 transition-all ${digit ? 'bg-nb-yellow border-black rotate-2 shadow-none' : 'bg-white border-black/20'}`}
+                      className={`w-12 h-14 text-center text-2xl font-black rounded-lg
+                                  border-2 outline-none transition-all
+                                  ${digit
+                                    ? 'bg-nb-yellow border-black shadow-[2px_2px_0_rgba(0,0,0,0.8)]'
+                                    : 'bg-white border-black/20 focus:border-nb-purple focus:shadow-[2px_2px_0_rgba(116,0,232,0.4)]'
+                                  }`}
                     />
                   ))}
                 </div>
 
-                <div className="text-center text-sm">
+                {/* Resend */}
+                <div className="text-center">
                   {resendTimer > 0 ? (
-                    <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] italic">RETRANSMIT_SYNC IN <span className="text-nb-purple font-black underline decoration-4 underline-offset-4">{resendTimer}S</span></p>
+                    <p className="text-xs text-black/40 font-semibold">
+                      Resend in <span className="text-nb-purple font-bold">{resendTimer}s</span>
+                    </p>
                   ) : (
-                    <button type="button" onClick={handleResendOTP} className="text-[10px] font-black uppercase tracking-[0.3em] underline underline-offset-8 decoration-nb-purple decoration-4 hover:text-nb-purple transition-colors italic">
-                      RETRANSMIT_CODE
+                    <button
+                      type="button"
+                      onClick={handleResendOTP}
+                      className="text-xs font-bold text-nb-purple hover:underline transition-colors"
+                    >
+                      Resend code
                     </button>
                   )}
                 </div>
 
-                <button type="submit" disabled={loading || !isOtpComplete}
-                  className={`nb w-full py-6 text-xl font-black uppercase tracking-[0.4em] border-4 shadow-[10px_10px_0_#000000] active:shadow-none active:translate-x-1.5 active:translate-y-1.5 transition-all italic ${isOtpComplete ? 'bg-nb-purple text-white hover:bg-nb-green hover:text-black' : 'bg-nb-paper text-black/20 cursor-not-allowed shadow-none border-black/10'}`}>
-                  {loading ? 'VALIDATING...' : 'VERIFY_SYNC →'}
+                {/* Verify CTA */}
+                <button
+                  type="submit"
+                  disabled={loading || !isOtpComplete}
+                  className={`w-full py-3 rounded-lg text-sm font-bold tracking-wide
+                              border-2 transition-all
+                              ${isOtpComplete && !loading
+                                ? `bg-nb-purple text-white border-nb-purple/80
+                                   shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                                   hover:shadow-[5px_5px_0_rgba(0,0,0,0.9)]
+                                   hover:-translate-x-0.5 hover:-translate-y-0.5
+                                   active:shadow-[1px_1px_0_rgba(0,0,0,0.7)]
+                                   active:translate-x-0.5 active:translate-y-0.5`
+                                : 'bg-black/5 text-black/30 border-black/10 cursor-not-allowed'
+                              }`}
+                >
+                  {loading ? 'Verifying…' : 'Verify & Sign In →'}
                 </button>
 
-                <button type="button"
+                {/* Back */}
+                <button
+                  type="button"
                   onClick={() => { setStep('email'); setOtp(['','','','','','']); setError(''); setGeneratedOtp('') }}
-                  className="w-full text-center text-[10px] font-black uppercase tracking-[0.3em] text-black/40 hover:text-black transition-colors italic underline decoration-black/10 underline-offset-8">
-                  ← REVISE_INTEL_ADDRESS
+                  className="w-full flex items-center justify-center gap-1.5
+                             text-xs font-semibold text-black/40 hover:text-black transition-colors"
+                >
+                  <ArrowLeft className="w-3.5 h-3.5" /> Change email
                 </button>
               </motion.form>
             )}
           </AnimatePresence>
 
-          <div className="mt-12 pt-10 border-t-4 border-black text-center">
-            <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] mb-6 underline decoration-black/10 underline-offset-8">NOT AN ORGANIZER?</p>
-            <button onClick={() => navigate('/role-selection')} className="nb bg-white text-black font-black px-10 py-4 text-xs uppercase tracking-[0.3em] border-4 shadow-[8px_8px_0_#FF2D92] hover:bg-nb-purple hover:text-white transition-all italic hover:shadow-none hover:translate-x-1 hover:translate-y-1">
-              ENTER AS PIONEER →
+          {/* ── Divider ──────────────────────────────────────── */}
+          <div className="border-t border-black/10 pt-5 flex flex-col items-center gap-3">
+            <p className="text-xs text-black/40 font-medium">Not an organizer?</p>
+            <button
+              onClick={() => navigate('/role-selection')}
+              className="px-5 py-2 rounded-lg text-sm font-bold text-black
+                         border border-black/20 bg-transparent
+                         hover:bg-black/5 hover:border-black/40
+                         transition-all"
+            >
+              Browse as Participant →
             </button>
           </div>
+
         </div>
       </motion.div>
     </div>

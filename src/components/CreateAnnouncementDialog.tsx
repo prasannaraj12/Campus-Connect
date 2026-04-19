@@ -49,12 +49,12 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
 
   return (
     <AnimatePresence>
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center p-6 z-[100]">
+    <div className="brutal-dialog-backdrop fixed inset-0 flex items-center justify-center p-6 z-[100]">
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.9 }}
-        className="bg-white max-w-xl w-full max-h-[90vh] overflow-hidden flex flex-col shadow-[20px_20px_0_#000000] border-4 border-black"
+        className="brutal-dialog flex flex-col max-w-xl"
       >
         {/* Header */}
         <div className="flex items-center justify-between px-8 py-6 border-b-4 border-black bg-nb-green">

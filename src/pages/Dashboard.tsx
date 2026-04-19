@@ -128,28 +128,28 @@ export default function Dashboard() {
         <motion.div
           initial={{ opacity: 0, scale: 0.95 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="nb bg-nb-purple text-white p-10 flex flex-col md:flex-row items-center justify-between border-4 shadow-[15px_15px_0_#000000] relative overflow-hidden"
+          className="brutal-lg bg-nb-purple text-white p-8 flex flex-col md:flex-row items-center justify-between relative overflow-hidden"
         >
-          <div className="absolute top-[-20%] right-[-10%] opacity-20 pointer-events-none"><Zap className="w-48 h-48" /></div>
+          <div className="absolute top-[-20%] right-[-10%] opacity-10 pointer-events-none"><Zap className="w-48 h-48" /></div>
           <div className="relative z-10">
-            <p className="text-nb-yellow font-black text-[12px] uppercase tracking-[0.5em] mb-4 drop-shadow-[2px_2px_0_#000000] underline decoration-4 underline-offset-8 decoration-white/20">{greeting}</p>
-            <h2 className="font-display text-6xl font-black text-white italic tracking-tighter uppercase leading-none">HELLO {userName} 👋</h2>
-            <p className="text-white/60 text-sm font-black mt-4 uppercase tracking-[0.2em] italic">
-              {user.role === 'organizer' ? 'CREATE EVENTS. MANAGE SIGNUPS. TRACK PROGRESS.' : "BROWSE THE LATEST CAMPUS EVENTS."}
+            <p className="text-nb-yellow font-bold text-xs uppercase tracking-wider mb-3">{greeting}</p>
+            <h2 className="font-display text-4xl md:text-5xl font-black text-white tracking-tight uppercase leading-tight">HELLO {userName} 👋</h2>
+            <p className="text-white/70 text-sm font-semibold mt-3 uppercase tracking-wide">
+              {user.role === 'organizer' ? 'Create events. Manage signups. Track progress.' : "Browse the latest campus events."}
             </p>
           </div>
           {user.role === 'participant' && (
             <button
               onClick={() => navigate('/my-history')}
-              className="mt-10 md:mt-0 relative z-10 flex items-center gap-4 nb bg-nb-yellow text-black px-10 py-4 text-xs font-black uppercase tracking-[0.3em] border-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1.5 hover:translate-y-1.5 transition-all italic border-black"
+              className="mt-6 md:mt-0 relative z-10 brutal-btn bg-nb-yellow text-black flex items-center gap-3"
             >
-              <History className="w-6 h-6 stroke-[3px]" /> VIEW HISTORY
+              <History className="w-5 h-5" /> VIEW HISTORY
             </button>
           )}
         </motion.div>
 
         {/* ── Stats Row ────────────────────────────────────────────── */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {stats.map((s, i) => (
             <motion.div
               key={s.label}
@@ -157,21 +157,21 @@ export default function Dashboard() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               onClick={s.onClick}
-              className={`nb ${s.bg} p-8 border-4 shadow-[10px_10px_0_#000000] group ${s.onClick ? 'cursor-pointer hover:rotate-1' : ''} transition-all`}
+              className={`brutal ${s.bg} p-6 group ${s.onClick ? 'cursor-pointer hover:scale-105' : ''} transition-all`}
             >
-              <div className="bg-white border-2 border-black w-14 h-14 flex items-center justify-center mb-6 shadow-[6px_6px_0_#000000] group-hover:shadow-none group-hover:translate-x-1 group-hover:translate-y-1 transition-all">
-                <s.icon className="w-8 h-8 text-black stroke-[3px]" />
+              <div className="brutal-sm bg-white w-12 h-12 flex items-center justify-center mb-4">
+                <s.icon className="w-6 h-6 text-black" />
               </div>
-              <p className="text-6xl font-black font-display italic tracking-tighter leading-none">{s.value}</p>
-              <p className="text-[14px] font-black uppercase tracking-[0.4em] mt-3 opacity-80 italic underline decoration-black/10 underline-offset-4">{s.label}</p>
-              <p className="text-[10px] font-black uppercase tracking-widest opacity-40 mt-1 italic">{s.sub}</p>
+              <p className="text-5xl font-black font-display tracking-tight leading-none mb-2">{s.value}</p>
+              <p className="text-sm font-bold uppercase tracking-wide opacity-80">{s.label}</p>
+              <p className="text-xs font-semibold uppercase opacity-50 mt-1">{s.sub}</p>
             </motion.div>
           ))}
         </div>
 
         {/* ── Organizer Actions ────────────────────────────────────── */}
         {user.role === 'organizer' && (
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
             {[
               { label: 'NEW EVENT', icon: Plus, bg: 'bg-nb-yellow', action: () => setShowCreateDialog(true) },
               { label: 'SEND NOTIFICATION', icon: Megaphone, bg: 'bg-nb-green', action: () => setShowAnnouncementDialog(true) },
@@ -180,13 +180,13 @@ export default function Dashboard() {
             ].map((btn) => (
               <motion.button
                 key={btn.label}
-                whileHover={{ y: -8, rotate: -1 }}
+                whileHover={{ y: -4 }}
                 whileTap={{ scale: 0.95 }}
                 onClick={btn.action}
-                className={`nb ${btn.bg} p-8 text-[12px] font-black uppercase tracking-[0.3em] flex flex-col items-center justify-center gap-6 border-4 shadow-[10px_10px_0_#000000] hover:shadow-[4px_4px_0_#000000] transition-all italic`}
+                className={`brutal ${btn.bg} p-6 text-xs font-bold uppercase tracking-wide flex flex-col items-center justify-center gap-4`}
               >
-                <div className="bg-white border-3 border-black p-3 shadow-[4px_4px_0_#000000] rotate-3">
-                  <btn.icon className="w-8 h-8 text-black stroke-[3px]" />
+                <div className="brutal-sm bg-white p-2">
+                  <btn.icon className="w-6 h-6 text-black" />
                 </div>
                 {btn.label}
               </motion.button>
@@ -195,28 +195,33 @@ export default function Dashboard() {
         )}
 
         {/* ── Search + Filter ──────────────────────────────────────── */}
-        <div className="space-y-8 bg-white p-8 nb border-4 border-black">
-          <div className="relative group">
-            <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-8 h-8 text-black/20 group-focus-within:text-nb-purple transition-all" />
+        <div className="space-y-4 brutal bg-white p-5">
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-black/40 pointer-events-none" />
             <input
               type="text"
-              placeholder="SEARCH FOR EVENTS..."
+              placeholder="Search for events..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="nb-input w-full pl-20 pr-6 py-6 text-xl uppercase font-black border-4 shadow-[10px_10px_0_#000000] focus:shadow-none focus:translate-x-1.5 focus:translate-y-1.5 transition-all italic border-black"
+              className="w-full pl-9 pr-4 py-2.5 text-sm font-semibold
+                         bg-nb-cream/60 rounded-md
+                         border border-black/20
+                         focus:outline-none focus:border-nb-purple focus:bg-white
+                         transition-all placeholder:text-black/30"
             />
           </div>
 
-          <div className="flex flex-wrap gap-4">
+          <div className="flex flex-wrap gap-2">
             {categories.map((cat) => {
               const isActive = selectedCategories.includes(cat) || (cat === 'All' && selectedCategories.includes('All'))
               return (
                 <button
                   key={cat}
                   onClick={() => toggleCategory(cat)}
-                  className={`nb border-4 px-6 py-3 text-[11px] font-black uppercase tracking-[0.3em] transition-all italic ${isActive
-                    ? 'bg-nb-purple text-white border-black shadow-[6px_6px_0_#000000]'
-                    : 'bg-white text-black border-black/20 hover:border-black hover:bg-nb-yellow'
+                  className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wide rounded-md border transition-all ${
+                    isActive
+                      ? 'bg-nb-purple text-white border-nb-purple shadow-[2px_2px_0_rgba(0,0,0,0.7)]'
+                      : 'bg-white text-black border-black/20 hover:border-black/50 hover:bg-nb-yellow'
                   }`}
                 >
                   {cat}

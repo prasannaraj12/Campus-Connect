@@ -126,21 +126,21 @@ export default function EventDetail() {
 
   return (
     <AppShell className="grid-bg">
-      {/* ── Organizer Global Status ──────────────────────────── */}
+      {/* ── Organizer Status Bar ──────────────────────────── */}
       <AnimatePresence>
         {isOrganizer && (
-          <motion.div 
-            initial={{ y: -50 }}
-            animate={{ y: 0 }}
-            className="bg-black text-white py-3 sticky top-[4rem] z-[40] border-b-4 border-white/20"
+          <motion.div
+            initial={{ y: -40, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="bg-black/90 backdrop-blur-sm text-white sticky top-[3.5rem] z-[40] border-b border-white/10"
           >
-            <div className="container mx-auto px-4 flex items-center justify-between">
-              <div className="flex items-center gap-4">
-                <div className="w-3 h-3 bg-nb-yellow animate-pulse border border-white" />
-                <span className="text-[12px] font-black uppercase tracking-[0.4em] italic">ORGANIZER ACCESS ENABLED</span>
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-10 flex items-center justify-between">
+              <div className="flex items-center gap-2.5">
+                <span className="w-2 h-2 rounded-full bg-nb-yellow animate-pulse" />
+                <span className="text-xs font-semibold tracking-widest text-white/70 uppercase">Organizer Access</span>
               </div>
-              <div className={`px-4 py-1.5 nb-sm ${status.color} text-black border-white border-2 text-[10px] font-black uppercase flex items-center gap-3 italic`}>
-                <status.icon className="w-4 h-4" />
+              <div className={`flex items-center gap-2 px-3 py-1 rounded-md text-xs font-bold ${status.color}`}>
+                <status.icon className="w-3.5 h-3.5" />
                 {status.text}
               </div>
             </div>
@@ -150,48 +150,71 @@ export default function EventDetail() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
         {/* ── Navigation ─────────────────────────────────────── */}
-        <div className="mb-12">
+        <div className="mb-8">
           <button
             onClick={() => navigate('/dashboard')}
-            className="nb bg-white px-8 py-4 flex items-center gap-4 border-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white border border-black/20
+                       text-sm font-semibold shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                       hover:shadow-[3px_3px_0_rgba(0,0,0,0.8)] hover:-translate-x-px hover:-translate-y-px
+                       active:translate-x-px active:translate-y-px active:shadow-[1px_1px_0_rgba(0,0,0,0.6)]
+                       transition-all"
           >
-            <ArrowLeft className="w-6 h-6" />
-            <span className="text-sm font-black uppercase tracking-[0.3em] italic">BACK TO DASHBOARD</span>
+            <ArrowLeft className="w-4 h-4" />
+            Back to Dashboard
           </button>
         </div>
 
         {/* ── Command Center (Organizer Only) ────────────────── */}
         {isOrganizer && (
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
-            className="nb bg-white p-10 mb-20 border-6 border-black shadow-[20px_20px_0_#7400E8]"
+            className="mb-10 rounded-xl border border-black/15 bg-white/80 backdrop-blur-sm
+                       shadow-[4px_4px_0_rgba(0,0,0,0.75)] overflow-hidden"
           >
-            <div className="flex flex-col xl:flex-row items-center justify-between gap-12">
-              <div className="flex flex-col md:flex-row items-center gap-12 w-full xl:w-auto">
-                <div className="w-full md:w-auto text-center md:text-left">
-                  <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/30 mb-4 underline decoration-nb-purple">REGISTRATION STATUS</p>
-                  <div className={`nb px-8 py-5 ${status.color} border-4 border-black flex items-center gap-4 justify-center shadow-[6px_6px_0_#000000]`}>
-                    <status.icon className="w-6 h-6" />
-                    <span className="text-xl font-black uppercase tracking-tight italic">{status.text}</span>
+            {/* Grid layout: left = status+timer, right = stats+actions */}
+            <div className="grid md:grid-cols-2 gap-0 divide-y md:divide-y-0 md:divide-x divide-black/10">
+
+              {/* ── Left: Status + Timer ─────────────────────── */}
+              <div className="p-6 space-y-5">
+                {/* Status */}
+                <div>
+                  <p className="text-xs font-semibold text-black/40 uppercase tracking-widest mb-2">
+                    Registration Status
+                  </p>
+                  <div className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold
+                                   border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.7)] ${status.color}`}>
+                    <status.icon className="w-4 h-4" />
+                    {status.text}
                   </div>
                 </div>
 
+                {/* Timer */}
                 {!isEnded && (
-                  <div className="w-full md:w-auto">
-                    <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/30 mb-4 text-center md:text-left underline decoration-nb-green">TIME REMAINING</p>
-                    <div className="flex gap-5 justify-center">
+                  <div>
+                    <p className="text-xs font-semibold text-black/40 uppercase tracking-widest mb-3">
+                      Time Remaining
+                    </p>
+                    <div className="flex items-center gap-2">
                       {[
                         { label: 'D', value: timeLeft.days },
                         { label: 'H', value: timeLeft.hours },
                         { label: 'M', value: timeLeft.minutes },
                         { label: 'S', value: timeLeft.seconds },
-                      ].map((unit) => (
-                        <div key={unit.label} className="text-center group">
-                          <div className="nb bg-nb-yellow border-4 border-black w-16 h-16 flex items-center justify-center font-display font-black text-3xl group-hover:bg-nb-green group-hover:rotate-3 transition-all shadow-[4px_4px_0_#000000]">
-                            {unit.value.toString().padStart(2, '0')}
+                      ].map((unit, i) => (
+                        <div key={unit.label} className="flex items-center gap-2">
+                          <div className="text-center">
+                            <div className="w-12 h-12 rounded-lg bg-nb-yellow/80 border border-black/25
+                                            shadow-[2px_2px_0_rgba(0,0,0,0.6)]
+                                            flex items-center justify-center
+                                            font-display font-black text-xl text-black">
+                              {unit.value.toString().padStart(2, '0')}
+                            </div>
+                            <p className="text-[9px] font-bold uppercase tracking-widest text-black/40 mt-1">
+                              {unit.label}
+                            </p>
                           </div>
-                          <p className="text-[10px] font-black uppercase mt-3 tracking-widest opacity-40">{unit.label}</p>
+                          {i < 3 && <span className="text-black/30 font-bold text-lg mb-4">:</span>}
                         </div>
                       ))}
                     </div>
@@ -199,43 +222,66 @@ export default function EventDetail() {
                 )}
               </div>
 
-              {/* Data Snapshot & Controls */}
-              <div className="flex flex-wrap items-center justify-center gap-8 w-full xl:w-auto">
-                <div className="flex gap-6">
-                  <div className="nb p-8 bg-nb-cream flex flex-col items-center min-w-[150px] border-4 shadow-[8px_8px_0_#000000] rotate-[-1deg]">
-                    <p className="text-5xl font-black text-black leading-none mb-3 italic">{participantCount}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-black/40">TOTAL REGISTERED</p>
+              {/* ── Right: Stats + Actions ───────────────────── */}
+              <div className="p-6 space-y-5">
+                {/* Stats row */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="rounded-lg bg-nb-cream border border-black/15
+                                  shadow-[2px_2px_0_rgba(0,0,0,0.6)] p-4 text-center">
+                    <p className="text-3xl font-black text-black leading-none">{participantCount}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-black/40 mt-1">
+                      Registered
+                    </p>
                   </div>
-                  <div className="nb p-8 bg-nb-green flex flex-col items-center min-w-[150px] border-4 shadow-[8px_8px_0_#000000] rotate-[1deg]">
-                    <p className="text-5xl font-black text-black leading-none mb-3 italic">{presentCount}</p>
-                    <p className="text-[10px] font-black uppercase tracking-widest text-black/40">PRESENT</p>
+                  <div className="rounded-lg bg-nb-green border border-black/15
+                                  shadow-[2px_2px_0_rgba(0,0,0,0.6)] p-4 text-center">
+                    <p className="text-3xl font-black text-black leading-none">{presentCount}</p>
+                    <p className="text-[10px] font-semibold uppercase tracking-wider text-black/40 mt-1">
+                      Present
+                    </p>
                   </div>
                 </div>
 
-                <div className="flex flex-col sm:flex-row gap-6 w-full sm:w-auto">
+                {/* Action buttons */}
+                <div className="flex flex-col sm:flex-row gap-3">
+                  {/* Primary */}
                   <button
                     onClick={() => setShowQRCheckIn(true)}
-                    className="nb bg-nb-pink text-white px-10 py-6 flex items-center justify-center gap-4 border-4 shadow-[10px_10px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5
+                               rounded-lg bg-nb-pink text-white text-sm font-bold
+                               border border-black/20 shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                               hover:shadow-[4px_4px_0_rgba(0,0,0,0.9)] hover:-translate-x-px hover:-translate-y-px
+                               active:shadow-[1px_1px_0_rgba(0,0,0,0.7)] active:translate-x-px active:translate-y-px
+                               transition-all"
                   >
-                    <QrCode className="w-8 h-8" />
-                    <span className="text-sm font-black uppercase tracking-[0.2em] italic">CHECK-IN QR</span>
+                    <QrCode className="w-4 h-4" />
+                    Check-in QR
                   </button>
+                  {/* Secondary */}
                   <button
                     onClick={() => navigate(`/edit-event/${event._id}/edit`)}
-                    className="nb bg-black text-white px-10 py-6 flex items-center justify-center gap-4 border-4 shadow-[10px_10px_0_#7400E8] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all"
+                    className="flex-1 flex items-center justify-center gap-2 px-4 py-2.5
+                               rounded-lg bg-black text-white text-sm font-bold
+                               border border-black/20 shadow-[3px_3px_0_rgba(0,0,0,0.5)]
+                               hover:shadow-[4px_4px_0_rgba(0,0,0,0.7)] hover:-translate-x-px hover:-translate-y-px
+                               active:shadow-[1px_1px_0_rgba(0,0,0,0.4)] active:translate-x-px active:translate-y-px
+                               transition-all opacity-85 hover:opacity-100"
                   >
-                    <Settings className="w-8 h-8" />
-                    <span className="text-sm font-black uppercase tracking-[0.2em] italic">EDIT EVENT</span>
+                    <Settings className="w-4 h-4" />
+                    Edit Event
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="mt-10 pt-10 border-t-4 border-black/10 flex items-center gap-6">
-              <div className="px-4 py-1.5 bg-black text-nb-yellow text-[12px] font-black uppercase tracking-[0.3em] italic">NOTICE</div>
-              <p className="text-sm font-black text-black/50 uppercase tracking-tight italic leading-relaxed">
-                RECOMMENDED ACTION: <span className="text-black underline">{status.action}</span> FOR A SUCCESSFUL EVENT.
-              </p>
+            {/* Notice footer */}
+            <div className="px-6 py-3 bg-black/3 border-t border-black/8 flex items-center gap-3">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-black/40">
+                Recommended:
+              </span>
+              <span className="text-xs font-semibold text-black/60">
+                {status.action}
+              </span>
             </div>
           </motion.div>
         )}
@@ -320,56 +366,68 @@ export default function EventDetail() {
         </div>
       </div>
 
-      {/* ── High Intensity Modals ───────────────────────────── */}
+      {/* ── QR Check-in Modal ──────────────────────────────── */}
       <AnimatePresence>
         {showQRCheckIn && (
-          <div className="fixed inset-0 bg-black/90 flex items-center justify-center z-[100] p-6 backdrop-blur-xl">
+          <div className="brutal-dialog-backdrop fixed inset-0 flex items-center justify-center z-[100] p-6">
             <motion.div
-              initial={{ opacity: 0, scale: 0.8, rotate: -5 }}
-              animate={{ opacity: 1, scale: 1, rotate: 0 }}
-              exit={{ opacity: 0, scale: 0.8, rotate: 5 }}
-              className="bg-white nb border-8 border-black p-12 max-w-lg w-full relative shadow-[30px_30px_0_#7400E8]"
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.9 }}
+              className="bg-white rounded-2xl border-2 border-black/80 shadow-[6px_6px_0_rgba(0,0,0,0.85)]
+                         w-full max-w-sm overflow-hidden"
             >
-              <button 
-                onClick={() => setShowQRCheckIn(false)}
-                className="absolute -top-10 -right-10 nb bg-nb-pink text-white p-5 border-4 border-black hover:rotate-90 transition-transform shadow-[6px_6px_0_#000000]"
-              >
-                <X className="w-8 h-8 font-black" />
-              </button>
-
-              <div className="text-center space-y-10">
+              {/* Header */}
+              <div className="flex items-center justify-between px-6 py-4 border-b border-black/10">
                 <div>
-                  <h2 className="font-display text-5xl font-black uppercase italic leading-[0.8] mb-4 tracking-tighter">CHECK-IN STATION</h2>
-                  <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/40 underline decoration-nb-green decoration-2 underline-offset-4">VERIFY IDENTITY CREDENTIALS</p>
+                  <h2 className="font-display text-xl font-black uppercase tracking-tight">Check-in Station</h2>
+                  <p className="text-xs text-black/40 font-medium mt-0.5">Scan to verify attendance</p>
                 </div>
+                <button
+                  onClick={() => setShowQRCheckIn(false)}
+                  className="w-8 h-8 rounded-lg bg-black/5 hover:bg-black/10 flex items-center justify-center transition-colors"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
 
-                <div className="nb bg-nb-yellow p-10 border-4 border-black inline-block shadow-[15px_15px_0_#000000] rotate-[2deg]">
+              {/* QR Code */}
+              <div className="p-6 flex justify-center">
+                <div className="p-4 bg-nb-yellow rounded-xl border border-black/20 shadow-[3px_3px_0_rgba(0,0,0,0.7)]">
                   <QRCode
                     value={`${window.location.host}/event/${event._id}`}
-                    size={260}
+                    size={200}
                     level="H"
                     fgColor="#000000"
                     bgColor="transparent"
                   />
                 </div>
+              </div>
 
-                <div className="nb p-8 bg-nb-cream flex justify-between items-center border-4 border-black shadow-[8px_8px_0_#00FF75]">
-                  <div className="text-left">
-                    <p className="text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest">REAL-TIME SYNC</p>
-                    <p className="text-2xl font-black uppercase italic tracking-tighter">PARTICIPANT COUNT</p>
-                  </div>
-                  <div className="text-right flex items-baseline gap-2">
-                    <span className="text-6xl font-black text-nb-pink italic drop-shadow-[4px_4px_0_#000000]">{presentCount}</span>
-                    <span className="text-2xl font-black opacity-20">/</span>
-                    <span className="text-3xl font-black opacity-40 italic">{participantCount}</span>
-                  </div>
+              {/* Stats */}
+              <div className="mx-6 mb-6 rounded-xl bg-nb-cream border border-black/15
+                              shadow-[2px_2px_0_rgba(0,0,0,0.6)] p-4
+                              flex items-center justify-between">
+                <div>
+                  <p className="text-xs font-semibold text-black/40 uppercase tracking-wider">Present</p>
+                  <p className="text-3xl font-black text-nb-pink leading-none mt-0.5">{presentCount}</p>
                 </div>
+                <div className="text-black/20 font-bold text-2xl">/</div>
+                <div className="text-right">
+                  <p className="text-xs font-semibold text-black/40 uppercase tracking-wider">Registered</p>
+                  <p className="text-3xl font-black text-black leading-none mt-0.5">{participantCount}</p>
+                </div>
+              </div>
 
+              {/* Close */}
+              <div className="px-6 pb-6">
                 <button
                   onClick={() => setShowQRCheckIn(false)}
-                  className="nb bg-black text-white px-12 py-6 w-full text-base font-black uppercase tracking-[0.3em] border-4 shadow-[10px_10px_0_#7400E8] hover:bg-nb-pink hover:shadow-none transition-all italic"
+                  className="w-full py-2.5 rounded-lg bg-black text-white text-sm font-bold
+                             border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.5)]
+                             hover:bg-nb-pink transition-colors"
                 >
-                  CLOSE STATION
+                  Close
                 </button>
               </div>
             </motion.div>

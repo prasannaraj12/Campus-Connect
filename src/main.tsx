@@ -35,7 +35,7 @@ function App() {
       <LanguageContext.Provider value={language}>
         <ConvexProvider client={convex}>
           <ToastProvider>
-            <BrowserRouter>
+            <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <Routes>
                 <Route path="/" element={<Landing />} />
                 <Route path="/role-selection" element={<RoleSelection />} />

@@ -1,127 +1,195 @@
 import { motion } from 'framer-motion'
 import { useNavigate } from 'react-router-dom'
-import { UserCircle, Briefcase, ArrowRight, Zap } from 'lucide-react'
+import { UserCircle, Briefcase, ArrowRight } from 'lucide-react'
 import { useState } from 'react'
 import { useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
-import { Brainbox, GhostBlob, HappyDog, NBStar } from '../components/Mascots'
+
+const roles = [
+  {
+    id: 'participant',
+    icon: UserCircle,
+    title: 'Participant',
+    subtitle: 'Browse & join events',
+    description: 'Discover workshops, seminars, and campus events. Register instantly and get your QR ticket.',
+    cta: 'Enter as Participant',
+    bg: 'bg-nb-green',
+    accent: 'bg-white',
+    iconColor: 'text-nb-green',
+    rotate: '-rotate-2',
+    hoverRotate: 'hover:-rotate-1',
+    shadow: 'shadow-[4px_4px_0_rgba(0,0,0,0.85)]',
+    hoverShadow: 'hover:shadow-[6px_6px_0_rgba(0,0,0,0.9)]',
+  },
+  {
+    id: 'organizer',
+    icon: Briefcase,
+    title: 'Organizer',
+    subtitle: 'Create & manage events',
+    description: 'Launch events, track registrations, manage attendance with QR check-in, and view analytics.',
+    cta: 'Enter as Organizer',
+    bg: 'bg-nb-yellow',
+    accent: 'bg-white',
+    iconColor: 'text-nb-yellow',
+    rotate: 'rotate-2',
+    hoverRotate: 'hover:rotate-1',
+    shadow: 'shadow-[4px_4px_0_rgba(0,0,0,0.85)]',
+    hoverShadow: 'hover:shadow-[6px_6px_0_rgba(0,0,0,0.9)]',
+  },
+]
 
 export default function RoleSelection() {
   const navigate = useNavigate()
   const { login } = useAuth()
   const [loading, setLoading] = useState(false)
+  const [selected, setSelected] = useState<string | null>(null)
   const [error, setError] = useState('')
   const createAnonymousUser = useMutation(api.users.createAnonymousUser)
 
   const handleParticipant = async () => {
     try {
       setLoading(true)
+      setSelected('participant')
       setError('')
-      
       const userId = await createAnonymousUser({ name: 'Anonymous' })
-      
-      await new Promise(resolve => setTimeout(resolve, 500))
-      
-      login({
-        userId,
-        role: 'participant',
-        name: 'Anonymous'
-      })
-      
+      await new Promise(r => setTimeout(r, 300))
+      login({ userId, role: 'participant', name: 'Anonymous' })
       navigate('/dashboard')
-    } catch (err) {
-      console.error('Error creating participant:', err)
-      setError('Failed to create participant account. Please try again.')
+    } catch {
+      setError('Something went wrong. Please try again.')
     } finally {
       setLoading(false)
     }
   }
 
-  const handleOrganizer = () => {
-    navigate('/auth')
+  const handleSelect = (id: string) => {
+    if (id === 'participant') handleParticipant()
+    else navigate('/auth')
   }
 
   return (
-    <div className="min-h-screen bg-nb-purple flex flex-col items-center justify-center p-6 relative overflow-hidden grid-bg">
-      {/* Background Decorative Elements - Fixed positioning */}
-      <Brainbox className="absolute top-10 right-4 w-64 h-64 md:w-80 md:h-80 opacity-20 rotate-12 pointer-events-none" />
-      <HappyDog className="absolute bottom-10 left-4 w-64 h-64 md:w-80 md:h-80 opacity-20 -rotate-12 pointer-events-none" />
+    <div className="min-h-screen bg-nb-purple grid-bg flex flex-col items-center justify-center p-6 relative overflow-hidden">
 
-      <div className="mb-20">
-        <button onClick={() => navigate('/')} className="font-display font-black text-5xl text-white tracking-tighter uppercase italic flex items-center gap-4 hover:scale-110 transition-transform group">
-          CAMPUS<span className="bg-nb-yellow text-black px-6 py-2 nb-pill border-4 border-black -rotate-3 shadow-[8px_8px_0_#FFF500] group-hover:rotate-0 transition-transform">CONNECT.</span>
-        </button>
-      </div>
-
-      <motion.div
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="max-w-4xl w-full relative z-10"
+      {/* ── Logo ─────────────────────────────────────────────── */}
+      <button
+        onClick={() => navigate('/')}
+        className="flex items-center gap-2 mb-12 group"
       >
-        <div className="text-center mb-16">
-          <p className="text-nb-green font-black text-xs uppercase tracking-[0.6em] mb-6 underline decoration-nb-green underline-offset-8 decoration-4">AUTHENTICATION_PROTOCOL_v2.0</p>
-          <h1 className="font-display text-7xl md:text-8xl font-black text-white mb-6 uppercase italic tracking-tighter leading-none [text-shadow:8px_8px_0_#000000]">CHOOSE_YOUR_PATH</h1>
-          <p className="text-white/60 font-black text-sm uppercase tracking-[0.3em] italic">SELECT_OPERATIONAL_ROLE_TO_CONTINUE</p>
-        </div>
+        <span className="bg-nb-yellow text-black text-sm font-black px-2.5 py-1 rounded-md
+                         shadow-[2px_2px_0_rgba(0,0,0,0.8)]
+                         group-hover:bg-white transition-colors">
+          CAMPUS
+        </span>
+        <span className="font-display font-black text-xl text-white tracking-tight">
+          CONNECT.
+        </span>
+      </button>
 
-        {error && (
-          <motion.div initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }}
-            className="nb bg-nb-pink text-white p-6 mb-12 text-center font-black text-sm border-4 shadow-[10px_10px_0_#000000] uppercase italic tracking-widest">
-            {error}
-          </motion.div>
-        )}
-
-        <div className="grid md:grid-cols-2 gap-10">
-          {/* Participant */}
-          <motion.button
-            whileHover={{ y: -15, rotate: -2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleParticipant}
-            disabled={loading}
-            className="nb bg-nb-green text-black p-12 text-left disabled:opacity-60 disabled:cursor-not-allowed group border-4 shadow-[15px_15px_0_#000000] transition-all"
-          >
-            <div className="w-20 h-20 bg-white border-4 border-black flex items-center justify-center mb-10 shadow-[8px_8px_0_#000000] rotate-[-2deg]">
-              <UserCircle className="w-12 h-12 text-black stroke-[3px]" />
-            </div>
-            <h2 className="font-display text-4xl font-black mb-4 uppercase italic tracking-tighter leading-none underline underline-offset-8 decoration-nb-purple decoration-8">PARTICIPANT</h2>
-            <p className="text-black font-black text-xs leading-relaxed mb-10 uppercase tracking-tight italic opacity-70 group-hover:opacity-100">
-              BROWSE_ACTIVE_MISSIONS, <br/>LOCK_IN_INSTANTLY, AND ACCESS <br/>HIGH-LEVEL SECURE_QR_PASSES.
-            </p>
-            <div className="flex items-center gap-4 font-black text-xs uppercase tracking-[0.3em] group-hover:gap-8 transition-all italic border-t-2 border-black/10 pt-8">
-              {loading ? (
-                <>INITIATING_SYNC...</>
-              ) : (
-                <>ENTER AS PIONEER <ArrowRight className="w-8 h-8 text-nb-purple stroke-[4px]" /></>
-              )}
-            </div>
-          </motion.button>
-
-          {/* Organizer */}
-          <motion.button
-            whileHover={{ y: -15, rotate: 2 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleOrganizer}
-            disabled={loading}
-            className="nb bg-nb-yellow text-black p-12 text-left disabled:opacity-60 group border-4 shadow-[15px_15px_0_#000000] transition-all"
-          >
-            <div className="w-20 h-20 bg-white border-4 border-black flex items-center justify-center mb-10 shadow-[8px_8px_0_#000000] rotate-[2deg]">
-              <Briefcase className="w-12 h-12 text-black stroke-[3px]" />
-            </div>
-            <h2 className="font-display text-4xl font-black mb-4 uppercase italic tracking-tighter leading-none underline underline-offset-8 decoration-nb-pink decoration-8">ORGANIZER</h2>
-            <p className="text-black font-black text-xs leading-relaxed mb-10 uppercase tracking-tight italic opacity-70 group-hover:opacity-100">
-              COMMAND_THE_FIELD. <br/>CREATE_MISSIONS, TRACK_SQUADS, <br/>AND VIEW_INTEL_ANALYTICS.
-            </p>
-            <div className="flex items-center gap-4 font-black text-xs uppercase tracking-[0.3em] group-hover:gap-8 transition-all italic border-t-2 border-black/10 pt-8">
-              HQ_COMMAND_LINK <ArrowRight className="w-8 h-8 text-nb-pink stroke-[4px]" />
-            </div>
-          </motion.button>
-        </div>
-
-        <p className="text-center text-white/40 text-[10px] font-black uppercase tracking-[0.6em] mt-20 italic underline decoration-white/10 underline-offset-8">
-          PROTOCOL_SECURITY_SYNC // ALL_RIGHTS_RESERVED_2024
+      {/* ── Header ───────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: -12 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-center mb-10"
+      >
+        <p className="text-nb-green text-xs font-bold uppercase tracking-[0.5em] mb-3">
+          Choose your role
         </p>
+        <h1 className="font-display text-4xl md:text-5xl font-black text-white tracking-tight leading-tight
+                       [text-shadow:3px_3px_0_rgba(0,0,0,0.5)]">
+          How are you joining?
+        </h1>
       </motion.div>
+
+      {/* ── Error ────────────────────────────────────────────── */}
+      {error && (
+        <motion.div
+          initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}
+          className="mb-6 px-4 py-3 rounded-lg bg-red-500/90 text-white text-sm font-semibold
+                     border border-red-400 max-w-sm w-full text-center"
+        >
+          {error}
+        </motion.div>
+      )}
+
+      {/* ── Cards ────────────────────────────────────────────── */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.1 }}
+        className="grid md:grid-cols-2 gap-6 w-full max-w-2xl"
+      >
+        {roles.map((role, i) => {
+          const Icon = role.icon
+          const isActive = selected === role.id && loading
+          return (
+            <motion.button
+              key={role.id}
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.15 + i * 0.08 }}
+              whileHover={{ y: -6 }}
+              whileTap={{ scale: 0.97 }}
+              onClick={() => handleSelect(role.id)}
+              disabled={loading}
+              className={`
+                ${role.bg} ${role.rotate} ${role.shadow} ${role.hoverRotate} ${role.hoverShadow}
+                text-black text-left p-7 rounded-xl
+                border-2 border-black/80
+                transition-all duration-200
+                disabled:opacity-60 disabled:cursor-not-allowed
+                ${selected === role.id ? 'ring-2 ring-white ring-offset-2 ring-offset-nb-purple' : ''}
+                group
+              `}
+            >
+              {/* Icon */}
+              <div className="w-14 h-14 bg-white rounded-xl border border-black/20
+                              shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                              flex items-center justify-center mb-6">
+                <Icon className={`w-7 h-7 ${role.iconColor}`} />
+              </div>
+
+              {/* Title */}
+              <h2 className="font-display text-2xl font-black tracking-tight leading-none mb-1">
+                {role.title}
+              </h2>
+              <p className="text-sm font-bold text-black/50 mb-4">
+                {role.subtitle}
+              </p>
+
+              {/* Divider */}
+              <div className="h-px bg-black/15 mb-4" />
+
+              {/* Description */}
+              <p className="text-sm font-medium text-black/70 leading-relaxed mb-6">
+                {role.description}
+              </p>
+
+              {/* CTA */}
+              <div className={`
+                inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-bold
+                bg-black/10 border border-black/20
+                group-hover:bg-black/15 group-hover:gap-3
+                transition-all
+              `}>
+                {isActive ? (
+                  <span className="text-black/60">Loading…</span>
+                ) : (
+                  <>
+                    {role.cta}
+                    <ArrowRight className="w-4 h-4" />
+                  </>
+                )}
+              </div>
+            </motion.button>
+          )
+        })}
+      </motion.div>
+
+      {/* ── Footer ───────────────────────────────────────────── */}
+      <p className="mt-10 text-white/30 text-xs font-medium tracking-wider">
+        © 2026 Campus Connect
+      </p>
     </div>
   )
 }
