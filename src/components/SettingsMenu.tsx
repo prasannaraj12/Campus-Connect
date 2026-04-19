@@ -1,114 +1,119 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { X, Moon, Sun, Globe } from 'lucide-react'
-import { useTheme } from '../hooks/use-theme'
+import { X, Globe, Check } from 'lucide-react'
 import { useLanguage } from '../hooks/use-language'
 
 interface Props {
   onClose: () => void
 }
 
-const languages = [
-  { code: 'en', name: 'English', flag: '🇬🇧' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'hi', name: 'हिंदी', flag: '🇮🇳' },
-  { code: 'ta', name: 'தமிழ்', flag: '🇮🇳' },
+// Indian languages only
+const LANGUAGES = [
+  { code: 'en', name: 'English',    native: 'English',  flag: '🇮🇳' },
+  { code: 'hi', name: 'Hindi',      native: 'हिंदी',    flag: '🇮🇳' },
+  { code: 'ta', name: 'Tamil',      native: 'தமிழ்',    flag: '🇮🇳' },
+  { code: 'te', name: 'Telugu',     native: 'తెలుగు',   flag: '🇮🇳' },
+  { code: 'kn', name: 'Kannada',    native: 'ಕನ್ನಡ',    flag: '🇮🇳' },
+  { code: 'ml', name: 'Malayalam',  native: 'മലയാളം',   flag: '🇮🇳' },
+  { code: 'mr', name: 'Marathi',    native: 'मराठी',    flag: '🇮🇳' },
+  { code: 'bn', name: 'Bengali',    native: 'বাংলা',    flag: '🇮🇳' },
 ]
 
 export default function SettingsMenu({ onClose }: Props) {
-  const { theme, toggleTheme } = useTheme()
   const { language, setLanguage } = useLanguage()
+
+  const current = LANGUAGES.find(l => l.code === language) || LANGUAGES[0]
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+      <div className="brutal-dialog-backdrop fixed inset-0 flex items-center justify-center p-4 z-50">
         <motion.div
-          initial={{ opacity: 0, scale: 0.9 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.9 }}
-          className="neo-brutal-lg bg-white dark:bg-gray-800 p-8 max-w-md w-full"
+          initial={{ opacity: 0, y: 12, scale: 0.97 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: 12, scale: 0.97 }}
+          transition={{ duration: 0.2 }}
+          className="bg-white/90 backdrop-blur-xl rounded-2xl
+                     border-2 border-black/80 shadow-[6px_6px_0_rgba(0,0,0,0.85)]
+                     w-full max-w-[520px] overflow-hidden"
         >
-          <div className="flex justify-between items-center mb-6">
-            <h2 className="text-3xl font-black dark:text-white">Settings</h2>
+          {/* Header */}
+          <div className="flex items-center justify-between px-5 py-4 border-b border-black/10">
+            <div className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-nb-purple flex items-center justify-center
+                              shadow-[2px_2px_0_rgba(0,0,0,0.7)]">
+                <Globe className="w-4 h-4 text-white" />
+              </div>
+              <div>
+                <h2 className="font-display text-base font-black text-black tracking-tight">Settings</h2>
+                <p className="text-xs text-black/40 font-medium">Language preference</p>
+              </div>
+            </div>
             <button
               onClick={onClose}
-              className="neo-brutal-sm bg-red-400 p-2 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
+              className="w-8 h-8 rounded-lg bg-black/5 hover:bg-black/10
+                         flex items-center justify-center transition-colors"
             >
-              <X className="w-6 h-6" />
+              <X className="w-4 h-4 text-black/60" />
             </button>
           </div>
 
-          <div className="space-y-6">
-            {/* Theme Toggle */}
-            <div>
-              <h3 className="text-xl font-black mb-4 flex items-center gap-2 dark:text-white">
-                {theme === 'light' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-                Theme
-              </h3>
-              <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-                onClick={toggleTheme}
-                className={`neo-brutal w-full py-4 font-bold text-lg transition-all ${
-                  theme === 'dark' 
-                    ? 'bg-gray-700 text-white' 
-                    : 'bg-yellow-400'
-                }`}
-              >
-                {theme === 'light' ? (
-                  <span className="flex items-center justify-center gap-2">
-                    <Moon className="w-5 h-5" />
-                    Switch to Dark Mode
-                  </span>
-                ) : (
-                  <span className="flex items-center justify-center gap-2">
-                    <Sun className="w-5 h-5" />
-                    Switch to Light Mode
-                  </span>
-                )}
-              </motion.button>
+          {/* Language section */}
+          <div className="px-5 py-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <p className="text-xs font-bold uppercase tracking-widest text-black/40">
+                Language
+              </p>
+              <span className="text-xs font-semibold text-black/50">
+                {current.flag} {current.name}
+              </span>
             </div>
 
-            {/* Language Selection */}
-            <div>
-              <h3 className="text-xl font-black mb-4 flex items-center gap-2 dark:text-white">
-                <Globe className="w-5 h-5" />
-                Language
-              </h3>
-              <div className="space-y-2">
-                {languages.map((lang) => (
-                  <motion.button
+            <div className="grid grid-cols-2 gap-3">
+              {LANGUAGES.map((lang) => {
+                const isActive = language === lang.code
+                return (
+                  <button
                     key={lang.code}
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
                     onClick={() => setLanguage(lang.code as any)}
-                    className={`neo-brutal w-full py-3 font-bold text-left px-4 transition-all ${
-                      language === lang.code
-                        ? 'bg-blue-400 translate-x-1 translate-y-1 shadow-none'
-                        : 'bg-white dark:bg-gray-700 dark:text-white hover:translate-x-1 hover:translate-y-1 hover:shadow-none'
-                    }`}
+                    className={`flex items-center gap-2.5 px-3 py-3 rounded-xl
+                                text-sm font-semibold transition-all text-left
+                                border
+                                ${isActive
+                                  ? 'bg-nb-purple text-white border-nb-purple shadow-[2px_2px_0_rgba(0,0,0,0.7)]'
+                                  : 'bg-black/3 text-black border-black/15 hover:bg-black/8 hover:border-black/25'
+                                }`}
                   >
-                    <span className="flex items-center gap-3">
-                      <span className="text-2xl">{lang.flag}</span>
-                      <span>{lang.name}</span>
-                      {language === lang.code && (
-                        <span className="ml-auto text-sm">✓</span>
-                      )}
-                    </span>
-                  </motion.button>
-                ))}
-              </div>
+                    <span className="text-base leading-none shrink-0">{lang.flag}</span>
+                    <div className="min-w-0">
+                      <p className="font-bold text-sm leading-tight truncate">{lang.name}</p>
+                      <p className={`text-xs leading-tight truncate ${isActive ? 'text-white/70' : 'text-black/40'}`}>
+                        {lang.native}
+                      </p>
+                    </div>
+                    {isActive && <Check className="w-3.5 h-3.5 shrink-0 ml-auto" />}
+                  </button>
+                )
+              })}
             </div>
+
+            <p className="text-[10px] text-black/35 font-medium text-center pt-1">
+              Language applies instantly across the app
+            </p>
           </div>
 
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={onClose}
-            className="neo-brutal bg-green-400 w-full py-3 font-bold mt-6 hover:translate-x-1 hover:translate-y-1 hover:shadow-none transition-all"
-          >
-            Done
-          </motion.button>
+          {/* Done */}
+          <div className="px-5 pb-5">
+            <button
+              onClick={onClose}
+              className="w-full py-2.5 rounded-lg text-sm font-bold
+                         bg-nb-green text-black border border-black/20
+                         shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                         hover:shadow-[4px_4px_0_rgba(0,0,0,0.9)] hover:-translate-y-px
+                         active:shadow-[1px_1px_0_rgba(0,0,0,0.7)] active:translate-y-0
+                         transition-all"
+            >
+              Done
+            </button>
+          </div>
         </motion.div>
       </div>
     </AnimatePresence>

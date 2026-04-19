@@ -9,6 +9,29 @@ import SettingsMenu from '../components/SettingsMenu'
 import { SkeletonCard } from '../components/Skeleton'
 import { Brainbox, GhostBlob, HappyDog, NBStar } from '../components/Mascots'
 
+// ── FAQ Accordion Item ──────────────────────────────────────────
+function FAQItem({ question, answer }: { question: string; answer: string }) {
+  const [open, setOpen] = useState(false)
+  return (
+    <div className={`rounded-xl border-2 transition-all duration-200 overflow-hidden
+                     ${open ? 'border-nb-purple/40 shadow-[3px_3px_0_rgba(116,0,232,0.3)]' : 'border-black/15 shadow-[2px_2px_0_rgba(0,0,0,0.15)]'}`}>
+      <button
+        onClick={() => setOpen(o => !o)}
+        className="w-full flex items-center justify-between gap-4 px-5 py-4 text-left
+                   bg-white hover:bg-black/2 transition-colors"
+      >
+        <span className="font-bold text-sm text-black leading-snug">{question}</span>
+        <ChevronDown className={`w-4 h-4 text-black/40 shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && (
+        <div className="px-5 pb-4 bg-white border-t border-black/8">
+          <p className="text-sm text-black/60 font-medium leading-relaxed pt-3">{answer}</p>
+        </div>
+      )}
+    </div>
+  )
+}
+
 const CATEGORIES = ['All', 'Workshop', 'Seminar', 'Sports', 'Cultural', 'Technical', 'Social']
 const DATE_FILTERS = ['Upcoming', 'Past', 'Today', 'This Week', 'This Month']
 
@@ -549,6 +572,60 @@ export default function Landing() {
         </section>
       </main>
 
+      {/* ── FAQ ───────────────────────────────────────────────────── */}
+      <section id="faq" className="bg-nb-cream border-t border-black/10 px-4 py-16">
+        <div className="max-w-[1100px] mx-auto">
+
+          {/* Header */}
+          <div className="mb-10">
+            <p className="text-xs font-bold uppercase tracking-widest text-black/40 mb-2">Got questions?</p>
+            <h2 className="font-display text-3xl md:text-4xl font-black text-black tracking-tight">
+              Frequently Asked Questions
+            </h2>
+          </div>
+
+          {/* FAQ grid */}
+          <div className="grid md:grid-cols-2 gap-4">
+            {[
+              {
+                q: 'How do I register for an event?',
+                a: 'Click "Browse Events", find an event you like, and hit "View Details". From there, click "Join Event" and fill in your details. You\'ll get a QR ticket instantly.',
+              },
+              {
+                q: 'Do I need an account to join events?',
+                a: 'No account needed for participants. Just enter as a Participant from the home screen and you\'re in. Organizers need to sign in with their email OTP.',
+              },
+              {
+                q: 'How does QR check-in work?',
+                a: 'After registering, you get a ticket with a QR code. At the event, show it to the organizer who scans it with their phone. Your attendance is marked instantly.',
+              },
+              {
+                q: 'Can I register as a team?',
+                a: 'Yes — if the organizer has enabled team registration for an event, you\'ll see a team section in the form. Enter your team name and each member\'s details.',
+              },
+              {
+                q: 'How do I create and manage events?',
+                a: 'Sign in as an Organizer using your email. From the Dashboard, click "New Event" to create one. You can track registrations, scan QR codes, and view analytics.',
+              },
+              {
+                q: 'What happens if I miss an event?',
+                a: 'Your registration stays on record. You can view your history under "My History" in the dashboard. Certificates are only issued for events you attended.',
+              },
+              {
+                q: 'Can I download my ticket?',
+                a: 'Yes. Open your ticket page and tap "Save Ticket" to download it as an image. If you attended, you can also download a participation certificate.',
+              },
+              {
+                q: 'How do I send announcements to participants?',
+                a: 'Organizers can click "Send Notification" from the Dashboard. You can send a general announcement or target a specific event\'s participants.',
+              },
+            ].map((item, i) => (
+              <FAQItem key={i} question={item.q} answer={item.a} />
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* ── Footer ────────────────────────────────────────────────── */}
       <footer className="bg-black/95 backdrop-blur-sm text-white border-t-4 border-nb-green">
         <div className="max-w-6xl mx-auto px-6 py-12">
@@ -609,7 +686,7 @@ export default function Landing() {
                   </a>
                 </li>
                 <li>
-                  <a href="#"
+                  <a href="#faq"
                     className="text-sm text-white/60 font-medium hover:text-white hover:translate-x-1
                                transition-all block">
                     Project FAQ →

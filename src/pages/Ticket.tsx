@@ -5,8 +5,9 @@ import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
 import { Id } from '../../convex/_generated/dataModel'
-import { Check, X, Award, ArrowLeft, Download, CheckCircle, AlertCircle, Clock } from 'lucide-react'
+import { Check, X, Award, ArrowLeft, Download, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react'
 import Certificate from '../components/Certificate'
+import QRCode from 'react-qr-code'
 
 export default function Ticket() {
   const { registrationId } = useParams<{ registrationId: string }>()
@@ -21,15 +22,15 @@ export default function Ticket() {
 
   const registrationById = useQuery(
     api.registrations.getRegistrationById,
-    !isCode && registrationId && user?.userId ? { 
+    !isCode && registrationId && user?.userId ? {
       registrationId: registrationId as Id<'registrations'>,
-      userId: user.userId 
+      userId: user.userId
     } : 'skip'
   )
 
   const registrationByCode = useQuery(
     api.registrations.getRegistrationByCode,
-    isCode && registrationId && user?.userId ? { 
+    isCode && registrationId && user?.userId ? {
       code: registrationId.toUpperCase(),
       userId: user.userId
     } : 'skip'
@@ -64,6 +65,24 @@ export default function Ticket() {
     }
   }
 
+  // ── Shared navbar ─────────────────────────────────────────────────
+  const Navbar = () => (
+    <header className="sticky top-0 z-50 bg-black/95 backdrop-blur-sm text-white border-b border-white/10">
+      <div className="max-w-lg mx-auto px-4 h-14 flex items-center justify-between">
+        <button
+          onClick={() => navigate('/dashboard')}
+          className="w-8 h-8 rounded-lg bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+        >
+          <ArrowLeft className="w-4 h-4" />
+        </button>
+        <span className="font-display font-black text-base tracking-tight">
+          CAMPUS<span className="text-nb-yellow">_CONNECT</span>
+        </span>
+        <div className="w-8" />
+      </div>
+    </header>
+  )
+
   // ── Participant View ──────────────────────────────────────────────
   if (!user || user.role === 'participant') {
     const handleDownloadTicket = async () => {
@@ -82,95 +101,115 @@ export default function Ticket() {
     }
 
     return (
-      <div className="min-h-screen bg-nb-cream grid-bg flex flex-col font-body">
-        {/* Navbar */}
-        <header className="sticky top-0 z-50 bg-black text-white border-b-4 border-white/20">
-          <div className="max-w-lg mx-auto px-4 h-16 flex items-center justify-between">
-            <button
-              onClick={() => navigate('/dashboard')}
-              className="p-3 nb bg-white text-black border-2 border-black hover:rotate-6 transition-all shadow-[3px_3px_0_#7400E8]"
-            >
-              <ArrowLeft className="w-6 h-6" />
-            </button>
-            <span className="font-display font-black text-xl uppercase tracking-tighter italic">
-              CAMPUS<span className="text-nb-yellow">_CONNECT</span>
-            </span>
-          </div>
-        </header>
+      <div className="min-h-screen bg-nb-cream grid-bg flex flex-col">
+        <Navbar />
 
-        <main className="flex-1 flex items-start justify-center px-4 py-12">
+        <main className="flex-1 flex items-start justify-center px-4 py-10">
           <motion.div
-            initial={{ opacity: 0, y: 30, rotate: -2 }}
-            animate={{ opacity: 1, y: 0, rotate: 0 }}
-            className="w-full max-w-md"
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.35 }}
+            className="w-full max-w-sm space-y-4"
           >
-            {/* Ticket Card */}
-            <div id="ticket-content" className="bg-white nb border-4 border-black shadow-[20px_20px_0_#000000] overflow-hidden mb-8 relative">
-              <div className="absolute top-0 right-0 p-4 opacity-10 font-black text-6xl rotate-45 select-none">OFFICIAL</div>
-              
-              {/* Header strip */}
-              <div className="bg-nb-purple px-8 py-10 text-white text-center border-b-4 border-black relative">
-                <div className="w-20 h-20 bg-white border-4 border-black flex items-center justify-center mx-auto mb-6 shadow-[6px_6px_0_#000000] rotate-3">
-                  <Check className="w-10 h-10 text-black stroke-[3px]" />
+            {/* ── Ticket Card ──────────────────────────────── */}
+            <div
+              id="ticket-content"
+              className="bg-white rounded-2xl border-2 border-black/80
+                         shadow-[6px_6px_0_rgba(0,0,0,0.85)] overflow-hidden relative"
+            >
+              {/* Ticket punch holes */}
+              <div className="absolute top-1/2 -left-3 w-6 h-6 bg-nb-cream rounded-full border-2 border-black/20 -translate-y-1/2 z-10" />
+              <div className="absolute top-1/2 -right-3 w-6 h-6 bg-nb-cream rounded-full border-2 border-black/20 -translate-y-1/2 z-10" />
+
+              {/* Header */}
+              <div className="bg-nb-purple px-6 py-6 text-white text-center">
+                <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center mx-auto mb-3
+                                shadow-[2px_2px_0_rgba(255,229,0,0.8)]">
+                  <Check className="w-6 h-6 text-nb-purple" />
                 </div>
-                <h1 className="font-display text-5xl font-black uppercase italic tracking-tighter leading-none">ENTRY PASS</h1>
-                <p className="text-nb-yellow text-[10px] font-black uppercase tracking-[0.4em] mt-3 underline underline-offset-4">TICKET CONFIRMED</p>
+                <h1 className="font-display text-2xl font-black uppercase tracking-tight leading-none">
+                  Entry Pass
+                </h1>
+                <p className="text-nb-yellow text-xs font-semibold uppercase tracking-widest mt-1.5">
+                  Ticket Confirmed
+                </p>
               </div>
 
-              <div className="p-8 space-y-6">
-                {/* Registration Code */}
-                <div className="bg-nb-yellow rounded-none p-6 text-center border-4 border-black shadow-[8px_8px_0_#000000] rotate-[-1deg]">
-                  <p className="text-[10px] font-black text-black/40 uppercase tracking-[0.3em] mb-3 underline decoration-black/10">TICKET SERIAL CODE</p>
-                  <p className="font-display font-black text-4xl text-black tracking-widest italic leading-none">
-                    {registration?.registrationCode || registrationId}
+              {/* Dashed divider */}
+              <div className="border-t-2 border-dashed border-black/15 mx-4" />
+
+              <div className="px-6 py-5 space-y-4">
+                {/* Serial code */}
+                <div className="text-center">
+                  <p className="text-[10px] font-bold text-black/40 uppercase tracking-widest mb-1.5">
+                    Ticket Code
                   </p>
+                  <div className="inline-block bg-nb-yellow px-4 py-2 rounded-lg
+                                  border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.7)]">
+                    <p className="font-display font-black text-xl text-black tracking-widest">
+                      {registration?.registrationCode || registrationId}
+                    </p>
+                  </div>
                 </div>
 
-                {/* Participant */}
+                {/* QR Code */}
+                <div className="flex justify-center">
+                  <div className="p-3 bg-white rounded-xl border border-black/15
+                                  shadow-[2px_2px_0_rgba(0,0,0,0.6)]">
+                    <QRCode
+                      value={registration?.registrationCode || registrationId || ''}
+                      size={120}
+                      level="M"
+                      fgColor="#000000"
+                      bgColor="transparent"
+                    />
+                  </div>
+                </div>
+
+                {/* Participant name */}
                 {registration?.participantName && (
-                  <div className="flex items-center gap-4 p-5 bg-nb-cream border-4 border-black shadow-[6px_6px_0_#00FF75] rotate-[1deg]">
-                    <div className="w-12 h-12 bg-black text-white border-2 border-white flex items-center justify-center font-black text-xl italic">
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-lg
+                                  bg-nb-cream border border-black/15">
+                    <div className="w-9 h-9 rounded-lg bg-nb-purple flex items-center justify-center
+                                    text-white text-sm font-black shrink-0">
                       {registration.participantName.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-[10px] font-black uppercase opacity-40 -mb-1">PARTICIPANT</p>
-                      <p className="font-black text-xl text-black uppercase italic tracking-tighter">{registration.participantName}</p>
+                      <p className="text-[10px] font-bold text-black/40 uppercase tracking-wider">Participant</p>
+                      <p className="font-bold text-sm text-black">{registration.participantName}</p>
                     </div>
                   </div>
                 )}
 
                 {/* Attendance status */}
                 {attendance ? (
-                  <div className="bg-nb-green border-4 border-black p-6 flex items-center gap-4 shadow-[8px_8px_0_#000000]">
-                    <CheckCircle className="w-8 h-8 text-black flex-shrink-0" />
+                  <div className="flex items-center gap-3 px-4 py-3 rounded-lg
+                                  bg-nb-green border border-black/15">
+                    <CheckCircle className="w-5 h-5 text-black shrink-0" />
                     <div>
-                      <p className="font-black text-lg uppercase italic tracking-tighter leading-none">CHECKED IN</p>
-                      <p className="text-[10px] font-black text-black/60 mt-1 uppercase">
-                        SYNC: {new Date(attendance.markedAt).toLocaleString()}
+                      <p className="font-bold text-sm text-black">Checked In</p>
+                      <p className="text-[10px] text-black/50 font-medium">
+                        {new Date(attendance.markedAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-nb-pink text-white border-4 border-black p-6 flex items-center gap-4 shadow-[8px_8px_0_#000000] animate-pulse">
-                    <Clock className="w-8 h-8 text-white flex-shrink-0" />
-                    <p className="text-[11px] font-black uppercase tracking-[0.1em] italic leading-tight">
-                      PRESENT SERIAL AT BASE <br/> FOR CHECK-IN
-                    </p>
+                  <div className="border-t-2 border-dashed border-black/15 pt-4">
+                    <div className="flex items-center gap-2 text-black/50">
+                      <Clock className="w-4 h-4 shrink-0" />
+                      <p className="text-xs font-semibold">
+                        Show this QR or code at the venue for check-in
+                      </p>
+                    </div>
                   </div>
                 )}
               </div>
-
-              {/* Decorative holes */}
-              <div className="absolute top-1/2 -left-4 w-8 h-8 bg-nb-cream border-4 border-black rounded-full -translate-y-1/2" />
-              <div className="absolute top-1/2 -right-4 w-8 h-8 bg-nb-cream border-4 border-black rounded-full -translate-y-1/2" />
             </div>
 
-            {/* Action Buttons */}
-            <div className="space-y-4">
+            {/* ── Action Buttons ───────────────────────────── */}
+            <div className="space-y-3">
               {attendance && registration && (
-                <motion.button
-                  whileHover={{ scale: 1.02, rotate: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                <button
                   onClick={async () => {
                     const certContainer = document.createElement('div')
                     certContainer.style.position = 'absolute'
@@ -201,31 +240,39 @@ export default function Ticket() {
                       document.body.removeChild(certContainer)
                     }, 100)
                   }}
-                  className="w-full bg-nb-purple hover:bg-black text-white py-5 border-4 border-black font-black uppercase tracking-[0.3em] flex items-center justify-center gap-4 shadow-[8px_8px_0_#00FF75] transition-all italic"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-lg
+                             bg-nb-purple text-white text-sm font-bold
+                             border border-black/20 shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                             hover:shadow-[4px_4px_0_rgba(0,0,0,0.9)] hover:-translate-y-px
+                             active:shadow-[1px_1px_0_rgba(0,0,0,0.7)] active:translate-y-0
+                             transition-all"
                 >
-                  <Award className="w-7 h-7" />
-                  ACQUIRE_REWARD
-                </motion.button>
+                  <Award className="w-4 h-4" />
+                  Download Certificate
+                </button>
               )}
 
-              <div className="grid grid-cols-2 gap-4">
-                <motion.button
-                  whileHover={{ scale: 1.02, rotate: 1 }}
-                  whileTap={{ scale: 0.98 }}
+              <div className="grid grid-cols-2 gap-3">
+                <button
                   onClick={handleDownloadTicket}
-                  className="bg-black text-white py-5 border-4 border-black font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-[8px_8px_0_#7400E8] transition-all italic"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-lg
+                             bg-black text-white text-sm font-bold
+                             border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.7)]
+                             hover:shadow-[3px_3px_0_rgba(0,0,0,0.8)] hover:-translate-y-px
+                             transition-all"
                 >
-                  <Download className="w-5 h-5" />
-                  SAVE TICKET
-                </motion.button>
-                <motion.button
-                  whileHover={{ scale: 1.02, rotate: -1 }}
-                  whileTap={{ scale: 0.98 }}
+                  <Download className="w-4 h-4" />
+                  Save Ticket
+                </button>
+                <button
                   onClick={() => navigate('/dashboard')}
-                  className="bg-white text-black py-5 border-4 border-black font-black uppercase tracking-[0.2em] flex items-center justify-center gap-3 shadow-[8px_8px_0_#FF2D92] transition-all italic"
+                  className="flex items-center justify-center gap-2 py-2.5 rounded-lg
+                             bg-white text-black text-sm font-bold
+                             border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.6)]
+                             hover:bg-black/5 transition-all"
                 >
-                  DASHBOARD
-                </motion.button>
+                  Dashboard
+                </button>
               </div>
             </div>
           </motion.div>
@@ -236,114 +283,139 @@ export default function Ticket() {
 
   // ── Organizer View ────────────────────────────────────────────────
   if (user.role === 'organizer') {
+
+    // Loading
     if (processing) {
       return (
         <div className="min-h-screen bg-nb-cream grid-bg flex items-center justify-center p-6">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="bg-white nb border-4 border-black p-16 text-center max-w-sm w-full shadow-[20px_20px_0_#7400E8]"
+            className="bg-white rounded-2xl border-2 border-black/80 shadow-[4px_4px_0_rgba(0,0,0,0.8)]
+                       p-10 text-center max-w-xs w-full"
           >
-            <div className="w-16 h-16 border-4 border-nb-purple border-t-transparent rounded-full animate-spin mx-auto mb-6" />
-            <p className="text-xl font-black text-black uppercase italic tracking-tighter">DECRYPTING_ATTENDANCE...</p>
+            <Loader2 className="w-8 h-8 animate-spin text-nb-purple mx-auto mb-4" />
+            <p className="text-sm font-bold text-black/60">Marking attendance…</p>
           </motion.div>
         </div>
       )
     }
 
+    // Result
     if (result) {
-      const isSuccess = result.success && !result.alreadyMarked
+      const isSuccess      = result.success && !result.alreadyMarked
       const isAlreadyMarked = result.alreadyMarked
-      const isError = !result.success && !result.alreadyMarked
+      const isError        = !result.success && !result.alreadyMarked
+
+      const headerBg = isSuccess ? 'bg-green-500' : isAlreadyMarked ? 'bg-nb-yellow' : 'bg-red-500'
+      const headerText = isSuccess ? 'Checked In' : isAlreadyMarked ? 'Already Checked In' : 'Error'
+      const headerSub  = isSuccess
+        ? 'Attendance marked successfully'
+        : isAlreadyMarked
+          ? 'This ticket was already scanned'
+          : result.message
 
       return (
-        <div className="min-h-screen bg-nb-cream grid-bg flex flex-col font-body">
-          <header className="sticky top-0 z-50 bg-black text-white border-b-4 border-white/20">
-            <div className="max-w-lg mx-auto px-4 h-16 flex items-center justify-between">
-              <button
-                onClick={() => navigate('/dashboard')}
-                className="p-3 nb bg-white text-black border-2 border-black hover:rotate-6 transition-all shadow-[3px_3px_0_#7400E8]"
-              >
-                <ArrowLeft className="w-6 h-6" />
-              </button>
-              <span className="font-display font-black text-xl uppercase tracking-tighter italic">
-                CAMPUS<span className="text-nb-yellow">_CONNECT</span>
-              </span>
-            </div>
-          </header>
+        <div className="min-h-screen bg-nb-cream grid-bg flex flex-col">
+          <Navbar />
 
-          <main className="flex-1 flex items-start justify-center px-4 py-12">
+          <main className="flex-1 flex items-start justify-center px-4 py-10">
             <motion.div
-              initial={{ opacity: 0, y: 30, rotate: isError ? -3 : 3 }}
-              animate={{ opacity: 1, y: 0, rotate: 0 }}
-              className="w-full max-w-md bg-white nb border-4 border-black shadow-[20px_20px_0_#000000] overflow-hidden"
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3, type: 'spring', stiffness: 200 }}
+              className="w-full max-w-sm"
             >
-              {/* Status header */}
-              <div className={`px-8 py-10 text-center border-b-4 border-black ${isSuccess ? 'bg-nb-green' : isAlreadyMarked ? 'bg-nb-yellow' : 'bg-nb-pink'}`}>
-                <div className="w-20 h-20 bg-white border-4 border-black rounded-full flex items-center justify-center mx-auto mb-6 shadow-[6px_6px_0_#000000]">
-                  {isError
-                    ? <X className="w-10 h-10 text-black stroke-[4px]" />
-                    : <Check className="w-10 h-10 text-black stroke-[4px]" />
-                  }
+              <div className="bg-white rounded-2xl border-2 border-black/80
+                              shadow-[6px_6px_0_rgba(0,0,0,0.85)] overflow-hidden">
+
+                {/* Status header — compact */}
+                <div className={`${headerBg} px-6 py-6 text-center`}>
+                  <motion.div
+                    initial={{ scale: 0 }}
+                    animate={{ scale: 1 }}
+                    transition={{ delay: 0.1, type: 'spring', stiffness: 300 }}
+                    className="w-14 h-14 bg-white rounded-full flex items-center justify-center mx-auto mb-3
+                               shadow-[2px_2px_0_rgba(0,0,0,0.3)]"
+                  >
+                    {isError
+                      ? <X className="w-7 h-7 text-red-500" />
+                      : <Check className="w-7 h-7 text-green-600" />
+                    }
+                  </motion.div>
+                  <h1 className="font-display text-2xl font-black text-black tracking-tight leading-none">
+                    {headerText}
+                  </h1>
+                  <p className="text-black/60 text-xs font-medium mt-1.5">{headerSub}</p>
                 </div>
-                <h1 className="font-display text-4xl font-black text-black uppercase italic tracking-tighter leading-none">
-                  {isSuccess ? 'SUCCESS' : isAlreadyMarked ? 'ALREADY CHECKED IN' : 'ERROR'}
-                </h1>
-                <p className="text-black/60 text-[10px] font-black uppercase tracking-[0.3em] mt-3 underline decoration-black/10">
-                  {isSuccess ? result.message : isAlreadyMarked ? 'SYSTEM DETECTED PREVIOUS ENTRY' : result.message}
-                </p>
-              </div>
 
-              <div className="p-8 space-y-4">
-                {isSuccess && (
-                  <>
-                    <div className="bg-nb-cream border-2 border-black p-5 shadow-[4px_4px_0_#000000]">
-                      <p className="text-[10px] font-black text-black/40 mb-1 uppercase tracking-widest">IDENTIFIED_OPERATIVE</p>
-                      <p className="font-black text-black text-xl uppercase italic tracking-tighter leading-none">{result.registration?.participantName}</p>
-                    </div>
-                    {result.registration?.teamName && (
-                      <div className="bg-nb-purple text-white border-2 border-black p-5 shadow-[4px_4px_0_#000000]">
-                        <p className="text-[10px] font-black text-white/40 mb-1 uppercase tracking-widest">TEAM NAME</p>
-                        <p className="font-black text-xl uppercase italic tracking-tighter leading-none">{result.registration.teamName}</p>
-                        {result.registration.isTeamLeader && (
-                          <span className="text-[10px] font-black text-nb-yellow uppercase mt-2 block tracking-widest">TEAM LEADER</span>
-                        )}
+                {/* Info */}
+                <div className="px-6 py-5 space-y-3">
+                  {isSuccess && (
+                    <>
+                      {/* Name + status grouped */}
+                      <div className="rounded-xl bg-nb-cream border border-black/15 overflow-hidden">
+                        <div className="px-4 py-3 border-b border-black/10">
+                          <p className="text-[10px] font-bold text-black/40 uppercase tracking-wider mb-0.5">Participant</p>
+                          <p className="font-bold text-base text-black">{result.registration?.participantName}</p>
+                        </div>
+                        <div className="px-4 py-3 flex items-center gap-2">
+                          <CheckCircle className="w-4 h-4 text-green-600 shrink-0" />
+                          <div>
+                            <p className="text-[10px] font-bold text-black/40 uppercase tracking-wider">Status</p>
+                            <p className="text-sm font-bold text-black">
+                              Present · {new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                            </p>
+                          </div>
+                        </div>
                       </div>
-                    )}
-                    <div className="bg-nb-green border-2 border-black p-5 flex items-center gap-4 shadow-[4px_4px_0_#000000]">
-                      <CheckCircle className="w-6 h-6 text-black" />
-                      <div>
-                        <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">ENTRY_STATUS</p>
-                        <p className="font-black text-black uppercase italic">PRESENT · {new Date().toLocaleTimeString()}</p>
-                      </div>
-                    </div>
-                  </>
-                )}
 
-                {isAlreadyMarked && (
-                  <>
-                    <div className="bg-nb-cream border-2 border-black p-5 shadow-[4px_4px_0_#000000]">
-                      <p className="text-[10px] font-black text-black/40 mb-1 uppercase tracking-widest">OPERATIVE_ID</p>
-                      <p className="font-black text-black text-xl uppercase italic tracking-tighter leading-none">{result.attendance?.participantName}</p>
-                    </div>
-                    <div className="bg-nb-yellow border-2 border-black p-5 flex items-center gap-4 shadow-[4px_4px_0_#000000]">
-                      <AlertCircle className="w-6 h-6 text-black" />
-                      <div>
-                        <p className="text-[10px] font-black text-black/40 uppercase tracking-widest">PREVIOUSLY_LOGGED_AT</p>
-                        <p className="font-black text-black uppercase italic">
-                          {new Date(result.attendance?.markedAt).toLocaleString()}
-                        </p>
+                      {result.registration?.teamName && (
+                        <div className="rounded-xl bg-nb-purple/10 border border-nb-purple/20 px-4 py-3">
+                          <p className="text-[10px] font-bold text-nb-purple uppercase tracking-wider mb-0.5">Team</p>
+                          <p className="font-bold text-sm text-black">{result.registration.teamName}</p>
+                          {result.registration.isTeamLeader && (
+                            <span className="text-[10px] font-bold text-nb-purple uppercase tracking-wider">Team Leader</span>
+                          )}
+                        </div>
+                      )}
+                    </>
+                  )}
+
+                  {isAlreadyMarked && (
+                    <div className="rounded-xl bg-nb-cream border border-black/15 overflow-hidden">
+                      <div className="px-4 py-3 border-b border-black/10">
+                        <p className="text-[10px] font-bold text-black/40 uppercase tracking-wider mb-0.5">Participant</p>
+                        <p className="font-bold text-base text-black">{result.attendance?.participantName}</p>
+                      </div>
+                      <div className="px-4 py-3 flex items-center gap-2">
+                        <AlertCircle className="w-4 h-4 text-amber-500 shrink-0" />
+                        <div>
+                          <p className="text-[10px] font-bold text-black/40 uppercase tracking-wider">Previously checked in</p>
+                          <p className="text-sm font-bold text-black">
+                            {new Date(result.attendance?.markedAt).toLocaleString([], {
+                              month: 'short', day: 'numeric',
+                              hour: '2-digit', minute: '2-digit'
+                            })}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </>
-                )}
+                  )}
 
-                <button
-                  onClick={() => navigate('/dashboard')}
-                  className="w-full mt-4 bg-black text-white py-6 border-4 border-black font-black uppercase tracking-[0.3em] shadow-[8px_8px_0_#7400E8] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all italic"
-                >
-                  RETURN TO DASHBOARD
-                </button>
+                  {/* CTA */}
+                  <button
+                    onClick={() => navigate('/dashboard')}
+                    className="w-full py-3 rounded-lg text-sm font-bold
+                               bg-black text-white border border-black/20
+                               shadow-[3px_3px_0_rgba(0,0,0,0.5)]
+                               hover:shadow-[4px_4px_0_rgba(0,0,0,0.7)] hover:-translate-y-px
+                               active:shadow-[1px_1px_0_rgba(0,0,0,0.4)] active:translate-y-0
+                               transition-all"
+                  >
+                    Return to Dashboard
+                  </button>
+                </div>
               </div>
             </motion.div>
           </main>
