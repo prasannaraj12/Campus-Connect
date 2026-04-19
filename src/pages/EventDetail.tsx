@@ -436,7 +436,7 @@ export default function EventDetail() {
       </AnimatePresence>
 
       {/* ── Mobile Action Bar (Aggressive) ─────────────────────── */}
-      {!isOrganizer && user && (
+      {!isOrganizer && (
         <div className="fixed bottom-8 left-1/2 -translate-x-1/2 w-[92%] z-50 lg:hidden">
           <div className="nb bg-white border-4 border-black p-6 flex items-center justify-between gap-8 shadow-[10px_10px_0_#000000] overflow-hidden">
             {myRegistration ? (

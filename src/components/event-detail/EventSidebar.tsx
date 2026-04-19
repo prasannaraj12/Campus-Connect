@@ -5,7 +5,7 @@ import { api } from '../../../convex/_generated/api'
 import { useAuth } from '../../hooks/use-auth'
 import { Id } from '../../../convex/_generated/dataModel'
 import QRCode from 'react-qr-code'
-import { UserPlus, Check, Download, FileDown, Users, CheckCircle, XCircle, ShieldCheck } from 'lucide-react'
+import { UserPlus, Check, Download, FileDown, Users, CheckCircle, XCircle, ShieldCheck, Loader2 } from 'lucide-react'
 import EventRegistrationDialog from '../EventRegistrationDialog'
 
 interface Props {
@@ -19,11 +19,33 @@ interface Props {
 }
 
 export default function EventSidebar({ event, isOrganizer, myRegistration, registrations, participantCount, showRegistrationDialog: externalShowDialog, setShowRegistrationDialog: externalSetShowDialog }: Props) {
-  const { user } = useAuth()
+  const { user, login } = useAuth()
   const [internalShowDialog, setInternalShowDialog] = useState(false)
+  const [guestLoading, setGuestLoading] = useState(false)
 
   const showRegistrationDialog = externalShowDialog !== undefined ? externalShowDialog : internalShowDialog
   const setShowRegistrationDialog = externalSetShowDialog || setInternalShowDialog
+
+  const createAnonymousUser = useMutation(api.users.createAnonymousUser)
+
+  // Zero-friction: auto-create guest account then open registration
+  const handleJoinClick = async () => {
+    if (user) {
+      setShowRegistrationDialog(true)
+      return
+    }
+    setGuestLoading(true)
+    try {
+      const userId = await createAnonymousUser({ name: 'Guest' })
+      login({ userId, role: 'participant', name: 'Guest' })
+      setShowRegistrationDialog(true)
+    } catch {
+      // fallback — still open dialog, RegistrationForm will handle missing userId
+      setShowRegistrationDialog(true)
+    } finally {
+      setGuestLoading(false)
+    }
+  }
 
   const [loading, setLoading] = useState(false)
   const [markingAll, setMarkingAll] = useState(false)
@@ -161,14 +183,24 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
             </div>
           ) : (
             <button
-              onClick={() => setShowRegistrationDialog(true)}
-              className="nb-btn bg-nb-yellow text-black w-full py-8 text-xl font-black uppercase italic tracking-tighter flex flex-col items-center gap-2 drop-shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all"
+              onClick={handleJoinClick}
+              disabled={guestLoading}
+              className="nb-btn bg-nb-yellow text-black w-full py-8 text-xl font-black uppercase italic tracking-tighter flex flex-col items-center gap-2 drop-shadow-[8px_8px_0px_rgba(0,0,0,1)] hover:drop-shadow-[4px_4px_0px_rgba(0,0,0,1)] transition-all disabled:opacity-60"
             >
-              <div className="flex items-center gap-4">
-                <UserPlus className="w-8 h-8" />
-                <span>JOIN EVENT</span>
-              </div>
-              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">REGISTER NOW</span>
+              {guestLoading ? (
+                <div className="flex items-center gap-3">
+                  <Loader2 className="w-6 h-6 animate-spin" />
+                  <span>SETTING UP...</span>
+                </div>
+              ) : (
+                <div className="flex items-center gap-4">
+                  <UserPlus className="w-8 h-8" />
+                  <span>JOIN EVENT</span>
+                </div>
+              )}
+              <span className="text-[9px] font-black uppercase tracking-[0.4em] opacity-40">
+                {guestLoading ? 'ONE MOMENT' : 'NO ACCOUNT NEEDED'}
+              </span>
             </button>
           )}
         </motion.div>

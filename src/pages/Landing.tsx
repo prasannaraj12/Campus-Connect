@@ -111,6 +111,12 @@ export default function Landing() {
               <Settings className="w-5 h-5" />
             </button>
             <button
+              onClick={() => navigate('/events')}
+              className="hidden sm:block text-[10px] font-black tracking-widest text-black/50 hover:text-black transition-colors px-3 py-2 uppercase"
+            >
+              Explore Events
+            </button>
+            <button
               onClick={() => navigate('/auth?role=organizer')}
               className="hidden sm:block text-[10px] font-black tracking-widest text-black/50 hover:text-black transition-colors px-3 py-2 uppercase"
             >

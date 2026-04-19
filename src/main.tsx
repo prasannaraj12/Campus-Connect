@@ -12,6 +12,7 @@ import RoleSelection from './pages/RoleSelection'
 import Auth from './pages/Auth'
 import Dashboard from './pages/Dashboard'
 import EventDetail from './pages/EventDetail'
+import Events from './pages/Events'
 import Ticket from './pages/Ticket'
 import MyHistory from './pages/MyHistory'
 import Analytics from './pages/Analytics'
@@ -38,6 +39,7 @@ function App() {
             <BrowserRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
               <Routes>
                 <Route path="/" element={<Landing />} />
+                <Route path="/events" element={<Events />} />
                 <Route path="/role-selection" element={<RoleSelection />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/dashboard" element={<Dashboard />} />

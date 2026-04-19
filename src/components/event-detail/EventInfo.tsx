@@ -1,9 +1,10 @@
 import { motion } from 'framer-motion'
-import { Calendar, Clock, MapPin, Users, User, FileText, Mail, Phone, Copy, Check, Ticket, Share2, CheckCircle } from 'lucide-react'
+import { Calendar, Clock, MapPin, Users, User, FileText, Mail, Phone, Copy, Check, Share2, QrCode, X } from 'lucide-react'
 import { formatDate } from '../../lib/utils'
 import { Id } from '../../../convex/_generated/dataModel'
 import { useState } from 'react'
 import ShareButtons from '../ShareButtons'
+import QRCode from 'react-qr-code'
 
 interface Event {
   _id: Id<"events">
@@ -36,8 +37,16 @@ interface Props {
 export default function EventInfo({ event, organizer, participantCount, isOrganizer, isRegistered, onRegisterClick }: Props) {
   const capacityPercent = (participantCount / event.maxParticipants) * 100
   const [copied, setCopied] = useState<string | null>(null)
+  const [showQR, setShowQR] = useState(false)
   const isFilling = capacityPercent >= 70
   const isFull = participantCount >= event.maxParticipants
+
+  // Derive college name from organizer contact info
+  const collegeName = event.organizerRole || 
+    (organizer?.email ? organizer.email.split('@')[1]?.split('.')[0]?.toUpperCase() : null) ||
+    'Campus Event'
+
+  const eventUrl = typeof window !== 'undefined' ? window.location.href : ''
 
   const copyToClipboard = (text: string, type: string) => {
     navigator.clipboard.writeText(text)
@@ -59,11 +68,44 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
       {/* ── Heading Sector ──────────────────────────────────── */}
       <div className="mb-12">
         <div className="space-y-4 max-w-3xl">
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
             <span className="nb-tag bg-nb-black text-white text-[10px] uppercase font-black px-3 py-1">CORE INTEL</span>
+            {/* College name badge */}
+            <span className="nb-tag bg-nb-yellow text-black text-[10px] uppercase font-black px-3 py-1 border border-black/20">
+              🏛 {event.organizerName ? `${event.organizerName}` : collegeName}
+            </span>
             <div className="h-0.5 grow bg-nb-black/10" />
-            <span className="text-[10px] font-bold text-nb-black/30 uppercase tracking-[0.4em]">SIGNAL_{event._id.slice(-4).toUpperCase()}</span>
+            {/* QR toggle button */}
+            <button
+              onClick={() => setShowQR(v => !v)}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-lg bg-nb-purple text-white text-[10px] font-black uppercase tracking-wide border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.7)] hover:bg-nb-yellow hover:text-black transition-all"
+            >
+              <QrCode className="w-3.5 h-3.5" />
+              {showQR ? 'HIDE QR' : 'SHARE QR'}
+            </button>
           </div>
+
+          {/* Event QR Code panel */}
+          {showQR && (
+            <motion.div
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="flex items-center gap-6 p-5 rounded-xl bg-nb-yellow border-2 border-black shadow-[4px_4px_0_rgba(0,0,0,0.8)]"
+            >
+              <div className="bg-white p-3 rounded-lg border border-black/20 shadow-[2px_2px_0_rgba(0,0,0,0.6)] shrink-0">
+                <QRCode value={eventUrl} size={100} level="M" fgColor="#000000" bgColor="transparent" />
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-black uppercase tracking-widest text-black mb-1">Scan to Register</p>
+                <p className="text-[10px] font-semibold text-black/60 mb-3 break-all">{eventUrl}</p>
+                <div className="flex gap-2 flex-wrap">
+                  <ShareButtons title={event.title} description={`Join ${event.title} — hosted by ${event.organizerName || collegeName}`} />
+                </div>
+              </div>
+            </motion.div>
+          )}
+
           <h1 className="font-display text-4xl sm:text-6xl lg:text-7xl font-black text-nb-black leading-[0.85] uppercase tracking-tighter italic drop-shadow-[4px_4px_0px_rgba(250,204,21,1)]">
             {event.title}
           </h1>
