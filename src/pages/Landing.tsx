@@ -104,74 +104,114 @@ export default function Landing() {
       </nav>
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section className="relative bg-nb-purple text-white py-28 px-4 overflow-hidden border-b-4 border-black">
-        {/* Background Decorative Elements */}
-        <motion.div 
-          animate={{ rotate: 360, scale: [1, 1.1, 1] }}
-          transition={{ duration: 25, repeat: Infinity, ease: 'linear' }}
-          className="absolute top-[-15%] right-[-10%] w-[600px] h-[600px] bg-nb-green opacity-10 border-[8px] border-black rounded-full pointer-events-none"
-        />
-        
-        {/* Fixed positioning for Mascot SVGs - avoids overlapping text */}
-        <Brainbox className="absolute top-10 right-4 w-40 h-40 md:w-64 md:h-64 z-20 hidden lg:block rotate-12 pointer-events-none" />
-        <GhostBlob className="absolute bottom-10 left-4 w-40 h-40 md:w-64 md:h-64 z-20 hidden xl:block -rotate-12 opacity-80 pointer-events-none" />
-        
-        <NBStar className="absolute top-20 left-4 w-20 h-20 hidden md:block pointer-events-none" />
-        <NBStar className="absolute bottom-20 right-[5%] w-28 h-28 hidden xl:block pointer-events-none" color="#FF2D92" />
+      <section className="relative bg-nb-purple text-white py-20 md:py-28 px-4 overflow-hidden border-b-4 border-black">
 
-        <div className="max-w-5xl mx-auto text-center relative z-10">
-          <motion.div initial={{ opacity: 0, scale: 0.8 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.5 }}>
-            <div className="inline-flex items-center gap-3 bg-nb-green text-black text-xs font-black uppercase tracking-[0.3em] px-6 py-2.5 nb border-3 border-black shadow-[6px_6px_0px_0px_#000000] mb-12 -rotate-2">
-              <Zap className="w-4 h-4" />
-              CAMPUS LIFE UNLOCKED.
-            </div>
+        {/* Single subtle background circle — faded, not animated */}
+        <div className="absolute top-[-20%] right-[-8%] w-[500px] h-[500px] bg-nb-green/10 rounded-full pointer-events-none" />
 
-            <h1 className="font-display text-7xl md:text-9xl font-black leading-[0.85] mb-10 tracking-tighter uppercase italic text-shadow-brutal">
-              <span className="block mb-2">EVERY EVENT.</span>
-              <span className="inline-block bg-nb-yellow text-black border-black border-[6px] px-6 py-3 shadow-[12px_12px_0px_0px_#000000] mt-4 rotate-2">
-                ONE PLACE.
+        {/* One mascot, right side, faded — keeps personality without noise */}
+        <GhostBlob className="absolute top-8 right-4 w-48 h-48 md:w-64 md:h-64 opacity-15 hidden lg:block pointer-events-none" />
+
+        <div className="max-w-[1100px] mx-auto relative z-10">
+          <div className="max-w-3xl">
+
+            {/* Badge */}
+            <motion.div
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4 }}
+              className="inline-flex items-center gap-2 bg-nb-green text-black
+                         text-xs font-bold uppercase tracking-widest
+                         px-4 py-2 rounded-md border border-black/20
+                         shadow-[2px_2px_0_rgba(0,0,0,0.7)] mb-8"
+            >
+              <Zap className="w-3.5 h-3.5" />
+              Campus Life Unlocked
+            </motion.div>
+
+            {/* Headline — tighter, more controlled */}
+            <motion.h1
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="font-display font-black uppercase tracking-tighter leading-[0.9] mb-5"
+              style={{ fontSize: 'clamp(2.8rem, 7vw, 5.5rem)' }}
+            >
+              <span className="block text-white">Every Event.</span>
+              <span className="inline-block bg-nb-yellow text-black
+                               border-2 border-black/80 px-4 py-1 mt-2
+                               shadow-[4px_4px_0_rgba(0,0,0,0.85)]
+                               rotate-1">
+                One Place.
               </span>
-            </h1>
+            </motion.h1>
 
-            <p className="text-white text-xl md:text-2xl max-w-3xl mx-auto mb-14 font-black leading-tight drop-shadow-[2px_2px_0_#000000]">
-              Ditch the noise. Join the community. <br />
+            {/* Subtext — readable, not oversized */}
+            <motion.p
+              initial={{ opacity: 0, y: 12 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.2 }}
+              className="text-white/85 text-base md:text-lg font-medium leading-relaxed mb-8 max-w-xl"
+            >
+              Ditch the noise. Join the community.
               The ultimate hub for workshops, seminars, and campus events.
-            </p>
+            </motion.p>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-8">
-              <motion.button 
-                whileHover={{ scale: 1.05, rotate: -1 }} 
-                whileTap={{ scale: 0.95 }} 
+            {/* CTAs — close to text, clear hierarchy */}
+            <motion.div
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.4, delay: 0.3 }}
+              className="flex flex-col sm:flex-row items-start gap-3"
+            >
+              {/* Primary */}
+              <button
                 onClick={() => navigate('/role-selection')}
-                className="w-full sm:w-auto bg-nb-green text-black font-black text-2xl px-14 py-6 nb-xl shadow-[10px_10px_0px_0px_#000000] hover:shadow-[14px_14px_0px_0px_#000000] transition-all inline-flex items-center justify-center gap-4 group italic"
+                className="flex items-center gap-2 px-6 py-3 rounded-lg
+                           bg-nb-green text-black text-sm font-bold
+                           border border-black/20
+                           shadow-[3px_3px_0_rgba(0,0,0,0.8)]
+                           hover:shadow-[5px_5px_0_rgba(0,0,0,0.9)] hover:-translate-y-0.5
+                           active:shadow-[1px_1px_0_rgba(0,0,0,0.7)] active:translate-y-0
+                           transition-all group"
               >
-                JOIN THE ACTION
-                <ArrowRight className="w-8 h-8 group-hover:translate-x-2 transition-transform" />
-              </motion.button>
-              <motion.button 
-                whileHover={{ scale: 1.05, rotate: 1 }} 
-                whileTap={{ scale: 0.95 }} 
-                onClick={() => navigate('/auth?role=organizer')}
-                className="w-full sm:w-auto bg-white text-black font-black text-2xl px-14 py-6 nb-xl shadow-[10px_10px_0px_0px_#000000] hover:shadow-[14px_14px_0px_0px_#000000] transition-all italic"
-              >
-                LAUNCH EVENT
-              </motion.button>
-            </div>
-          </motion.div>
+                Join the Action
+                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+              </button>
 
-          {/* Stats Bar - High contrast and clean */}
-          <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.6 }}
-            className="mt-32 flex items-center justify-center gap-8 sm:gap-20 flex-wrap">
+              {/* Secondary */}
+              <button
+                onClick={() => navigate('/auth')}
+                className="flex items-center gap-2 px-6 py-3 rounded-lg
+                           bg-white/15 backdrop-blur-sm text-white text-sm font-bold
+                           border border-white/30
+                           hover:bg-white/25 hover:-translate-y-0.5
+                           active:translate-y-0
+                           transition-all"
+              >
+                Launch an Event →
+              </button>
+            </motion.div>
+          </div>
+
+          {/* Stats — compact row below content */}
+          <motion.div
+            initial={{ opacity: 0, y: 24 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.5 }}
+            className="mt-16 flex items-center gap-6 sm:gap-10 flex-wrap"
+          >
             {[
-              { value: '500+', label: 'PIONEERS', color: 'text-white', bg: 'bg-nb-pink' },
-              { value: '80+',  label: 'EVENTS',   color: 'text-black', bg: 'bg-nb-yellow' },
-              { value: '12+',  label: 'GROUPS',   color: 'text-white', bg: 'bg-nb-green' },
+              { value: '500+', label: 'Students', bg: 'bg-nb-pink' },
+              { value: '80+',  label: 'Events',   bg: 'bg-nb-yellow' },
+              { value: '12+',  label: 'Groups',   bg: 'bg-nb-green' },
             ].map((stat) => (
-              <div key={stat.label} className="text-center group">
-                <div className={`${stat.bg} nb border-4 border-black px-10 py-6 mb-3 shadow-[8px_8px_0_#000000] group-hover:translate-y-[-6px] transition-transform`}>
-                  <p className={`font-display text-5xl font-black ${stat.color} leading-none tracking-tighter`}>{stat.value}</p>
+              <div key={stat.label} className="flex items-center gap-3">
+                <div className={`${stat.bg} px-3 py-1.5 rounded-md border border-black/20
+                                 shadow-[2px_2px_0_rgba(0,0,0,0.7)]`}>
+                  <p className="font-display text-2xl font-black text-black leading-none">{stat.value}</p>
                 </div>
-                <p className="text-white text-xs font-black tracking-[0.4em] uppercase">{stat.label}</p>
+                <p className="text-white/60 text-sm font-semibold">{stat.label}</p>
               </div>
             ))}
           </motion.div>
@@ -430,32 +470,82 @@ export default function Landing() {
           </div>
         )}
 
-        {/* ── Feature Blocks ────────────────────────────────────────── */}
-        <section className="mt-48 mb-20 bg-nb-yellow p-16 nb border-8 border-black shadow-[30px_30px_0_#7400E8] relative overflow-hidden">
-           <HappyDog className="absolute top-[-10%] right-[-10%] w-80 h-80 opacity-20 rotate-12 pointer-events-none" />
-           <div className="relative z-10">
-              <div className="flex items-center gap-10 mb-20">
-                <h2 className="font-display text-7xl font-black text-black uppercase italic tracking-tighter leading-none underline decoration-nb-pink decoration-8 underline-offset-8">FEATURES.</h2>
-                <div className="h-3 flex-1 bg-black" />
+        {/* ── Features ─────────────────────────────────────────────── */}
+        <section className="mt-24 mb-16 px-4">
+          <div className="max-w-[1100px] mx-auto">
+
+            {/* Header */}
+            <div className="flex items-end gap-4 mb-10">
+              <div>
+                <p className="text-xs font-bold uppercase tracking-widest text-black/40 mb-2">What you get</p>
+                <h2 className="font-display text-3xl md:text-4xl font-black text-black tracking-tight leading-none">
+                  Everything you need.
+                </h2>
               </div>
-              <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
-                {[
-                  { icon: Calendar, title: 'MGMT',  desc: 'Easy Event Management', color: 'bg-white' },
-                  { icon: QrCode,   title: 'SCAN',  desc: 'Quick QR Tickets',       color: 'bg-nb-green' },
-                  { icon: Zap,      title: 'LIVE',  desc: 'Realtime Syncing',        color: 'bg-nb-purple text-white' },
-                  { icon: Shield,   title: 'GUARD', desc: 'Secure & Fast',           color: 'bg-nb-pink text-white' },
-                ].map((f, i) => (
-                  <motion.div key={i} whileHover={{ y: -10, rotate: i % 2 === 0 ? 1 : -1 }}
-                    className={`nb p-8 ${f.color} border-4 shadow-[8px_8px_0_#000000] transition-all`}>
-                    <div className="nb border-4 border-black bg-white text-black w-16 h-16 flex items-center justify-center mb-6 shadow-[4px_4px_0_#000000] -rotate-2">
-                      <f.icon className="w-8 h-8 stroke-[2.5px]" />
-                    </div>
-                    <h3 className="font-display font-black text-2xl mb-2 uppercase tracking-tight leading-none">{f.title}</h3>
-                    <p className="text-sm font-semibold opacity-70 leading-snug">{f.desc}</p>
-                  </motion.div>
-                ))}
-              </div>
-           </div>
+              <div className="h-px flex-1 bg-black/10 mb-2 hidden sm:block" />
+            </div>
+
+            {/* Cards grid */}
+            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5">
+              {[
+                {
+                  icon: Calendar,
+                  title: 'Event Management',
+                  desc: 'Create, edit, and manage events with registrations and capacity tracking.',
+                  accent: 'bg-nb-yellow',
+                  iconBg: 'bg-nb-yellow/20 text-black',
+                },
+                {
+                  icon: QrCode,
+                  title: 'QR Check-in',
+                  desc: 'Instant QR ticket generation and real-time attendance scanning.',
+                  accent: 'bg-nb-green',
+                  iconBg: 'bg-nb-green/20 text-black',
+                },
+                {
+                  icon: Zap,
+                  title: 'Live Sync',
+                  desc: 'Real-time updates across all devices — registrations reflect instantly.',
+                  accent: 'bg-nb-purple',
+                  iconBg: 'bg-nb-purple/15 text-nb-purple',
+                },
+                {
+                  icon: Shield,
+                  title: 'Secure Access',
+                  desc: 'OTP-based organizer auth and validated participant registration.',
+                  accent: 'bg-nb-pink',
+                  iconBg: 'bg-nb-pink/15 text-nb-pink',
+                },
+              ].map((f, i) => (
+                <motion.div
+                  key={i}
+                  whileHover={{ y: -6 }}
+                  className="bg-white rounded-xl border-2 border-black/80
+                             shadow-[4px_4px_0_rgba(0,0,0,0.8)]
+                             hover:shadow-[6px_6px_0_rgba(0,0,0,0.9)]
+                             p-6 flex flex-col gap-4 transition-all"
+                >
+                  {/* Icon */}
+                  <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${f.iconBg}`}>
+                    <f.icon className="w-5 h-5" />
+                  </div>
+
+                  {/* Accent bar */}
+                  <div className={`h-1 w-8 rounded-full ${f.accent}`} />
+
+                  {/* Text */}
+                  <div>
+                    <h3 className="font-display font-black text-base text-black tracking-tight mb-1">
+                      {f.title}
+                    </h3>
+                    <p className="text-sm text-black/55 font-medium leading-relaxed">
+                      {f.desc}
+                    </p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </div>
         </section>
       </main>
 
