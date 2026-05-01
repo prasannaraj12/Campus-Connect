@@ -62,7 +62,7 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
             <div className="w-10 h-10 bg-white border-4 border-black flex items-center justify-center shadow-[4px_4px_0_#000000]">
               <Megaphone className="w-5 h-5 text-black" />
             </div>
-            <h2 className="font-display text-2xl font-black text-black">DISPATCH_INTEL</h2>
+            <h2 className="font-display text-2xl font-black text-black">Send Announcement</h2>
           </div>
           <button
             onClick={onClose}
@@ -149,7 +149,7 @@ export default function CreateAnnouncementDialog({ organizerId, onClose }: Props
                 disabled={loading}
                 className="w-full bg-nb-yellow text-black py-4 border-4 border-black font-black text-lg uppercase italic shadow-[10px_10px_0_#000000] hover:bg-nb-purple hover:text-white transition-all disabled:opacity-50 mt-6"
               >
-                {loading ? 'TRANSMITTING...' : 'BROADCAST_INTEL'}
+                {loading ? 'Sending...' : 'Send to All'}
               </motion.button>
             </form>
           </div>

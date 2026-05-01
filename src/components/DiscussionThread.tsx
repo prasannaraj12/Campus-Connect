@@ -131,7 +131,7 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
       {/* Pinned Diagonal Ribbon */}
       {discussion.isPinned && (
         <div className="absolute top-0 right-0 bg-nb-yellow text-black px-12 py-2 border-b-4 border-l-4 border-black font-black uppercase text-[10px] tracking-widest italic translate-x-[30%] translate-y-[30%] rotate-45 z-10">
-          PRIORITY_INTEL
+          PINNED
         </div>
       )}
 
@@ -237,7 +237,7 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
                  ))}
              </div>
              <div className="h-10 w-[2px] bg-black/10" />
-             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 italic">ENCRYPTED_SIGNAL_ACTIVE</span>
+             <span className="text-[10px] font-black uppercase tracking-[0.2em] opacity-30 italic">DISCUSSION ACTIVE</span>
         </div>
       </div>
 
@@ -273,7 +273,7 @@ export default function DiscussionThread({ discussion, onDeleted }: Props) {
                         {comment.isAnswer && (
                           <div className="bg-black text-white px-3 py-1 text-[8px] font-black uppercase tracking-widest italic flex items-center gap-1">
                             <CheckCircle className="w-3 h-3 text-nb-green" />
-                            VERIFIED_INTEL
+                            ANSWERED
                           </div>
                         )}
                         <span className="text-[8px] font-black uppercase opacity-50 italic tracking-widest">{getTimeAgo(comment.createdAt)}</span>

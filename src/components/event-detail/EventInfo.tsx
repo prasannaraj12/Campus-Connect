@@ -69,7 +69,7 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
       <div className="mb-12">
         <div className="space-y-4 max-w-3xl">
           <div className="flex items-center gap-3 flex-wrap">
-            <span className="nb-tag bg-nb-black text-white text-[10px] uppercase font-black px-3 py-1">CORE INTEL</span>
+            <span className="nb-tag bg-nb-black text-white text-[10px] uppercase font-black px-3 py-1">EVENT DETAILS</span>
             {/* College name badge */}
             <span className="nb-tag bg-nb-yellow text-black text-[10px] uppercase font-black px-3 py-1 border border-black/20">
               🏛 {event.organizerName ? `${event.organizerName}` : collegeName}
@@ -110,7 +110,7 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
             {event.title}
           </h1>
           <div className="flex items-center gap-4 text-nb-black/40 text-[9px] font-black uppercase tracking-widest pt-2">
-            <span>OPERATIONAL_STATUS: {isFull ? 'CAPACITY_MAX' : 'ACTIVE_RECRUITMENT'}</span>
+            <span>STATUS: {isFull ? 'FULLY BOOKED' : 'OPEN FOR REGISTRATION'}</span>
             <span className="w-1 h-1 bg-nb-black/20 rounded-full" />
             <span>ENROLLMENT_PCT: {Math.round(capacityPercent)}%</span>
           </div>
@@ -182,7 +182,7 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
           <div>
             <div className="flex items-center gap-3 mb-6">
               <div className="w-1.5 h-6 bg-nb-black" />
-              <h2 className="text-xl font-black uppercase tracking-tight">OPERATIONAL OBJECTIVES</h2>
+              <h2 className="text-xl font-black uppercase tracking-tight">ABOUT THIS EVENT</h2>
             </div>
             <div className="bg-nb-paper bg-opacity-30 p-8 nb-sm border-2 border-nb-black/5">
               <p className="text-[13px] font-bold text-nb-black/70 leading-relaxed whitespace-pre-wrap uppercase tracking-tighter">
@@ -209,7 +209,7 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
           <div className="nb bg-nb-black p-6 border-4 border-nb-black text-white">
             <div className="flex items-center gap-3 mb-6">
               <User className="w-5 h-5 text-nb-yellow" />
-              <h3 className="text-xs font-black uppercase tracking-widest">COMMAND CONTACT</h3>
+              <h3 className="text-xs font-black uppercase tracking-widest">ORGANIZER CONTACT</h3>
             </div>
             
             <div className="space-y-4">
@@ -272,7 +272,7 @@ export default function EventInfo({ event, organizer, participantCount, isOrgani
           <div className="nb-sm bg-white p-6 border-2 border-nb-black italic">
             <div className="flex items-center gap-3 mb-4">
               <Share2 className="w-4 h-4 text-nb-black" />
-              <span className="text-[10px] font-black uppercase tracking-widest">RELAY THIS SIGNAL</span>
+              <span className="text-[10px] font-black uppercase tracking-widest">SHARE THIS EVENT</span>
             </div>
             <ShareButtons
               title={event.title}

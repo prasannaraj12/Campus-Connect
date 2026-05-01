@@ -49,8 +49,8 @@ export default function MyHistory() {
                         <ArrowLeft className="w-6 h-6 text-black" />
                     </button>
                     <div>
-                        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-black/40 underline decoration-nb-purple underline-offset-4 mb-2">OPERATIONAL_LOG</p>
-                        <h1 className="font-display text-5xl font-black text-black uppercase tracking-tighter italic">MISSION_HISTORY</h1>
+                        <p className="text-[12px] font-black uppercase tracking-[0.4em] text-black/40 underline decoration-nb-purple underline-offset-4 mb-2">YOUR ACTIVITY</p>
+                        <h1 className="font-display text-5xl font-black text-black uppercase tracking-tighter italic">MY HISTORY</h1>
                     </div>
                 </div>
 

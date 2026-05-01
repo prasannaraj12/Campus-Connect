@@ -30,7 +30,7 @@ export default function SimilarEvents({ eventId }: SimilarEventsProps) {
                     </div>
                     <div>
                         <h2 className="font-display text-4xl font-black uppercase tracking-tight text-nb-black">RECOMMENDED</h2>
-                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-nb-black/30 leading-none">Intelligence Matching Signals</p>
+                        <p className="text-[10px] font-black uppercase tracking-[0.3em] text-nb-black/30 leading-none">You might also like</p>
                     </div>
                 </div>
             </div>

@@ -339,8 +339,8 @@ export default function EditEvent() {
                         className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#FF2D92] rotate-[0.5deg]"
                     >
                         <div className="flex items-center justify-between mb-8">
-                            <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter underline decoration-nb-pink decoration-4 underline-offset-8">COMMAND_IDENT</h2>
-                            <span className="text-[10px] font-black bg-black text-white px-3 py-1 uppercase tracking-widest italic">PUBLIC_INTEL</span>
+                            <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter underline decoration-nb-pink decoration-4 underline-offset-8">ORGANIZER INFO</h2>
+                            <span className="text-[10px] font-black bg-black text-white px-3 py-1 uppercase tracking-widest italic">VISIBLE TO ALL</span>
                         </div>
 
                         <div className="space-y-6">
@@ -357,7 +357,7 @@ export default function EditEvent() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">OPERATIONAL_ROLE</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">YOUR ROLE</label>
                                     <input
                                         type="text"
                                         value={formData.organizerRole}
@@ -452,9 +452,9 @@ export default function EditEvent() {
                             <div className="w-20 h-20 bg-nb-pink border-4 border-black rounded-full flex items-center justify-center mx-auto mb-8 shadow-[8px_8px_0_#000000]">
                                 <Trash2 className="w-10 h-10 text-white stroke-[4px]" />
                             </div>
-                            <h3 className="font-display text-4xl font-black text-black mb-4 uppercase italic tracking-tighter">CONFIRM_PURGE?</h3>
+                            <h3 className="font-display text-4xl font-black text-black mb-4 uppercase italic tracking-tighter">DELETE THIS EVENT?</h3>
                             <p className="text-sm font-black text-black/60 mb-10 uppercase italic leading-tight">
-                                THIS WILL PERMANENTLY ERASE <span className="text-nb-pink underline underline-offset-4 decoration-4">"{event.title}"</span> AND ALL PARTICIPANT INTEL. <br/>ACTION IS IRREVERSIBLE.
+                                THIS WILL PERMANENTLY DELETE <span className="text-nb-pink underline underline-offset-4 decoration-4">"{event.title}"</span> AND ALL REGISTRATIONS. <br/>THIS CANNOT BE UNDONE.
                             </p>
                             <div className="flex gap-4">
                                 <button

@@ -215,7 +215,7 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
         >
           <div className="space-y-8">
             <header>
-              <h3 className="font-display text-2xl font-black uppercase tracking-tight text-nb-black mb-1 leading-none">ATTENDANCE HUB</h3>
+              <h3 className="font-display text-2xl font-black uppercase tracking-tight text-nb-black mb-1 leading-none">ATTENDANCE</h3>
               <p className="text-[9px] font-black uppercase tracking-widest text-nb-black/40">VIEWING • {registrations.length} REGISTERED</p>
             </header>
 
@@ -236,7 +236,7 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
                 disabled={markingAll || registrations.length === 0}
                 className="flex-1 nb-btn-sm bg-nb-black text-white py-4 text-[10px] font-black uppercase tracking-widest disabled:opacity-20"
               >
-                {markingAll ? 'SYNCING...' : 'SYNC ALL'}
+                {markingAll ? 'MARKING...' : 'MARK ALL PRESENT'}
               </button>
               <button
                 onClick={() => import('../../lib/utils').then(({ exportToCSV }) => {
@@ -258,7 +258,7 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
             <div className="space-y-4 pt-6 border-t-4 border-nb-black/5">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-1.5 h-4 bg-nb-black" />
-                <h4 className="text-[10px] font-black uppercase tracking-widest">MANIFEST ENTRIES</h4>
+                <h4 className="text-[10px] font-black uppercase tracking-widest">REGISTERED PARTICIPANTS</h4>
               </div>
 
               {registrations.length === 0 ? (

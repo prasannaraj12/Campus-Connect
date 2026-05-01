@@ -112,7 +112,7 @@ export default function EventDetail() {
   const isSoon = timeLeft.days <= 1 && !isToday && !isLive && !isEnded
 
   const getEventStatus = () => {
-    if (isEnded) return { color: 'bg-nb-black text-white', text: 'EVENT TERMINATED', action: 'EXPORT FINAL REPORT', icon: FileText }
+    if (isEnded) return { color: 'bg-nb-black text-white', text: 'EVENT ENDED', action: 'EXPORT FINAL REPORT', icon: FileText }
     if (isLive) return { color: 'bg-nb-orange text-white', text: 'LIVE SESSION', action: 'MANAGE ATTENDANCE', icon: Play }
     if (isToday) return { color: 'bg-nb-yellow text-black', text: 'STARTING TODAY', action: 'PREPARE CHECK-IN', icon: AlertCircle }
     if (isSoon) return { color: 'bg-nb-yellow text-black', text: `${timeLeft.days}D ${timeLeft.hours}H LEFT`, action: 'SEND ALERT', icon: Clock }
@@ -311,8 +311,8 @@ export default function EventDetail() {
                     <Megaphone className="w-8 h-8" />
                   </div>
                   <div>
-                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">VITAL BROADCASTS</h2>
-                    <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">PRIORITY INTEL DISPATCH</p>
+                    <h2 className="text-3xl font-black uppercase italic tracking-tighter">ANNOUNCEMENTS</h2>
+                    <p className="text-[10px] font-black uppercase tracking-[0.4em] opacity-40">FROM THE ORGANIZER</p>
                   </div>
                 </div>
                 <div className="space-y-6">
@@ -335,10 +335,10 @@ export default function EventDetail() {
             <section className="pt-12">
               <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b-8 border-black/5 pb-10">
                 <div className="space-y-2">
-                  <h2 className="font-display text-5xl font-black uppercase italic tracking-tighter">COMMUNITY HUB</h2>
-                  <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/30">OPEN BROADCAST CHANNEL</p>
+                  <h2 className="font-display text-5xl font-black uppercase italic tracking-tighter">DISCUSSIONS</h2>
+                  <p className="text-[12px] font-black uppercase tracking-[0.5em] text-black/30">ASK QUESTIONS · SHARE IDEAS</p>
                 </div>
-                <div className="nb bg-black text-nb-green text-[12px] font-black px-6 py-2 border-3 border-white -rotate-2 shadow-[4px_4px_0_#7400E8]">ACTIVE CHANNEL</div>
+                <div className="nb bg-black text-nb-green text-[12px] font-black px-6 py-2 border-3 border-white -rotate-2 shadow-[4px_4px_0_#7400E8]">OPEN NOW</div>
               </div>
               <EventCommunity eventId={event._id} />
             </section>
@@ -454,7 +454,7 @@ export default function EventDetail() {
               </div>
             ) : participantCount >= event.maxParticipants ? (
               <div className="w-full text-center py-3 bg-black">
-                <p className="text-sm font-black text-nb-yellow uppercase italic tracking-[0.2em]">SQUAD CAPACITY REACHED • LOCKOUT</p>
+                <p className="text-sm font-black text-nb-yellow uppercase italic tracking-[0.2em]">EVENT IS FULL • REGISTRATION CLOSED</p>
               </div>
             ) : (
               <button
