@@ -5,7 +5,7 @@ import { useQuery, useMutation } from 'convex/react'
 import { api } from '../../convex/_generated/api'
 import { useAuth } from '../hooks/use-auth'
 import { Id } from '../../convex/_generated/dataModel'
-import { Check, X, Award, ArrowLeft, Download, CheckCircle, AlertCircle, Clock, Loader2 } from 'lucide-react'
+import { Check, X, Award, ArrowLeft, Download, CheckCircle, AlertCircle, Clock, Loader2, Maximize2 } from 'lucide-react'
 import Certificate from '../components/Certificate'
 import QRCode from 'react-qr-code'
 
@@ -15,6 +15,7 @@ export default function Ticket() {
   const { user } = useAuth()
   const [processing, setProcessing] = useState(false)
   const [result, setResult] = useState<any>(null)
+  const [fullscreenQR, setFullscreenQR] = useState(false)
 
   const markAttendance = useMutation(api.registrations.markAttendance)
 
@@ -153,9 +154,13 @@ export default function Ticket() {
                 </div>
 
                 {/* QR Code */}
-                <div className="flex justify-center">
-                  <div className="p-3 bg-white rounded-xl border border-black/15
-                                  shadow-[2px_2px_0_rgba(0,0,0,0.6)]">
+                <div className="flex flex-col items-center gap-1.5">
+                  <button
+                    onClick={() => setFullscreenQR(true)}
+                    className="relative p-3 bg-white rounded-xl border border-black/15
+                                shadow-[2px_2px_0_rgba(0,0,0,0.6)] hover:shadow-[3px_3px_0_rgba(0,0,0,0.7)]
+                                hover:-translate-y-px transition-all group"
+                  >
                     <QRCode
                       value={registration?.registrationCode || registrationId || ''}
                       size={120}
@@ -163,7 +168,13 @@ export default function Ticket() {
                       fgColor="#000000"
                       bgColor="transparent"
                     />
-                  </div>
+                    <div className="absolute top-1.5 right-1.5 bg-black/60 rounded-md p-0.5">
+                      <Maximize2 className="w-3 h-3 text-white" />
+                    </div>
+                  </button>
+                  <p className="text-[10px] font-semibold text-black/40 uppercase tracking-widest">
+                    Tap to expand
+                  </p>
                 </div>
 
                 {/* Participant name */}
@@ -277,6 +288,30 @@ export default function Ticket() {
             </div>
           </motion.div>
         </main>
+
+        {/* ── Fullscreen QR Overlay ────────────────────── */}
+        {fullscreenQR && (
+          <div
+            className="fixed inset-0 z-50 bg-black flex flex-col items-center justify-center gap-6"
+            onClick={() => setFullscreenQR(false)}
+          >
+            <div className="p-5 bg-white rounded-2xl shadow-2xl">
+              <QRCode
+                value={registration?.registrationCode || registrationId || ''}
+                size={280}
+                level="M"
+                fgColor="#000000"
+                bgColor="#ffffff"
+              />
+            </div>
+            <p className="font-display font-black text-2xl text-white tracking-widest">
+              {registration?.registrationCode || registrationId}
+            </p>
+            <p className="text-white/50 text-sm font-semibold uppercase tracking-widest">
+              Tap anywhere to close
+            </p>
+          </div>
+        )}
       </div>
     )
   }

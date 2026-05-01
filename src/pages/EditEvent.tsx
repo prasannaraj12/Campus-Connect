@@ -155,7 +155,7 @@ export default function EditEvent() {
                     >
                         <ArrowLeft className="w-5 h-5" />
                     </button>
-                    <h1 className="font-display text-2xl font-black uppercase italic tracking-tighter">EDIT_MISSION_PROTOCOL</h1>
+                    <h1 className="font-display text-2xl font-black uppercase italic tracking-tighter">Edit Event</h1>
                     <div className="w-10"></div>
                 </div>
             </div>
@@ -178,13 +178,13 @@ export default function EditEvent() {
                     <motion.div
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
-                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#000000] rotate-[-0.5deg]"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#000000]"
                     >
-                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-purple decoration-4 underline-offset-8">BASIC_INFORMATION</h2>
+                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-purple decoration-4 underline-offset-8">Basic Information</h2>
 
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">MISSION_TITLE_SERIAL *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Event Title *</label>
                                 <input
                                     type="text"
                                     required
@@ -192,19 +192,19 @@ export default function EditEvent() {
                                     value={formData.title}
                                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
                                     className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
-                                    placeholder="e.g., TECH_SYNC_2026"
+                                    placeholder="e.g., Tech Symposium 2026"
                                 />
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">BRIEF_DESCRIPTION *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Description *</label>
                                 <textarea
                                     required
                                     value={formData.description}
                                     onChange={(e) => setFormData({ ...formData, description: e.target.value })}
                                     rows={4}
                                     className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black resize-none"
-                                    placeholder="Describe the mission parameters..."
+                                    placeholder="What is this event about?"
                                 />
                             </div>
                         </div>
@@ -215,13 +215,13 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.1 }}
-                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#00FF75] rotate-[0.5deg]"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#00FF75]"
                     >
-                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-green decoration-4 underline-offset-8">TIMELINE_SYNC</h2>
+                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-green decoration-4 underline-offset-8">Schedule</h2>
 
                         <div className="grid sm:grid-cols-2 gap-6">
                             <div>
-                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">LAUNCH_DATE *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Date *</label>
                                 <input
                                     type="date"
                                     required
@@ -232,7 +232,7 @@ export default function EditEvent() {
                             </div>
 
                             <div>
-                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">COORD_TIME *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Time *</label>
                                 <input
                                     type="time"
                                     required
@@ -249,26 +249,26 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.2 }}
-                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#7400E8] rotate-[-0.5deg]"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#7400E8]"
                     >
-                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-purple decoration-4 underline-offset-8">LOGISTICS_&_QUOTA</h2>
+                        <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter mb-8 underline decoration-nb-purple decoration-4 underline-offset-8">Location & Capacity</h2>
 
                         <div className="space-y-6">
                             <div>
-                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">DEPLOY_LOCATION *</label>
+                                <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Venue / Location *</label>
                                 <input
                                     type="text"
                                     required
                                     value={formData.location}
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
                                     className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
-                                    placeholder="e.g., BASE_CAMP_DELTA"
+                                    placeholder="e.g., Seminar Hall A, Block 3"
                                 />
                             </div>
 
                             <div className="grid sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">SECTOR_CATEGORY *</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Category *</label>
                                     <select
                                         required
                                         value={formData.category}
@@ -282,7 +282,7 @@ export default function EditEvent() {
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">UNIT_CAPACITY *</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Max Participants *</label>
                                     <input
                                         type="number"
                                         required
@@ -295,7 +295,7 @@ export default function EditEvent() {
                             </div>
 
                             {/* Team Event Toggle */}
-                            <div className="bg-nb-yellow/10 border-4 border-black p-6 rotate-[0.5deg]">
+                            <div className="bg-nb-yellow/10 border-4 border-black p-6">
                                 <label className="flex items-start gap-4 cursor-pointer">
                                     <input
                                         type="checkbox"
@@ -308,15 +308,15 @@ export default function EditEvent() {
                                         className="mt-1 w-6 h-6 accent-nb-purple"
                                     />
                                     <div>
-                                        <span className="font-black text-black uppercase italic tracking-tighter">SQUAD_FORMATION_REQUIRED</span>
-                                        <p className="text-[10px] font-black text-black/50 mt-1 uppercase">ENABLE IF OPERATIVES MUST JOIN AS A SQUAD</p>
+                                        <span className="font-black text-black uppercase italic tracking-tighter">Team Event</span>
+                                        <p className="text-[10px] font-black text-black/50 mt-1 uppercase">Enable if participants must register as a team</p>
                                     </div>
                                 </label>
                             </div>
 
                             {formData.isTeamEvent && (
                                 <motion.div initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }}>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">SQUAD_UNIT_SIZE *</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Team Size *</label>
                                     <input
                                         type="number"
                                         required={formData.isTeamEvent}
@@ -336,7 +336,7 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.3 }}
-                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#FF2D92] rotate-[0.5deg]"
+                        className="nb bg-white border-4 border-black p-8 shadow-[12px_12px_0_#FF2D92]"
                     >
                         <div className="flex items-center justify-between mb-8">
                             <h2 className="font-display text-2xl font-black text-black uppercase italic tracking-tighter underline decoration-nb-pink decoration-4 underline-offset-8">ORGANIZER INFO</h2>
@@ -346,13 +346,13 @@ export default function EditEvent() {
                         <div className="space-y-6">
                             <div className="grid sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">IDENT_NAME</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Your Name</label>
                                     <input
                                         type="text"
                                         value={formData.organizerName}
                                         onChange={(e) => setFormData({ ...formData, organizerName: e.target.value })}
                                         className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
-                                        placeholder="COMM_UNIT_01"
+                                        placeholder="e.g., Dr. Ramesh Kumar"
                                     />
                                 </div>
 
@@ -370,24 +370,24 @@ export default function EditEvent() {
 
                             <div className="grid sm:grid-cols-2 gap-6">
                                 <div>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">SYNC_EMAIL</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Email</label>
                                     <input
                                         type="email"
                                         value={formData.organizerEmail}
                                         onChange={(e) => setFormData({ ...formData, organizerEmail: e.target.value })}
                                         className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all uppercase font-black"
-                                        placeholder="SYNC@BASE.EDU"
+                                        placeholder="contact@college.edu"
                                     />
                                 </div>
 
                                 <div>
-                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">COMM_LINE</label>
+                                    <label className="block text-[10px] font-black text-black uppercase tracking-[0.3em] mb-3">Phone</label>
                                     <input
                                         type="tel"
                                         value={formData.organizerPhone}
                                         onChange={(e) => setFormData({ ...formData, organizerPhone: e.target.value })}
                                         className="nb-input w-full px-5 py-4 border-4 border-black shadow-[6px_6px_0_#000000] focus:shadow-none focus:translate-x-1 focus:translate-y-1 transition-all font-black"
-                                        placeholder="+91_XXXXXXXXXX"
+                                        placeholder="+91 98765 43210"
                                     />
                                 </div>
                             </div>
@@ -399,7 +399,7 @@ export default function EditEvent() {
                         initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ delay: 0.4 }}
-                        className="nb bg-black border-4 border-black p-10 shadow-[20px_20px_0_#FFF500] rotate-[-0.5deg]"
+                        className="nb bg-black border-4 border-black p-10 shadow-[20px_20px_0_#FFF500]"
                     >
                         <div className="flex flex-wrap gap-6">
                             <motion.button
@@ -410,7 +410,7 @@ export default function EditEvent() {
                                 className="flex-1 bg-nb-green text-black py-5 px-10 border-4 border-black font-black uppercase tracking-[0.4em] flex items-center justify-center gap-4 shadow-[8px_8px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all disabled:opacity-50 italic"
                             >
                                 <Save className="w-6 h-6 stroke-[3px]" />
-                                {loading ? 'SYNCING...' : 'COMMIT_CHANGES'}
+                                {loading ? 'Saving...' : 'Save Changes'}
                             </motion.button>
 
                             <button
@@ -418,7 +418,7 @@ export default function EditEvent() {
                                 onClick={() => navigate(`/event/${eventId}`)}
                                 className="bg-white text-black py-5 px-10 border-4 border-black font-black uppercase tracking-[0.4em] hover:bg-nb-yellow transition-all italic"
                             >
-                                ABORT
+                                Cancel
                             </button>
 
                             <button
@@ -427,13 +427,13 @@ export default function EditEvent() {
                                 className="bg-nb-pink text-white py-5 px-10 border-4 border-black font-black uppercase tracking-[0.4em] hover:shadow-[8px_8px_0_#000000] transition-all flex items-center gap-4 italic"
                             >
                                 <Trash2 className="w-5 h-5 stroke-[3px]" />
-                                PURGE
+                                Delete Event
                             </button>
                         </div>
 
                         {lastUpdated && (
                             <p className="text-[10px] font-black text-white/40 text-center mt-8 uppercase tracking-[0.5em] italic">
-                                INITIAL_DEPLOY_LOG: {lastUpdated}
+                                Created: {lastUpdated}
                             </p>
                         )}
                     </motion.div>
@@ -461,14 +461,14 @@ export default function EditEvent() {
                                     onClick={() => setShowDeleteConfirm(false)}
                                     className="flex-1 bg-white text-black py-5 border-4 border-black font-black uppercase tracking-[0.2em] hover:bg-nb-yellow transition-all italic"
                                 >
-                                    ABORT
+                                    Cancel
                                 </button>
                                 <button
                                     onClick={handleDelete}
                                     disabled={deleting}
                                     className="flex-1 bg-nb-pink text-white py-5 border-4 border-black font-black uppercase tracking-[0.2em] shadow-[6px_6px_0_#000000] hover:shadow-none hover:translate-x-1 hover:translate-y-1 transition-all italic"
                                 >
-                                    {deleting ? 'PURGING...' : 'EXECUTE_PURGE'}
+                                    {deleting ? 'Deleting...' : 'Yes, Delete'}
                                 </button>
                             </div>
                         </div>
