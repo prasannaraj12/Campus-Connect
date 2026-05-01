@@ -56,6 +56,7 @@ export default function EventCard({ event, onDeleted }: Props) {
   const daysUntil = getDaysUntilEvent(event.date)
   const participantCount = registrationCount || 0
   const capacityPct = Math.min((participantCount / event.maxParticipants) * 100, 100)
+  const spotsLeft = event.maxParticipants - participantCount
   const isNew = event._creationTime ? Math.floor((Date.now() - event._creationTime) / 86400000) <= 3 : false
   const isAlmostFull = capacityPct >= 80
   const isFull = capacityPct >= 100
@@ -92,7 +93,7 @@ export default function EventCard({ event, onDeleted }: Props) {
         <div className="flex gap-2">
           {isNew && <span className="brutal-tag bg-white text-black">NEW</span>}
           {daysUntil === 0 && <span className="brutal-tag bg-nb-red text-white">TODAY</span>}
-          {isAlmostFull && !isFull && <span className="brutal-tag bg-nb-orange text-white">HOT</span>}
+          {isAlmostFull && !isFull && <span className="brutal-tag bg-nb-orange text-white">{spotsLeft} LEFT</span>}
           {isFull && <span className="brutal-tag bg-black text-white">FULL</span>}
         </div>
       </div>
@@ -153,7 +154,7 @@ export default function EventCard({ event, onDeleted }: Props) {
           <div className="flex justify-between text-[10px] font-bold uppercase tracking-wide mb-2">
             <span className="text-black/50">SQUAD: {participantCount} / {event.maxParticipants}</span>
             <span className={`px-2 py-0.5 rounded ${capacityPct >= 80 ? 'bg-nb-red text-white' : capacityPct >= 50 ? 'bg-nb-yellow text-black' : 'bg-nb-green text-black'}`}>
-              {Math.round(capacityPct)}%
+              {isFull ? 'FULL' : isAlmostFull ? `${spotsLeft} SPOTS LEFT` : `${Math.round(capacityPct)}%`}
             </span>
           </div>
           <div className="h-3 bg-nb-cream border border-black/20 overflow-hidden rounded-full">

@@ -18,6 +18,7 @@ import {
 import { Brainbox, GhostBlob, HappyDog } from '../components/Mascots'
 
 const categories = ['All', 'Workshop', 'Seminar', 'Sports', 'Cultural', 'Technical', 'Social', 'Hackathon']
+const DATE_FILTERS = ['All', 'Today', 'This Week', 'This Month']
 
 export default function Dashboard() {
   const navigate = useNavigate()
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [showAnnouncementDialog, setShowAnnouncementDialog] = useState(false)
   const [showQRScanner, setShowQRScanner] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const [dateFilter, setDateFilter] = useState('All')
   const eventsRef = useRef<HTMLDivElement>(null)
 
   const events = useQuery(api.events.getAllEvents)
@@ -79,7 +81,24 @@ export default function Dashboard() {
       event.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
       event.location.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchCat && matchSearch
+
+    // Date filter
+    let matchDate = true
+    if (dateFilter !== 'All') {
+      const today = new Date(); today.setHours(0, 0, 0, 0)
+      const eventDate = new Date(event.date); eventDate.setHours(0, 0, 0, 0)
+      if (dateFilter === 'Today') {
+        matchDate = eventDate.getTime() === today.getTime()
+      } else if (dateFilter === 'This Week') {
+        const end = new Date(today); end.setDate(end.getDate() + 7)
+        matchDate = eventDate >= today && eventDate <= end
+      } else if (dateFilter === 'This Month') {
+        const end = new Date(today); end.setMonth(end.getMonth() + 1)
+        matchDate = eventDate >= today && eventDate <= end
+      }
+    }
+
+    return matchCat && matchSearch && matchDate
   }) || []
 
   const scrollToEvents = () => eventsRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -199,6 +218,24 @@ export default function Dashboard() {
             />
           </div>
 
+          {/* Date filters */}
+          <div className="flex flex-wrap gap-2">
+            {DATE_FILTERS.map((d) => (
+              <button
+                key={d}
+                onClick={() => setDateFilter(d)}
+                className={`px-3 py-1.5 text-xs font-bold uppercase tracking-wide rounded-md border transition-all ${
+                  dateFilter === d
+                    ? 'bg-nb-pink text-white border-nb-pink shadow-[2px_2px_0_rgba(0,0,0,0.7)]'
+                    : 'bg-white text-black border-black/20 hover:border-black/50 hover:bg-nb-yellow'
+                }`}
+              >
+                {d}
+              </button>
+            ))}
+          </div>
+
+          {/* Category filters */}
           <div className="flex flex-wrap gap-2">
             {categories.map((cat) => {
               const isActive = selectedCategories.includes(cat) || (cat === 'All' && selectedCategories.includes('All'))
