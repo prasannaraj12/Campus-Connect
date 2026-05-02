@@ -18,6 +18,7 @@ import type * as events from "../events.js";
 import type * as history from "../history.js";
 import type * as migration from "../migration.js";
 import type * as photos from "../photos.js";
+import type * as push from "../push.js";
 import type * as recommendations from "../recommendations.js";
 import type * as registrations from "../registrations.js";
 import type * as users from "../users.js";
@@ -40,6 +41,7 @@ declare const fullApi: ApiFromModules<{
   history: typeof history;
   migration: typeof migration;
   photos: typeof photos;
+  push: typeof push;
   recommendations: typeof recommendations;
   registrations: typeof registrations;
   users: typeof users;

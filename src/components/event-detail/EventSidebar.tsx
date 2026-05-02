@@ -22,6 +22,7 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
   const { user, login } = useAuth()
   const [internalShowDialog, setInternalShowDialog] = useState(false)
   const [guestLoading, setGuestLoading] = useState(false)
+  const [pendingUserId, setPendingUserId] = useState<Id<"users"> | null>(null)
 
   const showRegistrationDialog = externalShowDialog !== undefined ? externalShowDialog : internalShowDialog
   const setShowRegistrationDialog = externalSetShowDialog || setInternalShowDialog
@@ -38,10 +39,12 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
     try {
       const userId = await createAnonymousUser({ name: 'Guest' })
       login({ userId, role: 'participant', name: 'Guest' })
+      setPendingUserId(userId)
+      // Small delay to ensure auth state propagates before dialog opens
+      await new Promise(r => setTimeout(r, 150))
       setShowRegistrationDialog(true)
-    } catch {
-      // fallback — still open dialog, RegistrationForm will handle missing userId
-      setShowRegistrationDialog(true)
+    } catch (err) {
+      console.error('Failed to create guest account:', err)
     } finally {
       setGuestLoading(false)
     }
@@ -311,11 +314,11 @@ export default function EventSidebar({ event, isOrganizer, myRegistration, regis
         </motion.div>
       )}
 
-      {showRegistrationDialog && user?.userId && (
+      {showRegistrationDialog && (user?.userId || pendingUserId) && (
         <EventRegistrationDialog
           event={event}
-          userId={user.userId}
-          onClose={() => setShowRegistrationDialog(false)}
+          userId={(user?.userId || pendingUserId)!}
+          onClose={() => { setShowRegistrationDialog(false); setPendingUserId(null) }}
         />
       )}
     </div>

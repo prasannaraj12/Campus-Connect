@@ -104,6 +104,10 @@ export default function RegistrationForm({ event, userId, onSuccess, onCancel, o
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+    if (!userId) {
+      setError('Session expired. Please refresh the page and try again.')
+      return
+    }
     setLoading(true); setError('')
     try {
       const result = await register({

@@ -90,8 +90,9 @@ export default function RoleSelection() {
       await new Promise(r => setTimeout(r, 300))
       login({ userId, role: 'participant', name: 'Anonymous' })
       navigate('/dashboard')
-    } catch {
-      setError('Something went wrong. Please try again.')
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong. Please try again.')
+      setSelected(null)
     } finally {
       setLoading(false)
     }

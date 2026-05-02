@@ -63,10 +63,12 @@ export default function Ticket() {
   const effectiveAttendance = isCode ? attendance : (publicAttendance ?? attendance)
 
   useEffect(() => {
-    if (user?.role === 'organizer' && registration?._id && !processing && !result) {
+    // Only auto-mark attendance when organizer scans a QR code (short code format)
+    // Don't auto-mark when organizer navigates to ticket by ID
+    if (user?.role === 'organizer' && registration?._id && !processing && !result && isCode) {
       handleOrganizerScan()
     }
-  }, [user, registration])
+  }, [user?.role, registration?._id])
 
   const handleOrganizerScan = async () => {
     if (!user?.userId || !registration?._id) return
