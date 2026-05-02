@@ -120,7 +120,7 @@ export default function RegistrationForm({ event, userId, onSuccess, onCancel, o
       if (isTeamEvent && result.allRegistrationCodes?.length > 1) {
         setShowTeamTickets(true)
       } else {
-        window.location.href = `/ticket/${result.leaderRegistrationCode}`
+        window.location.href = `/ticket/${result.leaderRegistrationId}`
       }
     } catch (err: any) { setError(err.message || 'Failed to register') }
     finally { setLoading(false) }
