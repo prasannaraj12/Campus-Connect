@@ -21,9 +21,16 @@ export default function Ticket() {
 
   const isCode = registrationId?.includes('REG-') || (registrationId && registrationId.length <= 10)
 
+  // Public queries — work without login so ticket is always accessible
+  const publicTicket = useQuery(
+    api.registrations.getTicketPublic,
+    !isCode && registrationId ? { registrationId: registrationId as Id<'registrations'> } : 'skip'
+  )
+
+  // Authenticated queries for organizer scanning
   const registrationById = useQuery(
     api.registrations.getRegistrationById,
-    !isCode && registrationId && user?.userId ? {
+    !isCode && registrationId && user?.userId && user?.role === 'organizer' ? {
       registrationId: registrationId as Id<'registrations'>,
       userId: user.userId
     } : 'skip'
@@ -37,12 +44,23 @@ export default function Ticket() {
     } : 'skip'
   )
 
-  const registration = isCode ? registrationByCode : registrationById
+  // Use public ticket for participants, auth query for organizers
+  const registration = user?.role === 'organizer'
+    ? (isCode ? registrationByCode : registrationById)
+    : (isCode ? registrationByCode : (publicTicket ?? registrationById))
+
+  const publicAttendance = useQuery(
+    api.registrations.getAttendancePublic,
+    !isCode && registrationId ? { registrationId: registrationId as Id<'registrations'> } : 'skip'
+  )
 
   const attendance = useQuery(
     api.registrations.getAttendance,
-    registration?._id ? { registrationId: registration._id } : 'skip'
+    registration?._id && (isCode || user?.role === 'organizer') ? { registrationId: registration._id } : 'skip'
   )
+
+  // Use public attendance for direct ID access
+  const effectiveAttendance = isCode ? attendance : (publicAttendance ?? attendance)
 
   useEffect(() => {
     if (user?.role === 'organizer' && registration?._id && !processing && !result) {
@@ -193,14 +211,14 @@ export default function Ticket() {
                 )}
 
                 {/* Attendance status */}
-                {attendance ? (
+                {effectiveAttendance ? (
                   <div className="flex items-center gap-3 px-4 py-3 rounded-lg
                                   bg-nb-green border border-black/15">
                     <CheckCircle className="w-5 h-5 text-black shrink-0" />
                     <div>
                       <p className="font-bold text-sm text-black">Checked In</p>
                       <p className="text-[10px] text-black/50 font-medium">
-                        {new Date(attendance.markedAt).toLocaleString()}
+                        {new Date(effectiveAttendance.markedAt).toLocaleString()}
                       </p>
                     </div>
                   </div>
@@ -219,7 +237,7 @@ export default function Ticket() {
 
             {/* ── Action Buttons ───────────────────────────── */}
             <div className="space-y-3">
-              {attendance && registration && (
+              {effectiveAttendance && registration && (
                 <button
                   onClick={async () => {
                     const certContainer = document.createElement('div')
@@ -235,7 +253,7 @@ export default function Ticket() {
                         eventTitle={(registration as any).event?.title || 'Event'}
                         eventDate={(registration as any).event?.date || new Date().toISOString()}
                         registrationCode={registration.registrationCode}
-                        attendedAt={attendance.markedAt}
+                        attendedAt={effectiveAttendance!.markedAt}
                       />
                     )
                     setTimeout(async () => {

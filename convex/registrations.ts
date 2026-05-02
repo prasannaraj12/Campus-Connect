@@ -450,3 +450,33 @@ export const getRegistrationByCode = query({
     };
   },
 });
+
+// Public query — no auth required. Only returns safe fields for ticket display.
+export const getTicketPublic = query({
+  args: { registrationId: v.id("registrations") },
+  handler: async (ctx, args) => {
+    const registration = await ctx.db.get(args.registrationId)
+    if (!registration) return null
+    const event = await ctx.db.get(registration.eventId)
+    return {
+      _id: registration._id,
+      participantName: registration.participantName,
+      registrationCode: registration.registrationCode,
+      eventId: registration.eventId,
+      teamName: registration.teamName,
+      isTeamLeader: registration.isTeamLeader,
+      event: event ? { title: event.title, date: event.date, time: event.time } : undefined,
+    }
+  },
+})
+
+// Public attendance check — no auth required
+export const getAttendancePublic = query({
+  args: { registrationId: v.id("registrations") },
+  handler: async (ctx, args) => {
+    return await ctx.db
+      .query("attendance")
+      .withIndex("by_registration", (q) => q.eq("registrationId", args.registrationId))
+      .first()
+  },
+})
