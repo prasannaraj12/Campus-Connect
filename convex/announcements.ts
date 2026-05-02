@@ -1,5 +1,6 @@
 import { v } from "convex/values";
-import { mutation, query } from "./_generated/server";
+import { mutation, query, action } from "./_generated/server";
+import { internal } from "./_generated/api";
 
 // Create announcement (organizer only)
 export const createAnnouncement = mutation({
@@ -32,11 +33,18 @@ export const createAnnouncement = mutation({
     const announcementId = await ctx.db.insert("announcements", {
       title: args.title,
       message: args.message,
-      // department: args.department,
       eventId: args.eventId,
       priority: args.priority,
       createdByOrganizerId: args.organizerId,
       createdAt: Date.now(),
+    });
+
+    // Schedule push notification to all subscribers
+    await ctx.scheduler.runAfter(0, internal.push.sendPushToAll, {
+      title: `📢 ${args.title}`,
+      body: args.message.slice(0, 100),
+      url: "/dashboard",
+      icon: "/pwa-192x192.png",
     });
 
     return announcementId;

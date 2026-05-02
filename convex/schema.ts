@@ -144,7 +144,7 @@ export default defineSchema({
     reportedByUserId: v.id("users"),
     reportedByName: v.string(),
     contentType: v.union(v.literal("discussion"), v.literal("comment"), v.literal("photo")),
-    contentId: v.string(), // ID of the reported content
+    contentId: v.string(),
     reason: v.string(),
     status: v.union(v.literal("pending"), v.literal("reviewed"), v.literal("resolved")),
     reviewedByOrganizerId: v.optional(v.id("users")),
@@ -152,4 +152,14 @@ export default defineSchema({
   })
     .index("by_status", ["status"])
     .index("by_content", ["contentType", "contentId"]),
+
+  pushSubscriptions: defineTable({
+    userId: v.optional(v.id("users")),
+    endpoint: v.string(),
+    p256dh: v.string(),
+    auth: v.string(),
+    createdAt: v.number(),
+  })
+    .index("by_endpoint", ["endpoint"])
+    .index("by_user", ["userId"]),
 });

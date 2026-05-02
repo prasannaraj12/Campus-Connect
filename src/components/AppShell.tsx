@@ -7,6 +7,7 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ChevronDown, LogOut, BarChart3, History, LayoutDashboard, Menu, X, Compass } from 'lucide-react'
 import { useAuth } from '../hooks/use-auth'
+import PushNotificationButton from './PushNotificationButton'
 
 interface Props {
   children: React.ReactNode
@@ -110,6 +111,9 @@ export default function AppShell({ children, className = '' }: Props) {
           <div className="flex items-center gap-2 shrink-0">
             {user ? (
               <>
+                {/* Push notification bell */}
+                <PushNotificationButton />
+
                 {/* Mobile hamburger */}
                 <button
                   onClick={() => setMobileMenuOpen(v => !v)}
